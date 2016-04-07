@@ -65,9 +65,44 @@ class Db
         echo '<div class="fb">db->__destruct();</div>';
     }
 
-    // Testmanhero
-    public function testmanhero()
+    // Prepare
+    public function prepare($query)
     {
-        echo '<div class="fb">Db->testmanhero();</div>';
+        $stmt = $this->dbconn->prepare($query);
+        return $stmt;
     }
+
+    // Query
+    public function sql_query($query)
+    {
+        $value = mysqli_query ($this->dbconn, $query) or die (mysqli_error($this->dbconn));
+        return $value;
+    }
+
+    // Fetch Row
+    public function sql_fetchrow($query)
+    {
+        return mysqli_fetch_array($query);
+    }
+
+    // Number of Rows
+    public function sql_numrows($query)
+    {
+        return mysqli_num_rows($query);
+    }
+
+    // Free Result
+    public function sql_freeresult($result)
+    {
+        mysqli_free_result($result);
+    }
+
+    // Escape
+    public function escape($var)
+    {
+        return $this->dbconn->real_escape_string($var);
+    }
+
+    // Switch Database
+
 }

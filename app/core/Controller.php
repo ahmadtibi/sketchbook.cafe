@@ -25,12 +25,15 @@ class Controller
         $db->close();
 */
 
+        echo '<div>model is '.$model.'</div>';
+
         require_once '../app/models/'. $model . '.php';
         return new $model();
     }
 
     public function view($view, $data = [])
     {
+        echo '<div>view is '.$view.'</div>';
         require_once '../app/views/'. $view .'.php';
     }
 }

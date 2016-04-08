@@ -28,6 +28,12 @@ class Home extends Controller
 		// User::find(1);
 	}
 
+    public function testsubmit ()
+    {
+        $this->model('Testsubmit');
+        $this->view('home/testsubmit');
+    }
+
     public function create($name = '')
     {
 

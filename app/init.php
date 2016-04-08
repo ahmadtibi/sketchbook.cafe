@@ -1,9 +1,13 @@
 <?php
-// Functions
-require 'functions/error.php';
+use SketchbookCafe\Db\Db as Db;
 
-// Classes
+// Functions + Classes
+require 'functions/error.php';
 require 'classes/Db.php';
+
+// Database Object
+require 'database_settings.php';
+$db = new Db($database_settings);
 
 // Composer AutoLoader
 require '../vendor/autoload.php';

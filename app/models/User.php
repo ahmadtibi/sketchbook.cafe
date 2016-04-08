@@ -20,4 +20,5 @@ class User
 
         echo 'whoa nelly. model\user';
     }
+
 }

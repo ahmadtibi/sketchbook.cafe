@@ -11,8 +11,14 @@ if ($address != '199.27.133.30')
 
 $App = new App();
 
-error('This is an error test!');
+?>
 
+<form name="test" method="post" action="http://www.sketchbook.cafe/home/testsubmit/">
+<input name="name" type="text">
+<input type="submit" value="Submit">
+</form>
+
+<?php
 
 /*
 // S3

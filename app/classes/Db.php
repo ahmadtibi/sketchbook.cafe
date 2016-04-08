@@ -13,8 +13,6 @@ class Db
     // Construct
     public function __construct($database_settings)
     {
-        echo '<div class="fb">db->__construct();</div>';
-
         // Set object variables
         $this->dbhost       = $database_settings['host'];
         $this->user         = $database_settings['user'];
@@ -37,8 +35,6 @@ class Db
 
             // Set dbconn
             $this->dbconn = $dbconn;
-
-        echo '<div class="fb">db->open();</div>';
         }
     }
 
@@ -49,8 +45,6 @@ class Db
         {
             mysqli_close($this->dbconn);
             $this->dbconn = false;
-
-            echo '<div class="fb">db->close();</div>';
         }
     }
 
@@ -60,9 +54,7 @@ class Db
         if ($this->dbconn)
         {
             $this->close();
-            echo '<div class="fb">db closed by destruct!</div>';
         }
-        echo '<div class="fb">db->__destruct();</div>';
     }
 
     // Prepare
@@ -104,5 +96,13 @@ class Db
     }
 
     // Switch Database
-
+    public function sql_switch($database)
+    {
+        // Check if we're already in the database
+        if ($this->dbname != $database)
+        {
+            mysqli_select_db($this->dbconn, $database) or die (mysqli_error($this->dbconn));
+            $this->dbname = $database;
+        }
+    }
 }

@@ -12,7 +12,6 @@ class App
 
         if (file_exists('../app/controllers/' . $url[0] . '.php'))
         {
-            echo '<div>file exists for controller->'.$url[0].'</div>';
             $this->controller = $url[0];
             unset($url[0]); // remove from array
         }

@@ -25,7 +25,6 @@ class Controller
         $db->close();
 */
 
-        echo '<div>model is '.$model.'</div>';
 
         require_once '../app/models/'. $model . '.php';
         return new $model();
@@ -33,7 +32,8 @@ class Controller
 
     public function view($view, $data = [])
     {
-        echo '<div>view is '.$view.'</div>';
+        // Global
+        global $User;
         require_once '../app/views/'. $view .'.php';
     }
 }

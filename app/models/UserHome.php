@@ -1,6 +1,6 @@
 <?php
 
-class User
+class UserHome
 {
 	public $name;
     // private $db;
@@ -18,7 +18,7 @@ class User
         // $db->testmanhero();
 
 
-        echo 'whoa nelly. model\user';
+        // echo 'whoa nelly. model\user';
     }
 
 }

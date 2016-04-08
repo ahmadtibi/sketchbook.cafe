@@ -12,7 +12,7 @@ class Home extends Controller
     protected $user;
     public function __construct()
     {
-        $this->user = $this->model('User');
+        $this->user = $this->model('UserHome');
     }
 
 	public function index ($name = '')

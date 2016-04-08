@@ -5,8 +5,5 @@ if (!defined('BOOT'))
 }
 
 // Amazon Settings
-$s3_settings = array
-(
-    'key'       => 'KEY',
-    'secret'    => 'SECRET',
-);
+define('AWS_KEY', 'KEY');
+define('AWS_SECRET_KEY', 'SECRET');

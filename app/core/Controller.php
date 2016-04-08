@@ -4,6 +4,8 @@ class Controller
 {
     public function model($model)
     {
+
+/*
         // Globals
         global $db;
 
@@ -21,6 +23,7 @@ class Controller
         echo 'omg it opened and closed';
 
         $db->close();
+*/
 
         require_once '../app/models/'. $model . '.php';
         return new $model();

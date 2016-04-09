@@ -1,15 +1,10 @@
 <?php
-// Classes
-sbc_class('Form');
-
-$Form['register'] = new Form(array(
-    'name'          => 'registerForm',
-    'action'        => 'http://www.sketchbook.cafe/action/',
-    'method'        => 'POST',
-
-));
-
 require 'header.php';
+
+echo $data['Form']->start();
+echo $data['Form']->field['dothis'];
+echo $data['Form']->field['submit'];
+echo $data['Form']->end();
 ?>
 Registration!
 <?php

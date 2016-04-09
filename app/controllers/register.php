@@ -9,6 +9,39 @@ class Register extends Controller
 
     public function index()
     {
-        $this->view('register/index');
+        // Classes
+        sbc_class('Form');
+
+        $Form = new Form(array(
+            'name'          => 'registerForm',
+            'action'        => 'https://www.sketchbook.cafe/action/',
+            'method'        => 'POST',
+
+        ));
+
+        // Form Dropdown Test
+        $input      = array
+        (
+            'name'  => 'dothis',
+        );
+        $list = array
+        (
+            'test1' => 10000,
+            'test2' => 20000,
+            'test3' => 48829, 
+            'test4' => 99999,
+        );
+        $current_value = 48829;
+        $Form->field['dothis'] = $Form->dropdown($input,$list,$current_value);
+
+        // Submit
+        $Form->field['submit'] = $Form->submit(array
+        (
+            'name'  => 'submit',
+            'css'   => '',
+        ));
+
+
+        $this->view('register/index', ['Form' => $Form]);
     }
 }

@@ -41,6 +41,22 @@ class Register extends Controller
             'css'   => '',
         ));
 
+        // Hidden
+        $Form->field['testmanhero'] = $Form->hidden(array
+        (
+            'name'  => 'testmanhero',
+            'value' => 'kuva',
+        ));
+
+        // Username
+        $Form->field['username'] = $Form->input(array
+        (
+            'name'          => 'username',
+            'type'          => 'text',
+            'max'           => 20,
+            'placeholder'   => 'username',
+        ));
+
 
         $this->view('register/index', ['Form' => $Form]);
     }

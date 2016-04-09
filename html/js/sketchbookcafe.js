@@ -85,3 +85,89 @@ function hideshow (id)
         }
     }
 }
+
+// Element
+function sbc_element(element)
+{
+    return document.getElementById(element);
+}
+
+// Upload File
+function sbc_upload_file(imagefile_id,post_url)
+{
+    // Get file(s)
+    var file = sbc_element(imagefile_id).files[0];
+    // alert (file.name + " | " + file.size + " | | " + file.type);
+
+    // Form data
+    var formdata = new FormData();
+    formdata.append(imagefile_id, file);
+
+    // Unhide Progress
+    var hidden_div = imagefile_id + '_upload';
+    obj = sbc_element(hidden_div);
+    obj.style.display = '';
+
+    // Ajax
+    var ajax = new XMLHttpRequest();
+    ajax.upload.addEventListener("progress", sbc_upload_file_progress_handler, false);
+    ajax.addEventListener("load", sbc_upload_file_complete_handler, false);
+    ajax.addEventListener("error", sbc_upload_file_error_handler, false);
+    ajax.addEventListener("abort", sbc_upload_file_abort_handler, false);
+
+    // Send
+    ajax.open("POST", post_url);
+    ajax.send(formdata);
+}
+
+// Progress Hander
+function sbc_upload_file_progress_handler(event)
+{
+    // Bytes
+    sbc_element("loaded_n_total").innerHTML = "Uploaded " + event.loaded + " bytes of " + event.total;
+
+    // Percent
+    var percent = (event.loaded / event.total) * 100;
+    sbc_element("progressBar").value = Math.round(percent);
+    sbc_element("status").innerHTML = Math.round(percent) + "% uploaded... please wait";
+}
+
+// Complete Handler
+function sbc_upload_file_complete_handler(event)
+{
+	// sbc_element("status").innerHTML = event.target.responseText;
+    sbc_element("status").innerHTML = 'Complete!';
+	sbc_element("progressBar").value = 0;
+
+    // String Value
+    var rvalue = event.target.responseText;
+
+    // Code?
+    var code = rvalue.substr(0,5);
+    if (code == 'r1000')
+    {
+        // URL
+        var url = rvalue.substr(6);
+
+        // Redirect
+        window.location.replace(url);
+    }
+    else
+    {
+        sbc_element("status").innerHTML = 'Server Message: "' + rvalue + '"';
+        // sbc_element("progressBar").innerHTML = '';
+        alert('Server Message: "' + rvalue + '"');
+    }
+}
+
+// Error Handler
+function sbc_upload_file_error_handler(event)
+{
+	sbc_element("status").innerHTML = "Upload Failed";
+}
+
+// Abort Handler
+function sbc_upload_file_abort_handler(event)
+{
+	sbc_element("status").innerHTML = "Upload Aborted";
+}

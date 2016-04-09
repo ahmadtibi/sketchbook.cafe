@@ -76,6 +76,7 @@ class Form
 
         // Value
         $value = '<form id="'.$this->data['name'].'ID" name="'.$this->data['name'].'" method="'.$this->data['method'].'" action="'.$this->data['action'].'" enctype="multipart/form-data" '.$this->onKey.'>';
+        $value .= "\n";
 
         // Return
         return $value;
@@ -86,12 +87,14 @@ class Form
     {
         // Value
         $value = '</form>';
+        $value .= "\n";
 
         // Return
         return $value;
     }
 
     // Dropdown (ie: <select name=""><option></option</select>)
+    // $input:  'name'
     final public function dropdown($input,$list,$current_value)
     {
         // Select Name
@@ -106,6 +109,7 @@ class Form
 
         // Start Select
         $select = '<select id="'.$name.$this->data['name'].'" name="'.$name.'" '.$onclick.'>';
+        $select .= "\n";
         $option = ''; // initialize
 
         // Count Array
@@ -127,6 +131,7 @@ class Form
 
             // Add option
             $option .= '<option value="'.$thevalue.'"'.$is_selected.'>'.$ref.'</option>';
+            $option .= "\n";
 
             $i++;
         }
@@ -134,12 +139,14 @@ class Form
         // End Select
         $select .= $option;
         $select .= '</select>';
+        $select .= "\n";
 
         // Return
         return $select;
     }
 
     // Submit
+    // $input:  'name', 'css'
     final public function submit($input)
     {
         // Vars
@@ -149,8 +156,93 @@ class Form
 
         // Button
         $button = '<input id="'.$this->data['submit_id'].'" type="Submit" name="'.$name.'" value="'.$this->data['inactive'].'" class="'.$css.'">';
+        $button .= "\n";
 
         // Return
         return $button;
+    }
+
+    // Hidden Field
+    // $input:  'name', 'value'
+    final public function hidden($input)
+    {
+        // Name
+        $name = isset($input['name']) ? $input['name'] : '';
+        if (empty($name))
+        {
+            error('Dev error: $name is not set for Form->hidden()');
+        }
+
+        // Value
+        $value = isset($input['value']) ? $input['value'] : '';
+
+        // ID
+        $id = $name.$this->data['name'];
+
+        // Hidden
+        $hidden = '<input id="'.$id.'" name="'.$name.'" type="hidden" value="'.$value.'">';
+        $hidden .= "\n";
+
+        // Return
+        return $hidden;
+    }
+
+    // Input Field
+    // $input:  'name', 'type', 'css', 'max', 'value', 
+    //          'auto_complete_disable', 'placeholder'
+    final public function input($input)
+    {
+        // CSS
+        $css    = isset($input['css']) ? $input['css'] : '';
+        $css    = 'input ' . $css;
+
+        // Name
+        $name   = isset($input['name']) ? $input['name'] : '';
+        if (empty($name))
+        {
+            error('Dev error: $name is not set for Form->input()');
+        }
+
+        // Type
+        $type   = isset($input['type']) ? $input['type'] : '';
+        if (empty($type))
+        {
+            error('Dev error: $type is not set for Form->input()');
+        }
+
+        // Max
+        $max    = isset($input['max']) ? $input['max'] : 0;
+        if ($max < 1 || $max > 65535)
+        {
+            error('Dev error: $max is not set for Form->input()');
+        }
+
+        // Value
+        $value = isset($input['value']) ? $input['value'] : '';
+
+        // Id
+        $id = $name;
+
+        // Disable Autocomplete?
+        $auto_complete_disable = isset($input['auto_complete_disable']) ? $input['auto_complete_disable'] : 0;
+        $auto_complete = '';
+        if ($auto_complete_disable == 1)
+        {
+            $auto_complete = ' autocomplete="off" ';
+        }
+
+        // Placeholder?
+        $placeholder = isset($input['placeholder']) ? $input['placeholder'] : '';
+        if (!empty($placeholder))
+        {
+            $placeholder = ' placeholder="'.$placeholder.'" ';
+        }
+
+        // Value
+        $value = '<input id="'.$id.'" name="'.$name.'" type="'.$type.'" maxlength="'.$max.'" '.$placeholder.' class="'.$css.'" value="'.$value.'" '.$auto_complete.'>';
+        $value .= "\n";
+
+        // Return
+        return $value;
     }
 }

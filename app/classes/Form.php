@@ -75,7 +75,7 @@ class Form
         }
 
         // Value
-        $value = '<form id="'.$this->data['name'].'ID" name="'.$this->data['name'].'" method="'.$this->data['method'].'" action="'.$this->data['action'].'" enctype="multipart/form-data" '.$this->onKey.'>';
+        $value = '<form id="'.$this->data['name'].'ID" name="'.$this->data['name'].'" method="'.$this->data['method'].'" action="'.$this->data['action'].'" enctype="multipart/form-data" '.$this->onKey.' accept-charset="UTF-8">';
         $value .= "\n";
 
         // Return
@@ -94,7 +94,7 @@ class Form
     }
 
     // Dropdown (ie: <select name=""><option></option</select>)
-    // $input:  'name'
+    // $input:  'name', 'css'
     final public function dropdown($input,$list,$current_value)
     {
         // Select Name
@@ -104,11 +104,15 @@ class Form
             error('Dev error: $name is not set for Form->dropdown()');
         }
 
+        // CSS
+        $css = isset($input['css']) ? $input['css'] : '';
+        $css .= ' dropdown ';
+
 		// OnClick
 		$onclick = 'onclick="sbc_button_sumbit_enable(); document.getElementById(\''.$this->data['submit_id'].'\').disabled = 0; document.getElementById(\''.$this->data['submit_id'].'\').value = \''.$this->data['inactive'].'\';"';
 
         // Start Select
-        $select = '<select id="'.$name.$this->data['name'].'" name="'.$name.'" '.$onclick.'>';
+        $select = '<select id="'.$name.$this->data['name'].'" name="'.$name.'" class="'.$css.'" '.$onclick.'>';
         $select .= "\n";
         $option = ''; // initialize
 
@@ -244,5 +248,160 @@ class Form
 
         // Return
         return $value;
+    }
+
+    // Checkbox
+    // $input   'name', 'value', 'checked', 'css'
+    final public function checkbox($input)
+    {
+        // Name
+        $name = isset($input['name']) ? $input['name'] : '';
+        if (empty($name))
+        {
+            error('Dev error: $name is not set for $Form->checkbox()');
+        }
+
+        // CSS
+        $css = isset($input['css']) ? $input['css'] : '';
+        $css .= ' checkbox ';
+
+        // Checked
+        $checked        = isset($input['checked']) ? $input['checked'] : 0;
+        $checked_text   = '';
+        if ($checked == 1)
+        {
+            $checked_text = ' checked ';
+        }
+
+        // Value
+        $value = isset($input['value']) ? $input['value'] : 0;
+
+		// OnClick
+		$onclick = 'onclick="sbc_button_sumbit_enable(); document.getElementById(\''.$this->data['submit_id'].'\').disabled = 0; document.getElementById(\''.$this->data['submit_id'].'\').value = \''.$this->data['inactive'].'\';"';
+
+        // Checkbox
+        $checkbox = '<input id="'.$name.$this->data['name'].'" name="'.$name.'" type="checkbox" value="'.$value.'" class="'.$css.'" '.$checked_text.' '.$onclick.'>';
+        $checkbox .= "\n";
+
+        // Return
+        return $checkbox;
+    }
+
+    // Textarea
+    final public function textarea($input)
+    {
+        // Name
+        $name = isset($input['name']) ? $input['name'] : '';
+        if (empty($name))
+        {
+            error('Dev error: $name is not set for Form->textarea()');
+        }
+
+        // Value
+        $value = isset($input['value']) ? $input['value'] : '';
+
+        // Placeholder
+        $placeholder = isset($input['placeholder']) ? $input['placeholder'] : '';
+
+        // ID
+        $id = 'textarea_'.$this->data['name'].'_'.$name;
+
+        // CSS
+        $css = isset($input['css']) ? $input['css'] : '';
+        $css .= ' textarea ';
+
+        // Max
+        $max    = isset($input['max']) ? (int) $input['max'] : 0;
+        if ($max < 1 || $max > 30000)
+        {
+            error('Dev error: $max is not set for Form->textarea()');
+        }
+
+        // Vars
+        $textarea       = '';
+        $preview_name   = $id.'_preview';
+        $help_top       = ''; // links
+        $help_bottom    = ''; // description + examples
+        $help_all       = '';
+
+        // New Line to BR
+        $nl2br  = isset($input['nl2br']) ? (int) $input['nl2br'] : 0;
+        if ($nl2br != 1)
+        {
+            $nl2br = 0;
+        }
+
+        // Basic HTML, BBCode and URLs
+        $basic = isset($input['basic']) ? (int) $input['basic'] : 0;
+        if ($basic != 1)
+        {
+            $basic = 0;
+        }
+
+        // Image BBCode
+        $imagebbcode = isset($input['imagebbcode']) ? (int) $input['imagebbcode'] : 0;
+        if ($imagebbcode != 1)
+        {
+            $imagebbcode = 0;
+        }
+
+        // Video
+        $video  = isset($input['video']) ? (int) $input['video'] : 0;
+        if ($video != 1)
+        {
+            $video = 0;
+        }
+
+        // (FIXME)
+        $setting_name = '';
+
+        // Preview
+        $preview        = isset($input['preview']) ? (int) $input['preview'] : 0;
+        $preview_button = '';
+        if ($preview == 1)
+        {
+            $preview_id     = 'textarea_'.$this->data['name'].'_'.$name;
+            $preview_button = '<button type="button" onClick="comment_preview(\''.$preview_id.'\', \''.$setting_name.'\'); return false;" class="input">Preview</button>';
+        }
+        $this->preview[$name] = $preview;
+
+        // Help Document
+        $help   = isset($input['help']) ? (int) $input['help'] : 0;
+        if ($help != 1)
+        {
+            $help = 0;
+        }
+
+        // Submit
+        $submit         = isset($input['submit']) ? (int) $input['submit'] : 0;
+        $submit_value   = '';
+        if ($submit == 1)
+        {
+            $submit_value = $this->submit(array
+            (
+                'name'  => 'submit',
+                'css'   => '', 
+            ));
+        }
+
+        // Preview
+        $textarea .= '<div id="'.$preview_name.'"></div>';
+
+        // Help Document (FIXME)
+        if ($help == 1)
+        {
+
+            // Combine
+        }
+
+        // Textarea
+        $textarea .= '<textarea name="'.$name.'" id="'.$id.'" class="'.$css.'" maxlength="'.$max.'" placeholder="'.$placeholder.'">'.$value.'</textarea>';
+
+        // New Textarea (not added)
+        $textarea = '<div>' . $textarea . '</div>';
+        $textarea .= '<div>' . $preview_button . ' ' . $submit_value . '</div>';
+
+        // Return
+        return $textarea;
     }
 }

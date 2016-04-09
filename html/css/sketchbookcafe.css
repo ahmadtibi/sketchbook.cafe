@@ -306,6 +306,13 @@
     background-color: #ACACAC;
 }
 
+/* Textarea Sizes */
+/* --------------------------------------------------------------- */
+.textarea_testmanhero {
+    width: 500px;
+    height: 180px;
+}
+
 /* Base */
 /* --------------------------------------------------------------- */
 * {
@@ -327,4 +334,68 @@ a {
 }
 body {
     background-color: #D4D4D4;
+}
+iframe {
+    display: block;
+    max-width: 100%;
+}
+.strike { text-decoration: line-through; }
+.fb { font-weight: bold; }
+.fu { text-decoration: underline; }
+.fi { font-style: italic; }
+.f8 { font-size: 8px; }
+.f9 { font-size: 9px; }
+.f10 { font-size: 10px; }
+.f11 { font-size: 11px; }
+.f12 { font-size: 12px; }
+.f13 { font-size: 13px; }
+.f14 { font-size: 14px; }
+.f15 { font-size: 15px; }
+.f16 { font-size: 16px; }
+.f17 { font-size: 17px; }
+.f18 { font-size: 18px; }
+.f19 { font-size: 19px; }
+.f20 { font-size: 20px; }
+.f21 { font-size: 21px; }
+.f22 { font-size: 22px; }
+.f23 { font-size: 23px; }
+.f24 { font-size: 24px; }
+.code {
+    font-family: monospace;
+    display: block;
+}
+.button, .input, .submit, .dropdown {
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 12px;
+	line-height: 16px;
+
+	padding-left: 6px;
+	padding-right: 6px;
+	padding-top: 3px;
+	padding-bottom: 3px;
+
+    border: 0px;
+
+    -moz-border-radius: 2px 2px 2px 2px;
+    border-radius: 2px 2px 2px 2px;
+}
+.textarea {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 12px;
+	line-height: 18px;
+
+	padding-left: 6px;
+	padding-right: 6px;
+	padding-top: 3px;
+	padding-bottom: 3px;
+}
+.table {
+    display: table;
+}
+.tr {
+    display: table-row;
+}
+.td {
+    padding: 6px;
+    display: table-cell;
 }

@@ -171,3 +171,29 @@ function sbc_upload_file_abort_handler(event)
 {
 	sbc_element("status").innerHTML = "Upload Aborted";
 }
+
+// Comment Preview
+function comment_preview(textarea_id, textarea_options)
+{
+	var xmlhttp;
+
+	if (window.XMLHttpRequest) {
+		// code for IE7+, Firefox, Chrome, Opera, Safari
+		xmlhttp=new XMLHttpRequest();
+	} else {
+		// code for IE6, IE5
+		xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+	}
+	xmlhttp.onreadystatechange=function() {
+		if (xmlhttp.readyState==4 && xmlhttp.status==200) {
+			document.getElementById(textarea_id+'_preview').innerHTML=xmlhttp.responseText;
+		}
+	}
+
+	var message = document.getElementById(textarea_id).value;
+    message = encodeURIComponent(message);
+
+	xmlhttp.open("POST","https://www.sketchbook.cafe/preview_comment.php",true);
+	xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+	xmlhttp.send("options="+textarea_options+"&message="+message);
+}

@@ -57,6 +57,23 @@ class Register extends Controller
             'placeholder'   => 'username',
         ));
 
+        // Terms of Service
+        $Form->field['termsofservice'] = $Form->checkbox(array
+        (
+            'name'      => 'termsofservice',
+            'value'     => 1,
+        ));
+
+        // Textarea
+        $Form->field['mycomment'] = $Form->textarea(array
+        (
+            'name'          => 'mycomment',
+            'max'           => 100,
+            'help'          => 1,
+            'preview'       => 1,
+            'css'           => 'textarea_testmanhero',
+            'placeholder'   => 'Yo write some text here!',
+        ));
 
         $this->view('register/index', ['Form' => $Form]);
     }

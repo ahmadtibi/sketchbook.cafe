@@ -1,4 +1,14 @@
-<?php namespace SketchbookCafe\Db;
+<?php
+/**
+*
+* Database Class
+* 
+* @author       Jonathan Maltezo (Kameloh)
+* @copyright    (c) 2016, Jonathan Maltezo (Kameloh)
+* @lastUpdated  2016-04-09
+*
+*/
+namespace SketchbookCafe\Db;
 
 class Db
 {

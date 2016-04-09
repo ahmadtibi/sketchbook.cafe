@@ -71,6 +71,27 @@
     color: #4f4f4f;
 }
 
+/* Header Guest Menu */
+/* --------------------------------------------------------------- */
+.headerGuestDiv {
+    float: right;
+    overflow: hidden;
+    width: 300px;
+    min-height: 50px;
+    text-align: right;
+    line-height: 50px;
+    font-size: 12px;
+    font-family: Georgia, serif;
+}
+.headerGuestDiv a:link, .headerGuestDiv a:visited, .headerGuestDiv a:active {
+    color: #151515;
+}
+.headerGuestDiv a:hover {
+    text-decoration: underline;
+
+    color: #4f4f4f;
+}
+
 /* Header User Menu */
 /* --------------------------------------------------------------- */
 .headerUserWrap {

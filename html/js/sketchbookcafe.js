@@ -10,3 +10,29 @@ $(document).ready(function() {
 
     });
 });
+
+// Disable All Buttons
+function sbc_button_sumbit_enable()
+{
+    var inputs = document.getElementsByTagName("INPUT");
+    for (var i = 0; i < inputs.length; i++)
+    {
+        if (inputs[i].type === 'submit' || inputs[i].type === 'button')
+        {
+            inputs[i].disabled = true;
+        }
+    }
+}
+
+// Enable all buttons
+function sbc_button_sumbit_enable()
+{
+    var inputs = document.getElementsByTagName("INPUT");
+    for (var i = 0; i < inputs.length; i++)
+    {
+        if (inputs[i].type === 'submit' || inputs[i].type === 'button')
+        {
+            inputs[i].disabled = false;
+        }
+    }
+}

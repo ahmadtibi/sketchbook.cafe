@@ -1,3 +1,56 @@
+/* Enabled Document */
+/* --------------------------------------------------------------- */
+.formEnabledItem {
+    padding-right: 9px;
+    font-size: 11px;
+    font-weight: bold;
+    font-family: Georgia, serif;
+
+    color: #646464;
+}
+.formEnabledItem a:link, .formEnabledItem a:visited, .formEnabledItem a:active {
+    color: #646464;
+}
+.formEnabledItem a:hover {
+    text-decoration: underline;
+    color: #858585;
+}
+.formEnabledOverlay {
+    overflow: hidden;
+}
+.formTitleOverlay {
+    font-weight: bold;
+    font-size: 12px;
+    height: 16px;
+    line-height: 16px;
+    padding-top: 6px;
+}
+.formHelpOverlay {
+    overflow: hidden;
+
+}
+.formHelpTitle {
+    font-family: Georgia, serif;
+    font-weight: bold;
+    font-size: 12px;
+    height: 16px;
+    line-height: 16px;
+    padding-top: 6px;
+    padding-left: 6px;
+}
+.formHelpContent {
+    font-family: Georgia, serif;
+    font-size: 12px;
+    line-height: 18px;
+    padding-bottom: 6px;
+}
+.formHelpContent a:link, .formHelpContent a:visited, .formHelpContent a:active {
+    color: #646464;
+}
+.formHelpContent a:hover {
+    text-decoration: underline;
+    color: #858585;
+}
 /* Page Numbers */
 /* --------------------------------------------------------------- */
 .pageNumbersWrap {
@@ -364,10 +417,22 @@ iframe {
     font-family: monospace;
     display: block;
 }
-.button, .input, .submit, .dropdown {
+.button, .submit {
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-	font-size: 12px;
+	font-size: 14px;
 	line-height: 16px;
+	padding-left: 12px;
+	padding-right: 12px;
+	padding-top: 6px;
+	padding-bottom: 6px;
+    border: 0px;
+
+    background-color: #FFFFFF;
+}
+.input, .dropdown {
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 14px;
+	line-height: 21px;
 
 	padding-left: 6px;
 	padding-right: 6px;
@@ -381,8 +446,8 @@ iframe {
 }
 .textarea {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-	font-size: 12px;
-	line-height: 18px;
+	font-size: 14px;
+	line-height: 20px;
 
 	padding-left: 6px;
 	padding-right: 6px;

@@ -361,7 +361,7 @@ class Form
         if ($preview == 1)
         {
             $preview_id     = 'textarea_'.$this->data['name'].'_'.$name;
-            $preview_button = '<button type="button" onClick="comment_preview(\''.$preview_id.'\', \''.$setting_name.'\'); return false;" class="input">Preview</button>';
+            $preview_button = '<button type="button" class="button" onClick="comment_preview(\''.$preview_id.'\', \''.$setting_name.'\'); return false;" class="input">Preview</button>';
         }
         $this->preview[$name] = $preview;
 
@@ -390,8 +390,234 @@ class Form
         // Help Document (FIXME)
         if ($help == 1)
         {
+            // Basic HTML
+            if ($basic == 1)
+            {
+                $temp = $id . '_basicHTML';
+                $help_top .= '<span class="formEnabledItem"><a href="" onClick="hideshow(\'' . $temp . '\'); return false;">Basic HTML</a></span>';
+                $help_bottom .= '
+<!-- Start Basic HTML -->
+<span id="' . $temp . '" style="display: none;">
+    <div class="formHelpOverlay">
+
+        <div class="formHelpTitle">
+            Basic HTML
+        </div>
+        <div class="formHelpContent">
+
+            <div class="table">
+                <div class="tr">
+                    <div class="td fb">
+                        Code
+                    </div>
+                    <div class="td fb">
+                        Example
+                    </div>
+                    <div class="td fb">
+                        Output
+                    </div>
+                </div>
+
+                <div class="tr">
+                    <div class="td">
+                        &lt;b&gt;&lt;/b&gt;
+                    </div>
+                    <div class="td">
+                        &lt;b&gt;this is a message&lt;/b&gt;
+                    </div>
+                    <div class="td">
+                        <b>this is a message</b>
+                    </div>
+                </div>
+
+                <div class="tr">
+                    <div class="td">
+                        &lt;i&gt;&lt;/i&gt;
+                    </div>
+                    <div class="td">
+                        &lt;i&gt;This message uses italics&lt;/i&gt;
+                    </div>
+                    <div class="td">
+                        <i>This message uses italics</i>
+                    </div>
+                </div>
+
+                <div class="tr">
+                    <div class="td">
+                        &lt;u&gt;&lt;/u&gt;
+                    </div>
+                    <div class="td">
+                        Sometimes it\'s &lt;u&gt;important&lt;/u&gt; to underline things
+                    </div>
+                    <div class="td">
+                        Sometimes it\'s <u>important</u> to underline things
+                    </div>
+                </div>
+
+                <div class="tr">
+                    <div class="td">
+                        &lt;strike&gt;&lt;/strike&gt;
+                    </div>
+                    <div class="td">
+                        This is &lt;strike&gt;an example of&lt;/strike&gt; a strikethrough
+                    </div>
+                    <div class="td">
+                        This is <strike>an example of</strike> a strikethrough
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</span>
+<!-- End Basic HTML -->
+';
+
+                // URLs
+                $temp = $id . '_urls';
+                $help_top .= '<span class="formEnabledItem"><a href="" onClick="hideshow(\'' . $temp . '\'); return false;">URLs</a></span>';
+                $help_bottom .= '
+<!-- Start URLs -->
+<span id="' . $temp . '" style="display: none;">
+    <div class="formHelpOverlay">
+
+        <div class="formHelpTitle">
+            URLs
+        </div>
+        <div class="formHelpContent">
+
+            <div class="table">
+                <div class="tr">
+                    <div class="td fb">
+                        Example
+                    </div>
+                    <div class="td fb">
+                        Output
+                    </div>
+                </div>
+
+                <div class="tr">
+                    <div class="td">
+                        http://www.google.com
+                    </div>
+                    <div class="td">
+                        <a href="http://www.google.com" target="_new">http://www.google.com</a>
+                    </div>
+                </div>
+
+                <div class="tr">
+                    <div class="td">
+                        [url]http://www.google.com[/url]
+                    </div>
+                    <div class="td">
+                        <a href="http://www.google.com" target="_new">http://www.google.com</a>
+                    </div>
+                </div>
+
+                <div class="tr">
+                    <div class="td">
+                        :userKameloh:
+                    </div>
+                    <div class="td">
+                        <a href="#" target="_new">userKameloh</a>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+</span>
+<!-- End URLs -->
+';
+            }
+
+            // Image BBCode
+            if ($imagebbcode == 1)
+            {
+                $temp = $id . '_imgbbcode';
+                $help_top .= '<span class="formEnabledItem"><a href="" onClick="hideshow(\'' . $temp . '\'); return false;">Images</a></span>';
+                $help_bottom .= '
+<!-- Start Images -->
+<span id="' . $temp . '" style="display: none;">
+    <div class="formHelpOverlay">
+
+        <div class="formHelpTitle">
+            Images
+        </div>
+        <div class="formHelpContent">
+
+            <div class="table">
+                <div class="tr">
+                    <div class="td fb">
+                        Example
+                    </div>
+                    <div class="td fb">
+                        Output
+                    </div>
+                </div>
+
+                 <div class="tr">
+                    <div class="td">
+                        [img]http://url.of.image[/img]
+                    </div>
+                    <div class="td">
+                        (should display the image in your post)
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</span>
+<!-- End Images -->
+';
+            }
+
+            // Videos
+            if ($video == 1)
+            {
+                $temp = $id . '_video';
+                $help_top .= '<span class="formEnabledItem"><a href="" onClick="hideshow(\'' . $temp . '\'); return false;">Video</a></span>';
+                $help_bottom .= '
+<!-- Start Video -->
+<span id="' . $temp . '" style="display: none;">
+    <div class="formHelpOverlay">
+
+        <div class="formHelpTitle">
+            Video
+        </div>
+        <div class="formHelpContent">
+
+            <div class="table">
+                <div class="tr">
+                    <div class="td fb">
+                        Example
+                    </div>
+                    <div class="td fb">
+                        Output
+                    </div>
+                </div>
+
+                 <div class="tr">
+                    <div class="td">
+                        [youtube=VIDEO_ID]
+                    </div>
+                    <div class="td">
+                        (displays youtube video)
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</span>
+<!-- End Video -->
+';
+            }
 
             // Combine
+            $textarea .= '<div class="formEnabledOverlay">' . $help_top.$help_bottom . '</div>';
         }
 
         // Textarea
@@ -399,6 +625,7 @@ class Form
 
         // New Textarea (not added)
         $textarea = '<div>' . $textarea . '</div>';
+
         $textarea .= '<div>' . $preview_button . ' ' . $submit_value . '</div>';
 
         // Return

@@ -7,6 +7,22 @@ class Register extends Controller
 
     }
 
+    // Submit
+    public function submit()
+    {
+        // Functions
+        sbc_function('get_username');
+
+        // Username
+        $username = isset($_POST['username']) ? get_username($_POST['username']) : '';
+
+
+        echo 'username is '.$username;
+        $this->model('UserRegistration');
+        // $this->view('register/index');
+    }
+
+    // Main Registration Page
     public function index()
     {
         // Classes
@@ -14,38 +30,16 @@ class Register extends Controller
 
         $Form = new Form(array(
             'name'          => 'registerForm',
-            'action'        => 'https://www.sketchbook.cafe/action/',
+            'action'        => 'https://www.sketchbook.cafe/register/submit/',
             'method'        => 'POST',
 
         ));
-
-        // Form Dropdown Test
-        $input      = array
-        (
-            'name'  => 'dothis',
-        );
-        $list = array
-        (
-            'test1' => 10000,
-            'test2' => 20000,
-            'test3' => 48829, 
-            'test4' => 99999,
-        );
-        $current_value = 48829;
-        $Form->field['dothis'] = $Form->dropdown($input,$list,$current_value);
 
         // Submit
         $Form->field['submit'] = $Form->submit(array
         (
             'name'  => 'submit',
             'css'   => '',
-        ));
-
-        // Hidden
-        $Form->field['testmanhero'] = $Form->hidden(array
-        (
-            'name'  => 'testmanhero',
-            'value' => 'kuva',
         ));
 
         // Username
@@ -57,22 +51,29 @@ class Register extends Controller
             'placeholder'   => 'username',
         ));
 
+        // E-mail
+        $Form->field['email1']   = $Form->input(array
+        (
+            'name'          => 'email1',
+            'type'          => 'text',
+            'max'           => 100,
+            'placeholder'   => 'e-mail',
+        ));
+
+        // E-mail again?
+        $Form->field['email2']  = $Form->input(array
+        (
+            'name'          => 'email2',
+            'type'          => 'text',
+            'max'           => 100,
+            'placeholder'   => 'e-mail again',
+        ));
+
         // Terms of Service
         $Form->field['termsofservice'] = $Form->checkbox(array
         (
             'name'      => 'termsofservice',
             'value'     => 1,
-        ));
-
-        // Textarea
-        $Form->field['mycomment'] = $Form->textarea(array
-        (
-            'name'          => 'mycomment',
-            'max'           => 100,
-            'help'          => 1,
-            'preview'       => 1,
-            'css'           => 'textarea_testmanhero',
-            'placeholder'   => 'Yo write some text here!',
         ));
 
         $this->view('register/index', ['Form' => $Form]);

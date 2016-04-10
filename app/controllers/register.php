@@ -10,14 +10,7 @@ class Register extends Controller
     // Submit
     public function submit()
     {
-        // Functions
-        sbc_function('get_username');
 
-        // Username
-        $username = isset($_POST['username']) ? get_username($_POST['username']) : '';
-
-
-        echo 'username is '.$username;
         $this->model('UserRegistration');
         // $this->view('register/index');
     }
@@ -52,21 +45,30 @@ class Register extends Controller
         ));
 
         // E-mail
-        $Form->field['email1']   = $Form->input(array
+        $Form->field['email']   = $Form->input(array
         (
-            'name'          => 'email1',
+            'name'          => 'email',
             'type'          => 'text',
             'max'           => 100,
             'placeholder'   => 'e-mail',
         ));
 
-        // E-mail again?
-        $Form->field['email2']  = $Form->input(array
+        // Password
+        $Form->field['pass1']   = $Form->input(array
         (
-            'name'          => 'email2',
-            'type'          => 'text',
+            'name'          => 'pass1',
+            'type'          => 'password',
             'max'           => 100,
-            'placeholder'   => 'e-mail again',
+            'placeholder'   => 'password',
+        ));
+
+        // Password Again
+        $Form->field['pass2']   = $Form->input(array
+        (
+            'name'          => 'pass2',
+            'type'          => 'password',
+            'max'           => 100,
+            'placeholder'   => 'password',
         ));
 
         // Terms of Service

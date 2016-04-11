@@ -82,6 +82,10 @@ class IpTimer
         // Switch
         switch ($value)
         {
+            case 'action':      $column = 'action'; // general action - used for many things!
+                                $cooldown = 2; // 1 second
+                                break;
+
             case 'register':    $column = 'register';
                                 $cooldown = 300; // 5 minutes
                                 break;
@@ -105,13 +109,15 @@ class IpTimer
     // Update Timer
     public function update(&$db)
     {
+        // Make sure database is correct
+        $db->sql_switch('sketchbookcafe');
+
         // Set vars
         $column = $this->column;
         $time   = time();
         $id     = $this->id;
 
         // Check column
-        $column = $this->column;
         if (empty($column))
         {
             error('$column is empty for IpTimer->updateTimer(). Use setColumn() first!');
@@ -184,10 +190,11 @@ class IpTimer
 
         // Set vars
         $this->id = $row['id'];
+
+        // Just in case
         if ($this->id < 1)
         {
             error('Invalid ID for IpTimer()');
         }
     }
-
 }

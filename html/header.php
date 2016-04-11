@@ -29,6 +29,9 @@ if ($User->loggedIn())
                 <span style="padding-left: 12px;">
                     <a href="">Notifications (0)</a>
                 </span>
+                <span style="padding-left: 12px;">
+                    <a href="https://www.sketchbook.cafe/logout.php">Logout</a>
+                </span>
             </div>
             <div id="headerUserMenu" class="headerUserMenu">
                 User Menu

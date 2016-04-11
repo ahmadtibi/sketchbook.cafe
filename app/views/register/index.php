@@ -1,60 +1,6 @@
 <?php
 require 'header.php';
 
-?>
-<style type="text/css">
-.registerPageWrap {
-    overflow: hidden;
-    width: 80%;
-    margin-top: 12px;
-    margin-bottom: 12px;
-    margin-left: auto;
-    margin-right: auto;
-
-    color: #313131;
-    background-color: #BCBCBC;
-}
-.registerTitle {
-    padding-left: 12px;
-    font-size: 17px;
-    font-family: Georgia, serif;
-    line-height: 50px;
-    height: 50px;
-
-    color: #FFFFFF;
-    background-color: #7D7D7D;
-}
-.registerInnerWrap {
-    overflow: hidden;
-    min-height: 50px;
-}
-.registerInnerWrap a:link, .registerInnerWrap a:visited, .registerInnerWrap a:active {
-    color: #151515;
-}
-.registerInnerWrap a:hover {
-    text-decoration: underline;
-    color: #353535;
-}
-.registerInnerLeft {
-    font-family: Georgia, serif;
-    font-size: 15px;
-    text-align: right;
-    padding-right: 12px;
-    float: left;
-    width: 25%;
-    overflow: hidden;
-    min-height: 50px;
-    line-height: 50px;
-
-}
-.registerInnerRight {
-    overflow: hidden;
-    min-height: 50px;
-    line-height: 50px;
-}
-</style>
-
-<?php
 // Start Form
 echo $data['Form']->start();
 ?>

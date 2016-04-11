@@ -1,3 +1,103 @@
+/* Login Page */
+/* --------------------------------------------------------------- */
+.loginWrap {
+    overflow: hidden;
+    width: 400px;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    margin-left: auto;
+    margin-right: auto;
+
+    color: #313131;
+    background-color: #BCBCBC;
+}
+.loginTitle {
+    padding-left: 12px;
+    font-size: 17px;
+    font-family: Georgia, serif;
+    line-height: 50px;
+    height: 50px;
+
+    color: #FFFFFF;
+    background-color: #7D7D7D;
+}
+.loginInnerWrap {
+    overflow: hidden;
+}
+.loginInnerLeft {
+    float: left;
+    width: 33%;
+    text-align: right;
+    overflow: hidden;
+    min-height: 45px;
+    line-height: 45px;
+    font-size: 14px;
+    font-weight: bold;
+    font-family: Georgia, serif;
+    padding-right: 12px;
+}
+.loginInnerRight {
+    overflow: hidden;
+    min-height: 45px;
+    line-height: 45px;
+}
+.loginIpLockedSpan {
+    font-size: 13px;
+    font-family: Georgia, serif;
+}
+
+/* Registration Page */
+/* --------------------------------------------------------------- */
+.registerPageWrap {
+    overflow: hidden;
+    width: 80%;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    margin-left: auto;
+    margin-right: auto;
+
+    color: #313131;
+    background-color: #BCBCBC;
+}
+.registerTitle {
+    padding-left: 12px;
+    font-size: 17px;
+    font-family: Georgia, serif;
+    line-height: 50px;
+    height: 50px;
+
+    color: #FFFFFF;
+    background-color: #7D7D7D;
+}
+.registerInnerWrap {
+    overflow: hidden;
+    min-height: 50px;
+}
+.registerInnerWrap a:link, .registerInnerWrap a:visited, .registerInnerWrap a:active {
+    color: #151515;
+}
+.registerInnerWrap a:hover {
+    text-decoration: underline;
+    color: #353535;
+}
+.registerInnerLeft {
+    font-family: Georgia, serif;
+    font-size: 15px;
+    text-align: right;
+    padding-right: 12px;
+    float: left;
+    width: 25%;
+    overflow: hidden;
+    min-height: 50px;
+    line-height: 50px;
+
+}
+.registerInnerRight {
+    overflow: hidden;
+    min-height: 50px;
+    line-height: 50px;
+}
+
 /* Enabled Document */
 /* --------------------------------------------------------------- */
 .formEnabledItem {

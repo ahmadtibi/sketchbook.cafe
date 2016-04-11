@@ -27,13 +27,14 @@ class UserRegistration
         // Globals
         global $db;
 
-        // Functions
+        // Functions + Classes
         sbc_function('get_username');
         sbc_function('get_email');
         sbc_function('get_password');
         sbc_function('rd');
         sbc_class('IpTimer');
         sbc_class('UserSession');
+        sbc_class('TableUser');
 
         // Recaptcha Settings
         require '../app/recaptcha_settings.php';
@@ -77,12 +78,10 @@ class UserRegistration
         $gRecaptchaResponse = $_POST['g-recaptcha-response'];
         $recaptcha          = new \ReCaptcha\ReCaptcha($recaptcha_settings['secret']);
         unset($recaptcha_settings);
-/*
         $resp = $recaptcha->verify($gRecaptchaResponse, $this->ip_address);
         if (!$resp->isSuccess()) {
             error('Invalid Recaptcha. Please try again.');
         }
-*/
 
         // Double check information
         $this->checkInfo();
@@ -111,11 +110,19 @@ class UserRegistration
         ));
         $UserSession->createSession($db);
 
+        // User Tables
+        $TableUser = new TableUser($this->user_id);
+        $TableUser->checkTables($db);
+
         // Update IP Timer
         $IpTimer->update($db);
 
         // Close Connection
         $db->close();
+
+        // Back to the frontpage?
+        header('Location: https://www.sketchbook.cafe');
+        exit;
     }
 
     // Check Info - double check if everything is valid
@@ -221,7 +228,5 @@ class UserRegistration
         {
             error('Could not get new user_id from database. Please contact an administrator');
         }
-
-        echo 'check it yo beep beep userid is '.$this->user_id;
     }
 }

@@ -1,3 +1,101 @@
+/* Settings Page */
+/* --------------------------------------------------------------- */
+.settingsWrap {
+    overflow: hidden;
+    width: 67%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 12px;
+    margin-bottom: 12px;
+
+    color: #313131;
+    background-color: #BCBCBC;
+}
+.settingsTitle {
+    padding-left: 12px;
+    font-size: 17px;
+    font-family: Georgia, serif;
+    line-height: 50px;
+    height: 50px;
+
+    color: #FFFFFF;
+    background-color: #7D7D7D;
+}
+.settingsTitle a:link, .settingsTitle a:active, .settingsTitle a:visited {
+    color: #FFFFFF;
+}
+.settingsTitle a:hover {
+    color: #FFFFFF;
+}
+.settingsInnerWrap {
+    overflow: hidden;
+}
+.settingsInnerWrap a:link, .settingsInnerWrap a:visited, .settingsInnerWrap a:active {
+    color: #575757;
+}
+.settingsInnerWrap a:hover {
+    color: #151515;
+}
+.settingsInnerLeft {
+    width: 25%;
+    float: left;
+    overflow: hidden;
+    padding-right: 6px;
+
+    background-color: #C1C1C1;
+}
+.settingsInnerRight {
+    overflow: hidden;
+    margin-top: 6px;
+    margin-right: 6px;
+    margin-bottom: 6px;
+    border: 1px solid #9F9F9F;
+}
+.settingsInnerItem {
+    padding-left: 10%;
+    font-size: 14px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    min-height: 36px;
+    line-height: 36px;
+}
+.settingsInnerItem:hover {
+    background-color: #9F9F9F;
+}
+.settingsInnerItemSelected {
+    color: #151515;
+    background-color: #9F9F9F;
+}
+
+.settingsInnerTopWrap {
+    overflow: hidden;
+}
+.settingsInnerTitle {
+    padding-top: 12px;
+    padding-left: 15px;
+    font-size: 16px;
+    font-family: Georgia, serif;
+    font-weight: bold;
+
+    color: #1C1C1C;
+    background-color: #9F9F9F;
+}
+.settingsInnerDescription {
+    margin-top: -5px;
+    padding-left: 15px;
+    padding-bottom: 3px;
+    font-size: 11px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    min-height: 30px;
+    line-height: 30px;
+
+    color: #474747;
+    background-color: #9F9F9F;
+}
+.settingsInnerBottomWrap {
+    padding: 15px;
+    overflow: hidden;
+}
+
 /* Login Page */
 /* --------------------------------------------------------------- */
 .loginWrap {
@@ -269,16 +367,22 @@
 }
 .headerUserMenu {
     display: none;
+    text-align: left;
 
     position: absolute;
     top: 50;
     z-index: 5;
 
     width: 300px;
-    height: 100px;
+    min-height: 50px;
 
+    -moz-border-radius: 0px 0px 2px 2px;
+    border-radius: 0px 0px 2px 2px;
 
-    background-color: #151515;
+    background-color: #C1C1C1;
+    -webkit-box-shadow: 0px 1px 2px 0px rgba(87,87,87,1);
+    -moz-box-shadow: 0px 1px 2px 0px rgba(87,87,87,1);
+    box-shadow: 0px 1px 2px 0px rgba(87,87,87,1);
 }
 
 /* Comments (Global) */

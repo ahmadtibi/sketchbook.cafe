@@ -5,7 +5,7 @@
 * 
 * @author       Jonathan Maltezo (Kameloh)
 * @copyright    (c) 2016, Jonathan Maltezo (Kameloh)
-* @lastUpdated  2016-04-09
+* @lastUpdated  2016-04-11
 *
 */
 class Form
@@ -88,6 +88,65 @@ class Form
         // Value
         $value = '</form>';
         $value .= "\n";
+
+        // Return
+        return $value;
+    }
+
+
+    // Stylized Uploads
+    // $input:  'name', 'imagefile', 'post_url', 'css'
+    final public function upload($input)
+    {
+        // Initialize Vars
+        $name       = isset($input['name']) ? $input['name'] : '';
+        $imagefile  = isset($input['imagefile']) ? $input['imagefile'] : '';
+        $post_url   = isset($input['post_url']) ? $input['post_url'] : '';
+        $css        = isset($input['css']) ? $input['css'] : '';
+        $css        = $this->data['submit_class'].' '.$css;
+
+        // Make sure inputs are correct
+        if (empty($name) || empty($imagefile) || empty($post_url))
+        {
+            error('Dev error: a required variable is empty: name:'.$name.', imagefile:'.$imagefile.', post_url:'.$post_url);
+        }
+
+        // Extra
+        $div_id     = $name.'_upload';
+
+        // Value (clean this later!)
+        $value = '
+<input type="button" value="Upload" class="'.$css.'" onclick="sbc_upload_file(\''.$imagefile.'\',\''.$post_url.'\'); sbc_button_sumbit_disable();">
+<div id="'.$div_id.'" style="display: none;">
+<progress id="progressBar" value="0" max="100" style="width:300px;"></progress>
+<h3 id="status"></h3>
+<p id="loaded_n_total"></p>
+</div>
+';
+
+        // Return
+        return $value;
+    }
+
+    // File Input (basic input)
+    // $input:  'name'
+    final public function file($input)
+    {
+        // Initialize Form
+        $name   = isset($input['name']) ? $input['name'] : '';
+        $id     = $name;
+
+        // Check
+        if (empty($name))
+        {
+            error('Dev error: $name is not set for Form->file()');
+        }
+
+        // onClick
+        $onclick = 'onclick="sbc_button_sumbit_enable(); document.getElementById(\''.$this->data['submit_id'].'\').disabled = 0; document.getElementById(\''.$this->data['submit_id'].'\').value = \''.$this->data['inactive'].'\';"';
+
+        // Value
+        $value = '<input name="'.$name.'" id="'.$id.'" type="file" '.$onclick.'>';
 
         // Return
         return $value;

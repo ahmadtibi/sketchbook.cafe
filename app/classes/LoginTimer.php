@@ -3,7 +3,11 @@
 
 class LoginTimer
 {
+    private $id = 0;
     private $ip_address = '';
+    private $date_updated = 0;
+    private $login_tries = 0;
+    private $login_last = 0;
     private $hasinfo = 0;
 
     // Construct
@@ -30,21 +34,51 @@ class LoginTimer
         }
     }
 
-    // Clean
-    final public function clean(&$db)
+    // Failed Login Attempt
+    final public function failedLogin(&$db)
     {
-        // Initialize vars
-        $time       = time();
-        $cooldown   = 300; // 5 minutes
-        $clean      = $time - $cooldown;
+        // Has info?
+        $this->hasinfo();
+
+        // Initialize Vars
+        $time           = time();
+        $tries_left     = 0;
+        $max_tries      = 5;
+        $login_last     = $this->login_last;
+        $login_tries    = $this->login_tries;
+        $id             = $this->id;
+        if ($id < 1)
+        {
+            error('Dev error: $id is not set for LoginTimer->failedLogin()');
+        }
 
         // Switch
         $db->sql_switch('sketchbookcafe');
 
-        // Clean
-        $sql = 'DELETE FROM login_timer
-            WHERE date_created<'.$clean;
-        $delete = $db->sql_query($sql);
+        // Update login tries
+        $sql = 'UPDATE login_timer
+            SET login_last=?,
+            login_tries=(login_tries + 1)
+            WHERE id=?
+            LIMIT 1';
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param('ii',$time,$id);
+        if (!$stmt->execute())
+        {
+            error('Could not execute statement (update login tries) or LoginTimer->failedLogin()');
+        }
+        $stmt->close();
+
+        // Calculate number of tries
+        $tries_left = $max_tries - ($login_tries + 1); // add since it's an attempt
+
+        // Give an error if the user has 0 tries left
+        if ($tries_left < 1)
+        {
+            error('Sorry, you have to wait at least give minutes to relogin due to 5 or more failed login attempts.');
+        }
+
+        // Dev note: end with an error
     }
 
     // Check
@@ -53,20 +87,24 @@ class LoginTimer
         // Has Info?
         $this->hasinfo();
 
-        // Clean
-        $this->clean($db);
-
         // Initialize Vars
-        $ip_address = $this->ip_address;
+        $ip_address     = $this->ip_address;
+        $id             = 0;
+        $login_last     = 0;
+        $login_tries    = 0;
+        $max_tries      = 5; // default
+        $cooldown       = 300; // 300 seconds : 5 minutes
+        $time           = time();
+        $current_time   = 0;
 
         // Switch
         $db->sql_switch('sketchbookcafe');
 
-        // Count up to 5
-        $sql = 'SELECT id
+        // Check if an IP already exists
+        $sql = 'SELECT id, login_last, login_tries
             FROM login_timer
             WHERE ip_address=?
-            LIMIT 5';
+            LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('s',$ip_address);
         if (!$stmt->execute())
@@ -74,40 +112,85 @@ class LoginTimer
             error('Could not execute statement for LoginTimer->check()');
         }
         $result = $stmt->get_result();
-        $rownum = $db->sql_numrows($result);
+        $row    = $db->sql_fetchrow($result);
         $stmt->close();
+        $db->sql_freeresult($result);
 
-        // Must not be greater or equal to 5
-        if ($rownum >= 5)
+        // ID?
+        $id             = $row['id'];
+        $login_last     = $row['login_last'];
+        $login_tries    = $row['login_tries'];
+
+        // Do we have an IP?
+        if ($id < 1)
         {
-            error('Sorry, you must wait at least five minutes to relogin due to 5 or more failed login attempts.');
+            // Add IP
+            $sql = 'INSERT INTO login_timer
+                SET ip_address=?, 
+                date_created=?,
+                date_updated=?';
+            $stmt = $db->prepare($sql);
+            $stmt->bind_param('sii',$ip_address,$time,$time);
+            if (!$stmt->execute())
+            {
+                error('Could not execute statement (insert new IP) in LoginTimer->check()');
+            }
+            $stmt->close();
+
+            // Get id of IP
+            $sql = 'SELECT id 
+                FROM login_timer
+                WHERE ip_address=?
+                LIMIT 1';
+            $stmt = $db->prepare($sql);
+            $stmt->bind_param('s',$ip_address);
+            if (!$stmt->execute())
+            {
+                error('Could not execute statement (get new IP) in LoginTimer->check()');
+            }
+            $result = $stmt->get_result();
+            $row    = $db->sql_fetchrow($result);
+            $stmt->close();
+
+            // Set ID again
+            $id = isset($row['id']) ? (int) $row['id'] : 0;
+            if ($id < 1)
+            {
+                error('Dev error: could not get new IP address in LoginTimer->check()');
+            }
         }
 
-    }
-
-    // Insert
-    final public function insert(&$db)
-    {
-        // Has info?
-        $this->hasinfo();
-
-        // Initialize Vars
-        $ip_address = $this->ip_address;
-        $time       = time();
-
-        // Switch
-        $db->sql_switch('sketchbookcafe');
-
-        // Insert
-        $sql = 'INSERT INTO login_timer
-            SET ip_address=?, 
-            date_created=?';
-        $stmt = $db->prepare($sql);
-        $stmt->bind_param('si',$ip_address,$time);
-        if (!$stmt->execute())
+        // Calculate Time
+        $current_time   = $time - $login_last;
+        if ($current_time >= $cooldown)
         {
-            error('Could not execute statement for LoginTimer->insert()');
+            // Reset the timer if it's over cooldown
+            $sql = 'UPDATE login_timer
+                SET login_last=?,
+                login_tries=0
+                WHERE id=?
+                LIMIT 1';
+            $stmt = $db->prepare($sql);
+            $stmt->bind_param('ii',$time,$id);
+            if (!$stmt->execute())
+            {
+                error('Could not execute statement (reset login timer) for LoginTimer->check()');
+            }
+            $stmt->close();
+
+            // Reset Tries
+            $login_tries = 0;
         }
-        $stmt->close();
+
+        // Check number of tries
+        if ($login_tries >= $max_tries)
+        {
+            error('Sorry, you must wait at least five minutes to relogin due to 5 or more failed login attemps');
+        }
+
+        // Set Vars
+        $this->id           = $id;
+        $this->login_last   = $login_last;
+        $this->login_tries  = $login_tries;
     }
 }

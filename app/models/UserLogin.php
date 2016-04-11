@@ -78,22 +78,24 @@ class UserLogin
         $user_id = isset($row['id']) ? (int) $row['id'] : 0;
         if ($user_id < 1)
         {
-            // Login Timer Update
-            $LoginTimer->insert($db);
-
             // Update IP Timer
             $IpTimer->update($db);
+
+            // Failed Login
+            $LoginTimer->failedLogin($db);
+
+            // Generate Error
             error('Could not find user('.$username.') in database');
         }
 
         // Verify Passwords
         if (!password_verify($password,$row['password']))
         {
-            // Login Timer Update
-            $LoginTimer->insert($db);
-
             // Update IP Timer
             $IpTimer->update($db);
+
+            // Failed Login
+            $LoginTimer->failedLogin($db);
 
             // Generate error
             error('Invalid username/password');
@@ -106,9 +108,6 @@ class UserLogin
             'ip_lock'   => $this->ip_lock,
         ));
         $UserSession->createSession($db);
-
-        // Login Timer Update
-        $LoginTimer->insert($db);
 
         // Update IP Timer
         $IpTimer->update($db);

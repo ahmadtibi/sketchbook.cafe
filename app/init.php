@@ -7,19 +7,25 @@ require 'functions/sbc_function.php';
 require 'functions/sbc_class.php';
 require 'classes/Db.php';
 require 'classes/User.php';
+require 'classes/Member.php';
 
 // Vars
-$user_settings['id']            = isset($_COOKIE['id']) ? (int) $_COOKIE['id'] : 0;
 $sbc_function['test']           = 1;
 $sbc_class['test']              = 1;
 
-// User Object
-$User = new User($user_settings);
+// Initialize Objects
+$User   = new User();
+$Member = new Member();
 
 // Database Object
 require 'database_settings.php';
 $db = new Db($database_settings);
 unset($database_settings); // just in case
+
+// Initialize Useful Vars
+$Member->idAddOne($User->getUserId());
+$Member->idAddOne(424);
+
 
 // Composer AutoLoader
 require '../vendor/autoload.php';

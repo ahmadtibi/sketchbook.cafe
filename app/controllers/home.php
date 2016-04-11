@@ -17,6 +17,10 @@ class Home extends Controller
 
 	public function index ($name = '')
 	{
+        // Global 
+        // global $db;
+        //require 'process.info.php';
+
 		$name = $name;
 		// echo $user->name;
 

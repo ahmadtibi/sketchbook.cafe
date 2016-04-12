@@ -17,11 +17,29 @@ require 'settings_top.php';
     </div>
 </div>
 <div class="settingsInnerBottomWrap">
-    File: 
+    <div class="settingsAvatarWrap">
+        <div class="settingsAvatarLeft">
+            <script>sbc_avatar(<?php echo $User->getUserId();?>)</script>
+        </div>
+        <div class="settingsAvatarRight">
+            <div class="allowedFileTypes">
+                <b>Types:</b> JPG, PNG, GIF
+                <span class="allowedFileTypesSpacer">
+                    &#183;
+                </span>
+                <b>Width:</b> 10-200px
+                <span class="allowedFileTypesSpacer">
+                    &#183;
+                </span>
+                <b>Height:</b> 10-200px
+            </div>
+            File: 
 <?php
 echo $data['Form']->field['imagefile'];
 echo $data['Form']->field['upload'];
 ?>
+        </div>
+    </div>
 </div>
 <?php
 require 'settings_bottom.php';

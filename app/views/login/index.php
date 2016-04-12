@@ -36,7 +36,7 @@ echo $data['Form']->field['password'];
         </div>
         <div class="loginInnerRight">
 <?php
-echo $data['Form']->field['iplock'];
+echo $data['Form']->field['ip_lock'];
 ?>
             <span class="loginIpLockedSpan">
                 Session bound to IP Address

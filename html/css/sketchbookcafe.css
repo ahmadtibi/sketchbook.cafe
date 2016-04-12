@@ -1,8 +1,39 @@
+/* Avatars and Uploads */
+/* --------------------------------------------------------------- */
+.avatar {
+    border: 1px solid #FFFFFF;
+}
+.uploadProgressBar {
+    margin-top: 6px;
+    width: 300px;
+}
+.uploadStatus {
+    margin-top: 3px;
+    margin-bottom: 3px;
+    font-size: 14px;
+    color: #151515;
+}
+.uploadBytes {
+    margin-top: 3px;
+    margin-bottom: 3px;
+    font-size: 12px;
+    color: #4A4A4A;
+}
+.allowedFileTypes {
+    font-size: 11px;
+    color: #4A4A4A;
+    margin-bottom: 6px;
+}
+.allowedFileTypesSpacer {
+    padding-left: 2px;
+    padding-right: 2px;
+    font-size: 14px;
+}
 /* Settings Page */
 /* --------------------------------------------------------------- */
 .settingsWrap {
     overflow: hidden;
-    width: 67%;
+    width: 80%;
     margin-left: auto;
     margin-right: auto;
     margin-top: 12px;
@@ -93,6 +124,19 @@
 }
 .settingsInnerBottomWrap {
     padding: 15px;
+    overflow: hidden;
+}
+
+.settingsAvatarWrap {
+    overflow: hidden;
+}
+.settingsAvatarLeft {
+    min-width: 110px;
+    padding-right: 6px;
+    float: left;
+    overflow: hidden;
+}
+.settingsAvatarRight {
     overflow: hidden;
 }
 

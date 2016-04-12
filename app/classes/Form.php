@@ -5,7 +5,7 @@
 * 
 * @author       Jonathan Maltezo (Kameloh)
 * @copyright    (c) 2016, Jonathan Maltezo (Kameloh)
-* @lastUpdated  2016-04-11
+* @lastUpdated  2016-04-12
 *
 */
 class Form
@@ -118,9 +118,9 @@ class Form
         $value = '
 <input type="button" value="Upload" class="'.$css.'" onclick="sbc_upload_file(\''.$imagefile.'\',\''.$post_url.'\'); sbc_button_sumbit_disable();">
 <div id="'.$div_id.'" style="display: none;">
-<progress id="progressBar" value="0" max="100" style="width:300px;"></progress>
-<h3 id="status"></h3>
-<p id="loaded_n_total"></p>
+<progress id="progressBar" class="uploadProgressBar" value="0" max="100"></progress>
+<h3 id="status" class="uploadStatus"></h3>
+<p id="loaded_n_total" class="uploadBytes"></p>
 </div>
 ';
 

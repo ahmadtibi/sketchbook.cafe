@@ -156,7 +156,7 @@ function sbc_upload_file_complete_handler(event)
     {
         sbc_element("status").innerHTML = 'Server Message: "' + rvalue + '"';
         // sbc_element("progressBar").innerHTML = '';
-        alert('Server Message: "' + rvalue + '"');
+        // alert('Server Message: "' + rvalue + '"');
     }
 }
 
@@ -196,4 +196,30 @@ function comment_preview(textarea_id, textarea_options)
 	xmlhttp.open("POST","https://www.sketchbook.cafe/preview_comment.php",true);
 	xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
 	xmlhttp.send("options="+textarea_options+"&message="+message);
+}
+
+// Master Avatar
+// Uses javascript vars:    member_id, member_username, member_avatar_url
+function sbc_avatar(user_id)
+{
+    var output          = '';
+    var avatar_url      = '';
+    var username        = '';
+
+    // Is there a member?
+    if (member_id[user_id] > 0)
+    {
+        // Set Vars
+        username    = member_username[user_id];
+        avatar_url  = member_avatar_url[user_id];
+
+        // Full Avatar
+        if (avatar_url != '')
+        {
+            avatar_url  = '<a href="#"><img src="https://www.sketchbook.cafe/' + avatar_url + '" class="avatar"></a>';
+        }
+    }
+
+    // Write Avatar
+    document.write(avatar_url);
 }

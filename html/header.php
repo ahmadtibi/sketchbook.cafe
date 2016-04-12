@@ -1,3 +1,7 @@
+<?php
+// Might have to use some globals here
+global $User, $Member;
+?>
 <!doctype html>
 <html>
 <head>
@@ -9,6 +13,28 @@
     <script src='https://www.google.com/recaptcha/api.js'></script>
     <script src="https://www.sketchbook.cafe/js/sketchbookcafe.js"></script>
 </head>
+<script language="javascript" type="text/javascript">
+// We'll use simple javascript for now - convert to JSON later
+var member_id = new Array();
+var member_username = new Array();
+var member_avatar_url = new Array();
+
+<?php
+// Process Members
+if ($Member->rownum > 0){
+    while ($trow = mysqli_fetch_assoc($Member->result))
+    {
+        echo '
+member_id['.$trow['id'].'] = '.$trow['id'].';
+member_username['.$trow['id'].'] = \''.$trow['username'].'\';
+member_avatar_url['.$trow['id'].'] = \''.$trow['avatar_url'].'\';
+';
+    }
+    mysqli_data_seek($Member->result,0);
+}
+?>
+</script>
+
 <body>
 <!-- Page Wrap -->
 <div class="pageWrap">

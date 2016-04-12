@@ -18,33 +18,9 @@ if (!defined('BOOT'))
                 </div>
             </a>
 
-            <a href="#">
-                <div class="settingsInnerItem">
-                    Items
-                </div>
-            </a>
-
-            <a href="#">
-                <div class="settingsInnerItem">
-                    Items
-                </div>
-            </a>
-
-            <a href="#">
-                <div class="settingsInnerItem">
-                    Items
-                </div>
-            </a>
-
-            <a href="#">
-                <div class="settingsInnerItem">
-                    Items
-                </div>
-            </a>
-
-            <a href="#">
-                <div class="settingsInnerItem">
-                    Items
+            <a href="https://www.sketchbook.cafe/settings/info/">
+                <div class="settingsInnerItem <?php if ($settings_page == 'info') { echo 'settingsInnerItemSelected'; } ?>">
+                    Profile Info
                 </div>
             </a>
 

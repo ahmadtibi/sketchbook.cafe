@@ -5,18 +5,70 @@ class Settings extends Controller
 {
     public function __construct()
     {
-
     }
 
     // Main page
     public function index()
     {
+        $this->model('SettingsPage');
         $this->view('settings/index');
+    }
+
+    // Profile Info
+    public function info()
+    {
+        // Process
+        $this->model('SettingsPage');
+
+        // Class
+        sbc_class('Form');
+
+        // New Form
+        $Form = new Form(array
+        (
+            'name'      => 'infoform',
+            'action'    => 'https://www.sketchbook.cafe/settings/info_submit/',
+            'method'    => 'POST',
+        ));
+
+        // Submit
+        $Form->field['submit'] = $Form->submit(array
+        (
+            'name'      => 'submit',
+            'css'       => '',
+        ));
+
+        // User Title
+        $Form->field['title'] = $Form->input(array
+        (
+            'name'          => 'title',
+            'type'          => 'text',
+            'max'           => 50,
+            'value'         => '',
+            'placeholder'   => 'title',
+        ));
+
+        $this->view('settings/info', ['Form' => $Form]);
+    }
+
+    // Info Submit
+    public function info_submit()
+    {
+        $this->model('ProfileInfoSubmit');
+    }
+
+    // Avatar Submit
+    public function avatar_submit()
+    {
+        $this->model('AvatarUpload');
     }
 
     // Avatars
     public function avatar()
     {
+        // Main Process
+        $this->model('SettingsPage');
+
         // Classes
         sbc_class('Form');
 
@@ -24,7 +76,7 @@ class Settings extends Controller
         $Form = new Form(array
         (
             'name'      => 'avatarform',
-            'action'    => 'https://www.sketchbook.cafe/settings/avatar/submit/',
+            'action'    => 'https://www.sketchbook.cafe/settings/avatar_submit/',
             'method'    => 'POST',
         ));
 
@@ -39,7 +91,7 @@ class Settings extends Controller
         (
             'name'      => 'imagefile',
             'imagefile' => 'imagefile',
-            'post_url'  => 'https://www.sketchbook.cafe/settings/avatar/submit/',
+            'post_url'  => 'https://www.sketchbook.cafe/settings/avatar_submit/',
             'css'       => '',
         ));
 

@@ -5,6 +5,7 @@ use SketchbookCafe\Db\Db as Db;
 require 'functions/error.php';
 require 'functions/sbc_function.php';
 require 'functions/sbc_class.php';
+require 'classes/ProcessAllData.php';
 require 'classes/Db.php';
 require 'classes/User.php';
 require 'classes/Member.php';
@@ -21,11 +22,6 @@ $Member = new Member();
 require 'database_settings.php';
 $db = new Db($database_settings);
 unset($database_settings); // just in case
-
-// Initialize Useful Vars
-$Member->idAddOne($User->getUserId());
-$Member->idAddOne(424);
-
 
 // Composer AutoLoader
 require '../vendor/autoload.php';

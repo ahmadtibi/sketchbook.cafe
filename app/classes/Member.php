@@ -41,7 +41,7 @@ class Member
             $db->sql_switch('sketchbookcafe');
 
             // Get members
-            $sql = 'SELECT id, username
+            $sql = 'SELECT id, username, avatar_id, avatar_url 
                 FROM users
                 WHERE id IN('.$id_list.')';
             $result = $db->sql_query($sql);
@@ -50,6 +50,15 @@ class Member
             // Set vars
             $this->result   = $result;
             $this->rownum   = $rownum;
+
+            // Set Arrays
+            while ($trow = mysqli_fetch_assoc($result))
+            {
+                $temp_id = $trow['id'];
+                $this->member[$temp_id][$trow['avatar_id']]     = $trow['avatar_id'];
+                $this->member[$temp_id][$trow['avatar_url']]    = $trow['avatar_url'];
+            }
+            mysqli_data_seek($result,0);
         }
     }
 

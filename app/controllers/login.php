@@ -52,9 +52,9 @@ class Login extends Controller
         ));
 
         // IP Lock
-        $Form->field['iplock'] = $Form->checkbox(array
+        $Form->field['ip_lock'] = $Form->checkbox(array
         (
-            'name'      => 'iplock',
+            'name'      => 'ip_lock',
             'value'     => 1,
             'checked'   => 1,
         ));

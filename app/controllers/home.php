@@ -17,16 +17,10 @@ class Home extends Controller
 
 	public function index ($name = '')
 	{
-        // Global 
-        // global $db;
-        //require 'process.info.php';
 
 		$name = $name;
-		// echo $user->name;
-
         $this->user->test();
-
-
+        $this->model('HomePage');
 		$this->view('home/index', ['name' => $name]);
 
 		// User::find(1);

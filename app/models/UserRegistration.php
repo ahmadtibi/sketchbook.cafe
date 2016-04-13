@@ -187,6 +187,7 @@ class UserRegistration
         // Set Variables
         $user_id    = 0; // initialize
         $username   = $this->username;
+        $email      = $this->email;
         $password   = $this->password;
         $time       = $this->time;
         $ip_address = $this->ip_address;
@@ -194,13 +195,14 @@ class UserRegistration
         // Sql
         $sql = 'INSERT INTO users
             SET username=?, 
+            email=?,
             password=?, 
             date_registered=?, 
             date_lastlogin=?, 
             ip_registered=?, 
             ip_lastlogin=?';
         $stmt = $db->prepare($sql);
-        $stmt->bind_param('ssiiss',$username,$password,$time,$time,$ip_address,$ip_address);
+        $stmt->bind_param('sssiiss',$username,$email,$password,$time,$time,$ip_address,$ip_address);
         if (!$stmt->execute())
         {
             error('Could not insert new user into database');

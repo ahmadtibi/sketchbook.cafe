@@ -58,77 +58,7 @@ if ($User->loggedIn())
             </div>
 
 
-<?php
-// THIS IS TEMPORARY I SWEAR
-?>
-<style type="text/css">
-.headerUserItemWrap {
-    margin-top: 10px;
-    margin-bottom: 6px;
-
-    overflow: hidden;
-    text-align: center;
-}
-.headerUserItem:hover {
-    background-color: #ACACAC;
-}
-
-.headerUserItemWrap a:active, .headerUserItemWrap a:link, .headerUserItemWrap a:visited {
-    color: #575757;
-}
-.headerUserItemWrap a:hover {
-    color: #151515;
-}
-.headerUserWideItem {
-    margin-top: 4px;
-    margin-bottom: 4px;
-    min-height: 50px;
-    line-height: 50px;
-    font-size: 13px;
-    font-family: Georgia, serif;
-    font-weight: bold;
-
-    background-color: #B2B2B2;
-}
-.headerUserWideItem:hover {
-    background-color: #ACACAC;
-}
-.headerUserWideItemIcon {
-    margin-left: 9px;
-    margin-right: 9px;
-    vertical-align: middle;
-}
-
-<?php
-/*
-.headerUserItem {
-    overflow: hidden;
-    display: inline-block;
-    width: 50px;
-    height: 50px;
-    margin-right: 1px;
-    margin-left: 1px;
-
-    font-size: 14px;
-    text-align: center;
-
-    -moz-border-radius: 3px 3px 3px 3px;
-    border-radius: 3px 3px 3px 3px;
-
-    background-color: #B2B2B2;
-}
-
-.headerUserItemIcon {
-    margin-top: 12px;
-    text-align: center;
-}
-*/
-?>
-</style>
-
-
             <div id="headerUserMenu" class="headerUserMenu">
-
 
                 <div class="headerUserItemWrap" style="text-align: left;">
 
@@ -150,48 +80,7 @@ if ($User->loggedIn())
                         </div>
                     </a>
 
-
                 </div>
-
-<?php
-/*
-                <div class="headerUserItemWrap">
-                    <a href="#">
-                        <div class="headerUserItem">
-                            <img src="https://www.sketchbook.cafe/images/icon_puzzle.png" class="headerUserItemIcon">
-                        </div>
-                    </a>
-
-                    <a href="#">
-                        <div class="headerUserItem">
-                            <img src="https://www.sketchbook.cafe/images/icon_puzzle.png" class="headerUserItemIcon">
-                        </div>
-                    </a>
-
-                    <a href="#">
-                        <div class="headerUserItem">
-                            <img src="https://www.sketchbook.cafe/images/icon_puzzle.png" class="headerUserItemIcon">
-                        </div>
-                    </a>
-
-                    <a href="#">
-                        <div class="headerUserItem">
-                            <img src="https://www.sketchbook.cafe/images/icon_puzzle.png" class="headerUserItemIcon">
-                        </div>
-                    </a>
-
-                    <a href="#">
-                        <div class="headerUserItem">
-                            <img src="https://www.sketchbook.cafe/images/icon_puzzle.png" class="headerUserItemIcon">
-                        </div>
-                    </a>
-
-                </div>
-*/
-?>
-
-
-
 
             </div>
         </div>
@@ -225,4 +114,15 @@ else
     <span class="headerMenuItem">
         <a href="">Link 2</a>
     </span>
+<?php
+// Admins only
+if ($User->isAdmin())
+{
+?>
+    <span class="headerMenuItem">
+        <a href="https://www.sketchbook.cafe/admin/">Admin</a>
+    </span>
+<?php
+}
+?>
 </div>

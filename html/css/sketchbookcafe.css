@@ -1,3 +1,51 @@
+/* Inner Default */
+/* --------------------------------------------------------------- */
+.innerWrap {
+    overflow: hidden;
+    margin-top: 6px;
+    margin-bottom: 6px;
+}
+.innerLeft {
+    width: 20%;
+    float: left;
+    overflow: hidden;
+    padding-right: 12px;
+
+    min-height: 30px;
+    line-height: 30px;
+
+    font-family: Georgia, serif;
+    font-size: 13px;
+    text-align: right;
+}
+.innerRight {
+    overflow: hidden;
+
+    min-height: 30px;
+
+    font-family: Georgia, serif;
+    font-size: 13px;
+}
+.innerRightLineHeight {
+    line-height: 30px;
+}
+.innerWrap a:link, .innerWrap a:visited, .innerWrap a:active {
+    color: #151515;
+}
+.innerWrap a:hover {
+    text-decoration: underline;
+    color: #151515;
+}
+
+.innerRightInfo {
+    margin-top: 6px;
+    margin-bottom: 6px;
+    font-size: 11px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+    color: #646464;
+}
+
 /* Avatars and Uploads */
 /* --------------------------------------------------------------- */
 .avatar {
@@ -429,6 +477,43 @@
     box-shadow: 0px 1px 2px 0px rgba(87,87,87,1);
 }
 
+.headerUserItemWrap {
+    margin-top: 10px;
+    margin-bottom: 6px;
+
+    overflow: hidden;
+    text-align: center;
+}
+.headerUserItem:hover {
+    background-color: #ACACAC;
+}
+
+.headerUserItemWrap a:active, .headerUserItemWrap a:link, .headerUserItemWrap a:visited {
+    color: #575757;
+}
+.headerUserItemWrap a:hover {
+    color: #151515;
+}
+.headerUserWideItem {
+    margin-top: 4px;
+    margin-bottom: 4px;
+    min-height: 50px;
+    line-height: 50px;
+    font-size: 13px;
+    font-family: Georgia, serif;
+    font-weight: bold;
+
+    background-color: #B2B2B2;
+}
+.headerUserWideItem:hover {
+    background-color: #ACACAC;
+}
+.headerUserWideItemIcon {
+    margin-left: 9px;
+    margin-right: 9px;
+    vertical-align: middle;
+}
+
 /* Comments (Global) */
 /* --------------------------------------------------------------- */
 .commentWrap {
@@ -607,11 +692,20 @@
     background-color: #ACACAC;
 }
 
-/* Textarea Sizes */
+/* Sizes */
 /* --------------------------------------------------------------- */
 .textarea_testmanhero {
     width: 500px;
     height: 180px;
+}
+.input300 {
+    min-width: 300px;
+}
+.input400 {
+    min-width: 400px;
+}
+.input500 {
+    min-width: 500px;
 }
 
 /* Base */

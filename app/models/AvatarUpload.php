@@ -13,7 +13,7 @@ class AvatarUpload
 
         // Functions + Classes
         sbc_class('ImageFile');
-        sbc_class('IpTimer');
+        sbc_class('UserTimer');
         sbc_function('rd');
 
         // Initialize Vars
@@ -49,17 +49,21 @@ class AvatarUpload
 
         // User Required
         $User->required($db);
+        $user_id = $User->getUserId();
 
-        // IP Timer
-        $IpTimer = new IpTimer($db);
-        $IpTimer->setColumn('avatar');
-        $IpTimer->checkTimer($db);
+        // User Timer
+        $UserTimer = new UserTimer(array
+        (
+            'user_id'   => $user_id, 
+        ));
+        $UserTimer->setColumn('change_avatar');
+        $UserTimer->checkTimer($db);
 
         // Create Avatar
         $this->createAvatar($db,$User,$ImageFile);
 
-        // IP Timer
-        $IpTimer->update($db);
+        // User Timer
+        $UserTimer->update($db);
 
         // Close Connection
         $db->close();

@@ -82,21 +82,17 @@ class IpTimer
         // Switch
         switch ($value)
         {
-            case 'avatar':      $column = 'avatar';
-                                $cooldown = 30; // 30 seconds
-                                break;
+            case 'action':          $column = 'action'; // general action - used for many things!
+                                    $cooldown = 2; // 2 seconds
+                                    break;
 
-            case 'action':      $column = 'action'; // general action - used for many things!
-                                $cooldown = 2; // 2 seconds
-                                break;
+            case 'register':        $column = 'register';
+                                    $cooldown = 300; // 5 minutes
+                                    break;
 
-            case 'register':    $column = 'register';
-                                $cooldown = 300; // 5 minutes
-                                break;
-
-            default:            $column = '';
-                                $cooldown = 0;
-                                break;
+            default:                $column = '';
+                                    $cooldown = 0;
+                                    break;
         }
 
         // Column

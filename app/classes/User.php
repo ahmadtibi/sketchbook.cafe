@@ -5,13 +5,14 @@
 *
 * @author       Jonathan Maltezo (Kameloh)
 * @copyright    (c) 2016, Jonathan Maltezo (Kameloh)
-* @lastupdated  2016-04-12
+* @lastupdated  2016-04-13
 *
 */
 // Main user class
 class User
 {
     private $id = 0;
+    private $isadmin = 0; // reserved for global administrators
     private $rd = 0;
     private $session_id = 0;
     private $session_code = '';
@@ -314,7 +315,7 @@ class User
         }
 
         // Get User Information
-        $sql = 'SELECT id, username, timezone_my, avatar_id, avatar_url 
+        $sql = 'SELECT id, username, isadmin, timezone_my, timezone_id, avatar_id, avatar_url 
             FROM users
             WHERE id=?
             LIMIT 1';
@@ -333,6 +334,7 @@ class User
         if ($row['id'] > 0)
         {
             // Set vars
+            $this->isadmin      = $row['isadmin'];
             $this->username     = $row['username'];
             $this->data         = $row;
             $this->timezone_my  = $row['timezone_my'];
@@ -368,6 +370,24 @@ class User
         $this->dtzone();
     }
 
+    // Admin Only
+    final public function admin(&$db)
+    {
+        // Required Users
+        $this->required($db);
+
+        // Is admin?
+        if ($this->isadmin != 1)
+        {
+            error('Sorry, only administrators may access this area.');
+        }
+
+        // Authenticate Admin Here Later (FIXME)
+
+        // Generate Dtzone
+        $this->dtzone();
+    }
+
     // Optional User
     final public function optional(&$db)
     {
@@ -385,5 +405,70 @@ class User
 
         // Generate dtzone
         $this->dtzone();
+    }
+
+    // Is Admin?
+    final public function isAdmin()
+    {
+        if ($this->isadmin == 1)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    // Get Column
+    final public function getColumn($input)
+    {
+        return $this->data[$input];
+    }
+
+    // Password Match Check
+    final public function checkPasswordMatch(&$db,$password)
+    {
+        // Double check!
+        if (empty($password))
+        {
+            error('Dev error: $password is not set for User->checkPasswordMatch()');
+        }
+
+        // Set vars
+        $user_id = $this->id;
+        if ($user_id < 1)
+        {
+            error('Dev error: $user_id is not set for User->checkPasswordMatch()');
+        }
+
+        // Switch
+        $db->sql_switch('sketchbookcafe');
+
+        // Get user password to check
+        $sql = 'SELECT password
+            FROM users
+            WHERE id=?
+            LIMIT 1';
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param('i',$user_id);
+        if (!$stmt->execute())
+        {
+            error('Could not execute statement (get user info for password) in User->checkPasswordMatch()');
+        }
+        $result = $stmt->get_result();
+        $row    = $db->sql_fetchrow($result);
+        $db->sql_freeresult($result);
+        $stmt->close();
+
+        // Verify Passwords
+        if (!password_verify($password,$row['password']))
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
     }
 }

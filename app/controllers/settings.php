@@ -14,87 +14,84 @@ class Settings extends Controller
         $this->view('settings/index');
     }
 
-    // Profile Info
-    public function info()
+    // Change Password
+    public function changepassword()
     {
-        // Process
-        $this->model('SettingsPage');
+        // Model
+        $ChangePassword = $this->model('ChangePasswordEdit');
+        $Form           = $ChangePassword->form;
 
-        // Class
-        sbc_class('Form');
-
-        // New Form
-        $Form = new Form(array
-        (
-            'name'      => 'infoform',
-            'action'    => 'https://www.sketchbook.cafe/settings/info_submit/',
-            'method'    => 'POST',
-        ));
-
-        // Submit
-        $Form->field['submit'] = $Form->submit(array
-        (
-            'name'      => 'submit',
-            'css'       => '',
-        ));
-
-        // User Title
-        $Form->field['title'] = $Form->input(array
-        (
-            'name'          => 'title',
-            'type'          => 'text',
-            'max'           => 50,
-            'value'         => '',
-            'placeholder'   => 'title',
-        ));
-
-        $this->view('settings/info', ['Form' => $Form]);
+        // View
+        $this->view('settings/changepassword', ['Form' => $Form]);
+    }
+    public function changepassword_submit()
+    {
+        // Model
+        $this->model('ChangePasswordSubmit');
     }
 
-    // Info Submit
+    // Change E-mail
+    public function changeemail()
+    {
+        // Model
+        $ChangeEmail    = $this->model('ChangeEmailEdit');
+        $Form           = $ChangeEmail->form;
+        $current_email  = $ChangeEmail->current_email;
+
+        // View
+        $this->view('settings/changeemail', [
+            'Form'          => $Form,
+            'current_email' => $current_email,
+        ]);
+    }
+    public function changeemail_submit()
+    {
+        // Model
+        $this->model('ChangeEmailSubmit');
+    }
+
+    // Site Settings
+    public function sitesettings()
+    {
+        // Model
+        $SiteSettings   = $this->model('SiteSettingsEdit');
+        $Form           = $SiteSettings->form;
+
+        // View
+        $this->view('settings/sitesettings', ['Form' => $Form]);
+    }
+    public function sitesettings_submit()
+    {
+        $this->model('SiteSettingsSubmit');
+    }
+
+    // Profile Information
+    public function info()
+    {
+        // Model
+        $ProfileInfo    = $this->model('ProfileInfoEdit');
+        $Form           = $ProfileInfo->form;
+
+        // View
+        $this->view('settings/info', ['Form' => $Form]);
+    }
     public function info_submit()
     {
         $this->model('ProfileInfoSubmit');
     }
 
-    // Avatar Submit
-    public function avatar_submit()
-    {
-        $this->model('AvatarUpload');
-    }
-
     // Avatars
     public function avatar()
     {
-        // Main Process
-        $this->model('SettingsPage');
+        // Avatar Model
+        $AvatarEdit = $this->model('AvatarEdit');
+        $Form       = $AvatarEdit->form;
 
-        // Classes
-        sbc_class('Form');
-
-        // New Form
-        $Form = new Form(array
-        (
-            'name'      => 'avatarform',
-            'action'    => 'https://www.sketchbook.cafe/settings/avatar_submit/',
-            'method'    => 'POST',
-        ));
-
-        // File Input
-        $Form->field['imagefile'] = $Form->file(array
-        (
-            'name'      => 'imagefile',
-        ));
-
-        // File Upload
-        $Form->field['upload'] = $Form->upload(array
-        (
-            'name'      => 'imagefile',
-            'imagefile' => 'imagefile',
-            'post_url'  => 'https://www.sketchbook.cafe/settings/avatar_submit/',
-            'css'       => '',
-        ));
-
+        // View
         $this->view('settings/avatar', ['Form' => $Form]);
+    }
+    public function avatar_submit()
+    {
+        $this->model('AvatarUpload');
     }
 }

@@ -1,7 +1,7 @@
 <?php
 require 'header.php' ;
 // Settings
-$settings_page = 'info';
+$settings_page = 'sitesettings';
 
 // Start Form
 echo $data['Form']->start();
@@ -10,24 +10,24 @@ require 'settings_top.php';
 ?>
 <div class="settingsInnerTopWrap">
     <div class="settingsInnerTitle">
-        Profile Information
+        Site Settings
     </div>
     <div class="settingsInnerDescription">
-        Change your profile information.
+        Change various site settings such as timezone
     </div>
 </div>
 <div class="settingsInnerBottomWrap">
 
     <div class="innerWrap">
         <div class="innerLeft">
-            Title:
+            Timezone:
         </div>
         <div class="innerRight">
 <?php
-echo $data['Form']->field['title'];
+echo $data['Form']->field['timezone'];
 ?>
             <div class="innerRightInfo">
-                User title displayed in forum posts.
+                Your current timezone.
             </div>
         </div>
     </div>

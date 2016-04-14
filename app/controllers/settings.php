@@ -14,6 +14,22 @@ class Settings extends Controller
         $this->view('settings/index');
     }
 
+    // Admin Setup
+    public function adminsetup()
+    {
+        // Model
+        $AdminSetup     = $this->model('AdminSetup');
+        $Form           = $AdminSetup->form;
+
+        // View
+        $this->view('settings/adminsetup', ['Form' => $Form]);
+    }
+    public function adminsetup_submit()
+    {
+        // Model
+        $this->model('AdminSetupSubmit');
+    }
+
     // Change Password
     public function changepassword()
     {

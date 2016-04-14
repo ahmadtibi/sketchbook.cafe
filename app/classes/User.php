@@ -5,14 +5,13 @@
 *
 * @author       Jonathan Maltezo (Kameloh)
 * @copyright    (c) 2016, Jonathan Maltezo (Kameloh)
-* @lastupdated  2016-04-13
+* @lastupdated  2016-04-14
 *
 */
 // Main user class
 class User
 {
     private $id = 0;
-    private $isadmin = 0; // reserved for global administrators
     private $rd = 0;
     private $session_id = 0;
     private $session_code = '';
@@ -32,6 +31,12 @@ class User
 
     // Db
     private $data;
+
+    // Admin Variables
+    private $isadmin = 0; // reserved for global administrators
+    private $admin_session1 = '';
+    private $admin_session2 = '';
+    private $admin_session3 = '';
 
     // Construct
     public function __construct()
@@ -105,6 +110,7 @@ class User
         $rd             = $this->rd;
         $session_id     = $this->session_id;
         $session_code   = $this->session_code;
+        $isadmin        = 0;
 
         // Set Vars
         $cookie_path    = '/';
@@ -120,6 +126,11 @@ class User
         setcookie('session_id','',$cookie_time,$cookie_path,$cookie_domain,$https,$http_only);
         setcookie('session_code','',$cookie_time,$cookie_path,$cookie_domain,$https,$http_only);
 
+        // Remove Administrator Cookies
+        setcookie('admin_session1','',$cookie_time,$cookie_path,$cookie_domain,$https,$http_only);
+        setcookie('admin_session2','',$cookie_time,$cookie_path,$cookie_domain,$https,$http_only);
+        setcookie('admin_session3','',$cookie_time,$cookie_path,$cookie_domain,$https,$http_only);
+
         // Do we have valid credentials?
         if ($id > 0 && $rd > 0 && $session_id > 0 && !empty($session_code))
         {
@@ -127,7 +138,7 @@ class User
             $db->sql_switch('sketchbookcafe');
 
             // Get user information
-            $sql = 'SELECT id, session_id1, session_id2
+            $sql = 'SELECT id, isadmin, session_id1, session_id2
                 FROM users
                 WHERE id=?
                 LIMIT 1';
@@ -149,6 +160,9 @@ class User
             // Valid user?
             if ($user_id > 0)
             {
+                // Check isadmin
+                $isadmin = $row['isadmin'];
+
                 // Which to replace?
                 if ($row['session_id1'] == $session_id)
                 {
@@ -230,6 +244,23 @@ class User
                                 error('Could not execute statement (update user) in User->logout()');
                             }
                             $stmt->close();
+
+                            // Administrator Cookies. Remove them since this session is valid.
+                            if ($isadmin == 1)
+                            {
+                                // Update Admin
+                                $sql = 'UPDATE admins
+                                    SET session_active=0
+                                    WHERE user_id=?
+                                    LIMIT 1';
+                                $stmt = $db->prepare($sql);
+                                $stmt->bind_param('i',$id);
+                                if (!$stmt->execute())
+                                {
+                                    error('Could not execute statement (update admin) for User->logout()');
+                                }
+                                $stmt->close();
+                            }
                         }
                     }
                 }
@@ -370,24 +401,6 @@ class User
         $this->dtzone();
     }
 
-    // Admin Only
-    final public function admin(&$db)
-    {
-        // Required Users
-        $this->required($db);
-
-        // Is admin?
-        if ($this->isadmin != 1)
-        {
-            error('Sorry, only administrators may access this area.');
-        }
-
-        // Authenticate Admin Here Later (FIXME)
-
-        // Generate Dtzone
-        $this->dtzone();
-    }
-
     // Optional User
     final public function optional(&$db)
     {
@@ -469,6 +482,120 @@ class User
         else
         {
             return true;
+        }
+    }
+
+    // Admin Only
+    final public function admin(&$db)
+    {
+        // Required Users
+        $this->required($db);
+
+        // Is admin?
+        if ($this->isadmin != 1)
+        {
+            error('Sorry, only administrators may access this area.');
+        }
+
+        // Authenticate Admin
+        $this->adminCheckAuth($db);
+
+        // Generate Dtzone
+        $this->dtzone();
+    }
+
+    // Admin Check Admin
+    final public function adminCheckAuth(&$db)
+    {
+        // Classes + Functions
+        sbc_function('get_session_code');
+        sbc_class('LoginTimer');
+
+        // Login Timer
+        $LoginTimer = new LoginTimer();
+        $LoginTimer->check($db);
+
+        // Error Messages
+        $error_invalid = 'Invalid admin session. <a href="https://www.sketchbook.cafe/logout/">Please logout</a> and try again.';
+
+        // Initialize Vars
+        $ip_address = $this->ip_address;
+
+        // User ID
+        $user_id = $this->id;
+        if ($user_id < 1)
+        {
+            error('Dev error: $user_id is not set for User->adminCheckAuth()');
+        }
+
+        // Make sure they're an admin
+        if ($this->isadmin != 1)
+        {
+            error('Sorry, only administrators my access this area.');
+        }
+
+        // Get Administrator Cookies
+        $admin_session1 = isset($_COOKIE['admin_session1']) ? get_session_code($_COOKIE['admin_session1']) : '';
+        $admin_session2 = isset($_COOKIE['admin_session2']) ? get_session_code($_COOKIE['admin_session2']) : '';
+        $admin_session3 = isset($_COOKIE['admin_session3']) ? get_session_code($_COOKIE['admin_session3']) : '';
+
+        // Has Cookies
+        $has_cookies = 0;
+        if (!empty($admin_session1) && !empty($admin_session2) && !empty($admin_session3))
+        {
+            $has_cookies = 1;
+        }
+
+        // Switch
+        $db->sql_switch('sketchbookcafe');
+
+        // Get Admin Info
+        $sql = 'SELECT id, haspass, ip_address, session_active, admin_session1, admin_session2, admin_session3 
+            FROM admins
+            WHERE user_id=?
+            LIMIT 1';
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param('i',$user_id);
+        if (!$stmt->execute())
+        {
+            error('Could not execute statement (get admin info) for User->adminCheckAuth()');
+        }
+        $result = $stmt->get_result();
+        $row    = $db->sql_fetchrow($result);
+        $db->sql_freeresult($result);
+        $stmt->close();
+
+        // Admin in database?
+        $admin_found = isset($row['id']) ? (int) $row['id'] : 0;
+        if ($admin_found < 1)
+        {
+            error('Dev error: could not find administrator in database');
+        }
+
+        // Does the administrator have an admin password set up?
+        $haspass = isset($row['haspass']) ? (int) $row['haspass'] : 0;
+        if ($haspass != 1)
+        {
+            error('Admin notice: Administrator Password not set. <a href="https://www.sketchbook.cafe/settings/adminsetup/">Click here</a> to setup.');
+        }
+
+        // Is there an active session?
+        if ($row['session_active'] != 1 || $has_cookies != 1)
+        {
+            error('Please login here: <a href="https://www.sketchbook.cafe/adminlogin/">Login Page</a>');
+        }
+
+        // Verify IP Address and Sessions
+        if ($row['ip_address'] != $ip_address
+            || $admin_session1 != $row['admin_session1'] 
+            || $admin_session2 != $row['admin_session2'] 
+            || $admin_session3 != $row['admin_session3'])
+        {
+            // Failed Login
+            $LoginTimer->failedLogin($db);
+
+            // Generate Error
+            error($error_invalid);
         }
     }
 }

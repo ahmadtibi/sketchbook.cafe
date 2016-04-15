@@ -14,6 +14,44 @@ class Settings extends Controller
         $this->view('settings/index');
     }
 
+    // Unblock User
+    public function unblock($r_user_id = 0)
+    {
+        $r_user_id  = isset($r_user_id) ? (int) $r_user_id : 0;
+        if ($r_user_id < 1)
+        {
+            $r_user_id = 0;
+        }
+
+        // Model
+        $UnblockUser = $this->model('UnblockUser');
+        $UnblockUser->setUserId($r_user_id);
+        $UnblockUser->unblockUser();
+    }
+
+    // Block User
+    public function blockuser()
+    {
+        // Model
+        $BlockUser      = $this->model('BlockUserEdit');
+        $Form           = $BlockUser->form;
+        $result         = $BlockUser->result;
+        $rownum         = $BlockUser->rownum;
+
+        // View
+        $this->view('settings/blockuser', 
+        [
+            'Form'      => $Form, 
+            'result'    => $result,
+            'rownum'    => $rownum,
+        ]);
+    }
+    public function blockuser_submit()
+    {
+        // Model
+        $this->model('BlockUserSubmit');
+    }
+
     // Admin Setup
     public function adminsetup()
     {

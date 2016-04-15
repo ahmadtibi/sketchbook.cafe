@@ -42,5 +42,11 @@ if (!defined('BOOT'))
                 </div>
             </a>
 
+            <a href="https://www.sketchbook.cafe/settings/blockuser/">
+                <div class="settingsInnerItem <?php if ($settings_page == 'blockuser') { echo 'settingsInnerItemSelected'; } ?>">
+                    Block User
+                </div>
+            </a>
+
         </div>
         <div class="settingsInnerRight">

@@ -39,7 +39,7 @@ echo $data['Form']->field['password'];
 echo $data['Form']->field['ip_lock'];
 ?>
             <span class="loginIpLockedSpan">
-                Session bound to IP Address
+                Bind IP Address to Session
             </span>
         </div>
     </div>

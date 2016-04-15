@@ -5,7 +5,7 @@
 *
 * @author       Jonathan Maltezo (Kameloh)
 * @copyright   (c) 2016, Jonathan Maltezo (Kameloh)
-* @lastupdated  2016-04-13
+* @lastupdated  2016-04-14
 *
 */
 class Message
@@ -256,7 +256,7 @@ class Message
         );
         $replace    = array
         (
-            '<img src="\\1" class="imageBBCode">',
+            '<img src=\\1 class=imageBBCode>',
         );
 
         // Replace
@@ -278,7 +278,7 @@ class Message
         $replace    = array
         (
             // [youtube=VIDEO_ID]
-            '<iframe width="853" height="480" src="https://www.youtube.com/embed/\\1" frameborder="0" allowfullscreen></iframe>',
+            '<iframe width=853 height=480 src=https://www.youtube.com/embed/\\1 frameborder=0 allowfullscreen></iframe>',
         );
 
         // Replace

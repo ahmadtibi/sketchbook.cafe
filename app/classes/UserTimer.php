@@ -33,6 +33,10 @@ class UserTimer
         // Switch
         switch ($value)
         {
+            case 'compose_note':        $column = 'compose_note';
+                                        $cooldown = 30; // 30 seconds
+                                        break;
+
             case 'change_avatar':       $column = 'change_avatar';
                                         $cooldown = 30; // 30 seconds
                                         break;

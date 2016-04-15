@@ -48,9 +48,9 @@ if ($User->loggedIn())
 ?>
         <div id="headerUserWrap" class="headerUserWrap">
             <div class="headerUserDiv">
-                <a href=""><b>Kameloh</b></a>
+                <script>sbc_username(<?php echo $User->getUserId();?>, 'fb');</script>
                 <span style="padding-left: 12px;">
-                    <a href="">Inbox (0)</a>
+                    <a href="https://www.sketchbook.cafe/mailbox/">Inbox (0)</a>
                 </span>
                 <span style="padding-left: 12px;">
                     <a href="">Notifications (0)</a>

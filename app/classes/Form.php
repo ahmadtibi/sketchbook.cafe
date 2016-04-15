@@ -5,7 +5,7 @@
 * 
 * @author       Jonathan Maltezo (Kameloh)
 * @copyright    (c) 2016, Jonathan Maltezo (Kameloh)
-* @lastUpdated  2016-04-12
+* @lastUpdated  2016-04-14
 *
 */
 class Form
@@ -347,6 +347,9 @@ class Form
     }
 
     // Textarea
+    // $input   'name', 'value', 'placeholder', 'max', 'css', 'preview'
+    //          'help', 'submit', 'nl2br', 'basic', 'images', 'videos'
+    //          'setting_name'
     final public function textarea($input)
     {
         // Name
@@ -397,22 +400,22 @@ class Form
             $basic = 0;
         }
 
-        // Image BBCode
-        $imagebbcode = isset($input['imagebbcode']) ? (int) $input['imagebbcode'] : 0;
-        if ($imagebbcode != 1)
+        // Images
+        $images = isset($input['images']) ? (int) $input['images'] : 0;
+        if ($images != 1)
         {
-            $imagebbcode = 0;
+            $images = 0;
         }
 
-        // Video
-        $video  = isset($input['video']) ? (int) $input['video'] : 0;
-        if ($video != 1)
+        // Videos
+        $videos = isset($input['videos']) ? (int) $input['videos'] : 0;
+        if ($videos != 1)
         {
-            $video = 0;
+            $videos = 0;
         }
 
-        // (FIXME)
-        $setting_name = '';
+        // Setting Name (for message previewer)
+        $setting_name = isset($input['setting_name']) ? $input['setting_name'] : '';
 
         // Preview
         $preview        = isset($input['preview']) ? (int) $input['preview'] : 0;
@@ -592,7 +595,7 @@ class Form
             }
 
             // Image BBCode
-            if ($imagebbcode == 1)
+            if ($images == 1)
             {
                 $temp = $id . '_imgbbcode';
                 $help_top .= '<span class="formEnabledItem"><a href="" onClick="hideshow(\'' . $temp . '\'); return false;">Images</a></span>';
@@ -634,7 +637,7 @@ class Form
             }
 
             // Videos
-            if ($video == 1)
+            if ($videos == 1)
             {
                 $temp = $id . '_video';
                 $help_top .= '<span class="formEnabledItem"><a href="" onClick="hideshow(\'' . $temp . '\'); return false;">Video</a></span>';

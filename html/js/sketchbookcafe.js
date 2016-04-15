@@ -173,7 +173,7 @@ function sbc_upload_file_abort_handler(event)
 }
 
 // Comment Preview
-function comment_preview(textarea_id, textarea_options)
+function comment_preview(textarea_id, setting_name)
 {
 	var xmlhttp;
 
@@ -195,7 +195,27 @@ function comment_preview(textarea_id, textarea_options)
 
 	xmlhttp.open("POST","https://www.sketchbook.cafe/preview_comment.php",true);
 	xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-	xmlhttp.send("options="+textarea_options+"&message="+message);
+	xmlhttp.send("setting_name="+setting_name+"&message="+message);
+}
+
+// Master Username
+// Uses javascript vars:    member_id, member_username
+function sbc_username(user_id, f_class)
+{
+    var output          = '';
+    var username        = '';
+    var username_url    = '';
+
+    // Is there a member?
+    if (member_id[user_id] > 0)
+    {
+        // Set vars
+        username        = member_username[user_id];
+        username_url    = '<a href="#" class="' + f_class + '">' + username + '</a>';
+    }
+
+    // Write
+    document.write(username_url);
 }
 
 // Master Avatar

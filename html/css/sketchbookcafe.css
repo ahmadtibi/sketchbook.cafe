@@ -1,3 +1,11 @@
+/* Blocked */
+/* --------------------------------------------------------------- */
+.blockedUserDiv {
+    font-size: 14px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
 /* Inner Default */
 /* --------------------------------------------------------------- */
 .innerWrap {
@@ -694,6 +702,10 @@
 
 /* Sizes */
 /* --------------------------------------------------------------- */
+.textarea_compose {
+    width: 400px;
+    height: 180px;
+}
 .textarea_testmanhero {
     width: 500px;
     height: 180px;

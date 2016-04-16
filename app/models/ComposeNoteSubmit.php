@@ -6,10 +6,10 @@ class ComposeNoteSubmit
     private $r_user_id = 0;
     private $user_id = 0;
 
+    private $rd = 0;
     private $title = '';
     private $title_code = '';
-    private $message = '';
-    private $message_code = '';
+    private $mail_id = 0;
 
     // Construct
     public function __construct()
@@ -19,10 +19,15 @@ class ComposeNoteSubmit
         sbc_class('Message');
         sbc_class('TextareaSettings');
         sbc_class('BlockCheck');
+        sbc_class('UpdateMailbox');
         sbc_function('get_username');
+        sbc_function('rd');
 
         // Globals
         global $db,$User;
+
+        // Random Digit
+        $this->rd = rd();
 
         // Username
         $username           = '';
@@ -55,12 +60,6 @@ class ComposeNoteSubmit
         $messageObject      = new Message($message_settings);
         $messageObject->insert($_POST['message']);
 
-        // Set vars
-        $this->message      = $messageObject->getMessage();
-        $this->message_code = $messageObject->getMessageCode();
-
-        // =================================== DOTHISLAST
-
         // Open Connection
         $db->open();
 
@@ -91,16 +90,116 @@ class ComposeNoteSubmit
         ));
         $BlockCheck->check($db);
 
-        error('hokay lets do more \'cause title is '.$this->title.' and message is '.$this->message);
+        // Create New Mailbox Thread
+        $this->createThread($db,$messageObject);
 
+        // Update Users
+        $this->updateUsers($db);
 
-        // =================================== BOTTOM OF BEEP
+        // Update Mailbox Timers
+        $mailbox_timer1 = new UpdateMailbox($user_id);
+        $mailbox_timer2 = new UpdateMailbox($r_user_id);
+        $mailbox_timer1->updateTimer($db);
+        $mailbox_timer2->updateTimer($db);
 
         // User Timer
         $UserTimer->update($db);
 
         // Close Connection
         $db->close();
+
+        // Header
+        header('Location: https://www.sketchbook.cafe/mailbox/note/'.$this->mail_id.'/');
+        exit;
+    }
+
+    // Create Thread
+    final private function createThread(&$db,&$messageObject)
+    {
+        // Classes + Functions
+        sbc_function('check_number');
+        sbc_function('check_empty');
+
+        // Initialize Vars
+        $rd             = check_number($this->rd,'rd');
+        $user_id        = check_number($this->user_id,'user_id');
+        $r_user_id      = check_number($this->r_user_id,'r_user_id');
+        $time           = time();
+        $ip_address     = $_SERVER['REMOTE_ADDR'];
+
+        // String Vars
+        $title          = check_empty($this->title,'title');
+        $title_code     = check_empty($this->title_code,'title_code');
+
+        // Create New Message
+        $messageObject->setUserId($user_id);
+        $messageObject->setType('new_mail_thread');
+        $messageObject->createMessage($db);
+        $comment_id = $messageObject->getCommentId();
+
+        // Switch
+        $db->sql_switch('sketchbookcafe');
+
+        // Insert new thread into database
+        $sql = 'INSERT INTO mailbox_threads
+            SET rd=?,
+            user_id=?,
+            r_user_id=?,
+            ip_created=?,
+            ip_updated=?,
+            date_created=?,
+            date_updated=?,
+            title=?,
+            title_code=?,
+            comment_id=?,
+            isdeleted=1';
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param('iiissiissi',$rd,$user_id,$r_user_id,$ip_address,$ip_address,$time,$time,$title,$title_code,$comment_id);
+        if (!$stmt->execute())
+        {
+            error('Could not execute statement (insert new mail thread) for ComposeNoteSubmit->createThread()');
+        }
+        $stmt->close();
+
+        // Get Mail Thread ID
+        $sql = 'SELECT id
+            FROM mailbox_threads
+            WHERE rd=?
+            AND user_id=?
+            AND r_user_id=?
+            AND date_created=?
+            LIMIT 1';
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param('iiii',$rd,$user_id,$r_user_id,$time);
+        if (!$stmt->execute())
+        {
+            error('Could not execute statement (get mail thread id) for ComposeNoteSubmit->createThread()');
+        }
+        $result = $stmt->get_result();
+        $row    = $db->sql_fetchrow($result);
+        $db->sql_freeresult($result);
+        $stmt->close();
+
+        // Mail ID
+        $mail_id    = isset($row['id']) ? (int) $row['id'] : 0;
+        if ($mail_id < 1)
+        {
+            error('Dev error: could not get new mail id for ComposeNoteSubmit->createThread()');
+        }
+        $this->mail_id  = $mail_id;
+
+        // Mark thread as not deleted
+        $sql = 'UPDATE mailbox_threads
+            SET isdeleted=0
+            WHERE id=?
+            LIMIT 1';
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param('i',$mail_id);
+        if (!$stmt->execute())
+        {
+            error('Could not execute statement (update isdeleted) for ComposeNoteSubmit->createThread()');
+        }
+        $stmt->close();
     }
 
     // Get Other User Information
@@ -151,7 +250,50 @@ class ComposeNoteSubmit
         $this->r_user_id = $r_user_id;
     }
 
+    // Update Users
+    final private function updateUsers(&$db)
+    {
+        // Functions
+        sbc_function('check_number');
 
+        // Initialize Vars
+        $user_id    = check_number($this->user_id,'$user_id');
+        $r_user_id  = check_number($this->r_user_id,'$r_user_id');
+        $mail_id    = check_number($this->mail_id,'$mail_id');
+        $time       = time();
 
+        // Switch
+        $db->sql_switch('sketchbookcafe_users');
 
+        // Insert into owner's mailbox table
+        $table_name = 'u'.$user_id.'m';
+        $sql = 'INSERT INTO '.$table_name.'
+            SET cid=?,
+            lastupdate=?,
+            replied=1';
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param('ii',$mail_id,$time);
+        if (!$stmt->execute())
+        {
+            error('Could not execute statement (insert into owners mail table) for ComposeNoteSubmit->updateUsers()');
+        }
+        $stmt->close();
+
+        // Insert into other user's mailbox table
+        $table_name = 'u'.$r_user_id.'m';
+        $sql = 'INSERT INTO '.$table_name.'
+            SET cid=?,
+            lastupdate=?,
+            isnew=1';
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param('ii',$mail_id,$time);
+        if (!$stmt->execute())
+        {
+            error('Could not execute statement (insert into other users mail table) for ComposeNoteSubmit->updateUsers()');
+        }
+        $stmt->close();
+
+        // Switch
+        $db->sql_switch('sketchbookcafe');
+    }
 }

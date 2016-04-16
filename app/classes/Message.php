@@ -5,7 +5,7 @@
 *
 * @author       Jonathan Maltezo (Kameloh)
 * @copyright   (c) 2016, Jonathan Maltezo (Kameloh)
-* @lastupdated  2016-04-14
+* @lastupdated  2016-04-15
 *
 */
 class Message
@@ -32,6 +32,11 @@ class Message
     private $hasmessage = 0;
     private $message;
     private $message_code;
+
+    // Master Comment Information
+    private $user_id = 0;
+    private $comment_type = '';
+    private $comment_id = 0;
 
     // Construct
     public function __construct($input)
@@ -256,7 +261,7 @@ class Message
         );
         $replace    = array
         (
-            '<img src=\\1 class=imageBBCode>',
+            '<img src="\\1" class="imageBBCode">',
         );
 
         // Replace
@@ -278,7 +283,7 @@ class Message
         $replace    = array
         (
             // [youtube=VIDEO_ID]
-            '<iframe width=853 height=480 src=https://www.youtube.com/embed/\\1 frameborder=0 allowfullscreen></iframe>',
+            '<iframe width="853" height="480" src="https://www.youtube.com/embed/\\1" frameborder="0" allowfullscreen></iframe>',
         );
 
         // Replace
@@ -349,7 +354,6 @@ class Message
         }
 
         // Double check!
-        $input = $this->paranoidReplacers($input);
         $this->checkMax($input);
 
         // Set message_code for later
@@ -396,5 +400,160 @@ class Message
         $this->hasMessage();
 
         return $this->message_code;
+    }
+
+    // Set User ID
+    final public function setUserId($user_id)
+    {
+        // Initialize Vars
+        $user_id = isset($user_id) ? (int) $user_id : 0;
+        if ($user_id < 1)
+        {
+            error('Dev error: $user_id is not set for Message->setUserId()');
+        }
+
+        // Set vars
+        $this->user_id  = $user_id;
+    }
+
+    // Set Comment Type
+    final public function setType($type)
+    {
+        // Initialize vars
+        $type = isset($type) ? $type : '';
+        if (empty($type))
+        {
+            error('Dev error: $type is not set for Message->setType()');
+        }
+
+        // Switch type
+        $comment_type = '';
+        switch ($type)
+        {
+            case 'new_mail_thread': $comment_type = 'new_mail_thread';
+                                    break;
+
+            default:                $comment_type = '';
+                                    break;
+        }
+
+        // Set and check
+        $this->comment_type = $comment_type;
+        if (empty($this->comment_type))
+        {
+            error('Dev error: invalid $comment_type for Message->setType()');
+        }
+    }
+
+    // Get Comment ID
+    final public function getCommentId()
+    {
+        $value = $this->comment_id;
+        if ($value < 1)
+        {
+            error('Dev error: $comment_id is not set for Message->getComment()');
+        }
+        return $value;
+    }
+
+    // Create Message
+    final public function createMessage(&$db)
+    {
+        // Check if we have a message
+        $this->hasMessage();
+
+        // Classes + Functions
+        sbc_function('rd');
+
+        // Initialize Vars
+        $rd             = rd();
+        $user_id        = $this->user_id;
+        $comment_type   = $this->comment_type;
+        $time           = time();
+        $ip_address     = $_SERVER['REMOTE_ADDR'];
+        $message        = $this->message;
+        $message_code   = $this->message_code;
+
+        // Make sure a User ID is set
+        if ($user_id < 1)
+        {
+            error('Dev error: $user_id is not set for Message->createMessage()');
+        }
+
+        // Make sure we have a comment type
+        if (empty($comment_type))
+        {
+            error('Dev error: $comment_type is not set for Message->createMessage()');
+        }
+
+        // Switch
+        $db->sql_switch('sketchbookcafe');
+
+        // Insert Comment First!
+        $sql = 'INSERT INTO sbc_comments
+            SET rd=?,
+            user_id=?,
+            date_created=?,
+            ip_created=?,
+            message=?,
+            message_code=?,
+            isdeleted=1';
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param('iiisss',$rd,$user_id,$time,$ip_address,$message,$message_code);
+        if (!$stmt->execute())
+        {
+            error('Could not execute statement (insert comment) for Message->createMessage()');
+        }
+        $stmt->close();
+
+        // Get Comment ID
+        $sql = 'SELECT id
+            FROM sbc_comments
+            WHERE rd=?
+            AND user_id=?
+            AND date_created=?
+            AND isdeleted=1
+            LIMIT 1';
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param('iii',$rd,$user_id,$time);
+        if (!$stmt->execute())
+        {
+            error('Could not execute statement (get comment ID) for Message->createMessage()');
+        }
+        $result = $stmt->get_result();
+        $row    = $db->sql_fetchrow($result);
+        $db->sql_freeresult($result);
+        $stmt->close();
+
+        // Comment ID?
+        $comment_id = isset($row['id']) ? (int) $row['id'] : 0;
+        if ($comment_id < 1)
+        {
+            error('Dev error: could not get new comment_id for Message->createMessage()');
+        }
+        $this->comment_id = $comment_id;
+
+        // Comment Type
+        if ($comment_type == 'new_mail_thread')
+        {
+            // Update comment + Mark as undeleted
+            $sql = 'UPDATE sbc_comments
+                SET ismail=1,
+                isprivate=1,
+                isdeleted=0
+                WHERE id=?
+                LIMIT 1';
+            $stmt = $db->prepare($sql);
+            $stmt->bind_param('i',$comment_id);
+            if (!$stmt->execute())
+            {
+                error('Could not execute statement (update comment as mail thread) for Message->createMessage()');
+            }
+            $stmt->close();
+        }
+        else
+        {
+            error('Dev error: something went wrong... (invalid $comment_type) for Message->createMessage()');
+        }
     }
 }

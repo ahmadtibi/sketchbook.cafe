@@ -19,6 +19,10 @@ class AdminLogin extends Controller
         // Model
         $AdminLogin = $this->model('AdminLoginPage');
         $Form       = $AdminLogin->form;
+
+        // View
+        require 'header.php';
         $this->view('adminlogin/index', ['Form' => $Form]);
+        require 'footer.php';
     }
 }

@@ -1,11 +1,4 @@
 <?php
-require 'header.php';
-
-// Current Page
-$current_page   = 'compose';
-
-require 'mailbox_top.php';
-
 // Start Form
 echo $data['Form']->start();
 ?>
@@ -51,7 +44,4 @@ echo $data['Form']->field['message'];
 <?php
 // End Form
 echo $data['Form']->end();
-
-require 'mailbox_bottom.php';
-require 'footer.php';
 ?>

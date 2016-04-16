@@ -1,9 +1,5 @@
-<?php
-if (!defined('BOOT'))
-{
-    exit;
-}
-?>
+
+
 <div class="footerDivider">
 </div>
 

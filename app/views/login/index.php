@@ -1,6 +1,4 @@
 <?php
-require('header.php');
-
 // Start Form
 echo $data['Form']->start();
 ?>
@@ -59,6 +57,4 @@ echo $data['Form']->field['submit'];
 <?php
 // End Form
 echo $data['Form']->end();
-
-require('footer.php');
 ?>

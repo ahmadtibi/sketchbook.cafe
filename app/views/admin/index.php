@@ -1,7 +1,3 @@
-<?php
-require 'header.php';
-
-?>
 <style type="text/css">
 .adminItemTitle {
     padding: 6px;
@@ -87,6 +83,3 @@ require 'header.php';
 
 admin page here maybe
 <br/>we could make this all courier new :P
-<?php
-require 'footer.php';
-?>

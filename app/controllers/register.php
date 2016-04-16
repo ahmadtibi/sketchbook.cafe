@@ -2,82 +2,41 @@
 
 class Register extends Controller
 {
+    private $db;
+
     public function __construct()
     {
-
+        global $db;
+        $this->db = &$db;
     }
 
     // Submit
     public function submit()
     {
-
         $this->model('UserRegistration');
-        // $this->view('register/index');
     }
 
     // Main Registration Page
     public function index()
     {
-        // Classes
-        sbc_class('Form');
+        // Database
+        $db = $this->db;
+        $db->open();
+        $sql = 'SELECT username FROM users WHERE id=2 LIMIT 1';
+        $result = $db->sql_query($sql);
+        $row    = $db->sql_fetchrow($result);
+        echo 'username is '.$row['username'];
+        $db->close();
 
-        $Form = new Form(array(
-            'name'          => 'registerForm',
-            'action'        => 'https://www.sketchbook.cafe/register/submit/',
-            'method'        => 'POST',
+        // Model
+        $registerObject = $this->model('UserRegistrationPage');
+        $Form           = $registerObject->form;
 
-        ));
+        // Use Variables instead of the whole object
 
-        // Submit
-        $Form->field['submit'] = $Form->submit(array
-        (
-            'name'  => 'submit',
-            'css'   => '',
-        ));
-
-        // Username
-        $Form->field['username'] = $Form->input(array
-        (
-            'name'          => 'username',
-            'type'          => 'text',
-            'max'           => 20,
-            'placeholder'   => 'username',
-        ));
-
-        // E-mail
-        $Form->field['email']   = $Form->input(array
-        (
-            'name'          => 'email',
-            'type'          => 'text',
-            'max'           => 100,
-            'placeholder'   => 'e-mail',
-        ));
-
-        // Password
-        $Form->field['pass1']   = $Form->input(array
-        (
-            'name'          => 'pass1',
-            'type'          => 'password',
-            'max'           => 100,
-            'placeholder'   => 'password',
-        ));
-
-        // Password Again
-        $Form->field['pass2']   = $Form->input(array
-        (
-            'name'          => 'pass2',
-            'type'          => 'password',
-            'max'           => 100,
-            'placeholder'   => 'password',
-        ));
-
-        // Terms of Service
-        $Form->field['termsofservice'] = $Form->checkbox(array
-        (
-            'name'      => 'termsofservice',
-            'value'     => 1,
-        ));
-
+        // View
+        $this->view('sketchbookcafe/header');
         $this->view('register/index', ['Form' => $Form]);
+        $this->view('sketchbookcafe/footer');
     }
 }

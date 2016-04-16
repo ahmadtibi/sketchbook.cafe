@@ -33,6 +33,12 @@ class App
 
         $this->params = $url ? array_values($url) : [];
 
+        // Don't allow view
+        if ($this->method == 'view')
+        {
+            error('Invalid method.');
+        }
+
         call_user_func_array([$this->controller, $this->method], $this->params);
     }
 

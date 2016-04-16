@@ -13,6 +13,10 @@ class Admin extends Controller
     {
         // Model
         $this->model('AdminPage');
+
+        // View
+        require 'header.php';
         $this->view('admin/index');
+        require 'footer.php';
     }
 }

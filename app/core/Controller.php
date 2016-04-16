@@ -10,8 +10,6 @@ class Controller
 
     public function view($view, $data = [])
     {
-        // Global
-        global $User;
         require_once '../app/views/'. $view .'.php';
     }
 }

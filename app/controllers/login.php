@@ -4,7 +4,6 @@ class Login extends Controller
 {
     public function __construct()
     {
-
     }
 
     // Submit
@@ -16,50 +15,13 @@ class Login extends Controller
     // Main Page
     public function index()
     {
-        // Classes
-        sbc_class('Form');
-
-        // New Form
-        $Form = new Form(array(
-            'name'      => 'loginform',
-            'action'    => 'https://www.sketchbook.cafe/login/submit/',
-            'method'    => 'POST',
-        ));
-
-        // Submit
-        $Form->field['submit'] = $Form->submit(array
-        (
-            'name'  => 'submit',
-            'css'   => '',
-        ));
-
-        // Username
-        $Form->field['username'] = $Form->input(array
-        (
-            'name'          => 'username',
-            'type'          => 'text',
-            'max'           => 20,
-            'placeholder'   => 'username',
-        ));
-
-        // Password
-        $Form->field['password'] = $Form->input(array
-        (
-            'name'          => 'password',
-            'type'          => 'password',
-            'max'           => 100,
-            'placeholder'   => 'password',
-        ));
-
-        // IP Lock
-        $Form->field['ip_lock'] = $Form->checkbox(array
-        (
-            'name'      => 'ip_lock',
-            'value'     => 1,
-            'checked'   => 1,
-        ));
+        // Model
+        $loginObject    = $this->model('UserLoginPage');
+        $Form           = $loginObject->form;
 
         // View
+        require('header.php');
         $this->view('login/index', ['Form' => $Form]);
+        require('footer.php');
     }
 }

@@ -5,7 +5,7 @@
 *
 * @author       Jonathan Maltezo (Kameloh)
 * @copyright    (c) 2016, Jonathan Maltezo (Kameloh)
-* @lastupdated  2016-04-14
+* @lastupdated  2016-04-16
 *
 */
 // Main user class
@@ -95,11 +95,8 @@ class User
     }
 
     // Log out!
-    final public function logout()
+    final public function logout(&$db)
     {
-        // Global
-        global $db;
-
         // Open Connection
         $db->open();
 
@@ -597,5 +594,18 @@ class User
             // Generate Error
             error($error_invalid);
         }
+    }
+
+    // My Timzone (mytz) - for displaying time
+    final public function mytz($time,$format)
+    {
+        // Set dates
+        $u_time     = date('r',$time);
+        $d_time     = new DateTime($u_time);
+        $d_time->setTimeZone($this->dtzone);
+        $n_time     = $d_time->format($format);
+
+        // Return
+        return $n_time;
     }
 }

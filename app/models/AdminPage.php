@@ -3,10 +3,11 @@
 class AdminPage
 {
     // Construct
-    public function __construct()
+    public function __construct(&$obj_array)
     {
-        // Globals
-        global $db,$User;
+        // Initialize Objects
+        $db     = &$obj_array['db'];
+        $User   = &$obj_array['User'];
 
         // Open Connection
         $db->open();

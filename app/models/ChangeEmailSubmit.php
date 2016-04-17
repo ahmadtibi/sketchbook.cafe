@@ -9,8 +9,12 @@ class ChangeEmailSubmit
     private $old_email = '';
 
     // Construct
-    public function __construct()
+    public function __construct(&$obj_array)
     {
+        // Initialize Objects
+        $db     = &$obj_array['db'];
+        $User   = &$obj_array['User'];
+
         // Classes and Functions
         sbc_class('UserTimer');
         sbc_class('LoginTimer');
@@ -40,9 +44,6 @@ class ChangeEmailSubmit
         // Password
         $password = '';
         $password = get_password($_POST['password']);
-
-        // Globals
-        global $db,$User;
 
         // Open Connection
         $db->open();

@@ -1,12 +1,10 @@
 <?php
-require 'header.php' ;
-// Settings
-$settings_page = 'changeemail';
+// Initialize Vars
+$Form           = &$data['Form'];
+$current_email  = &$data['current_email'];
 
 // Start Form
-echo $data['Form']->start();
-
-require 'settings_top.php';
+echo $Form->start();
 ?>
 <div class="settingsInnerTopWrap">
     <div class="settingsInnerTitle">
@@ -24,7 +22,7 @@ require 'settings_top.php';
         </div>
         <div class="innerRight innerRightLineHeight">
 <?php
-echo $data['current_email'];
+echo $current_email;
 ?>
         </div>
     </div>
@@ -35,7 +33,7 @@ echo $data['current_email'];
         </div>
         <div class="innerRight">
 <?php
-echo $data['Form']->field['email1'];
+echo $Form->field['email1'];
 ?>
         </div>
     </div>
@@ -46,7 +44,7 @@ echo $data['Form']->field['email1'];
         </div>
         <div class="innerRight">
 <?php
-echo $data['Form']->field['email2'];
+echo $Form->field['email2'];
 ?>
         </div>
     </div>
@@ -57,7 +55,7 @@ echo $data['Form']->field['email2'];
         </div>
         <div class="innerRight">
 <?php
-echo $data['Form']->field['password'];
+echo $Form->field['password'];
 ?>
         </div>
     </div>
@@ -68,16 +66,12 @@ echo $data['Form']->field['password'];
         </div>
         <div class="innerRight">
 <?php
-echo $data['Form']->field['submit'];
+echo $Form->field['submit'];
 ?>
         </div>
     </div>
 </div>
 <?php
-require 'settings_bottom.php';
-
 // End Form
-echo $data['Form']->end();
-
-require 'footer.php';
+echo $Form->end();
 ?>

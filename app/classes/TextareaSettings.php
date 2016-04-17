@@ -46,9 +46,49 @@ class TextareaSettings
             'setting_name'  => 'composenote',
         );
 
+        // Forum Signature
+        $settings['forumsignature']    = array
+        (
+            'name'          => 'forumsignature',
+            'max'           => 1000, // user input max
+            'column_max'    => 5000, // database max
+            'css'           => 'textarea_forumsignature', 
+            'preview'       => 1,
+            'submit'        => 0,
+            'help'          => 1,
+            'nl2br'         => 0,
+            'basic'         => 1,
+            'images'        => 0,
+            'videos'        => 0,
+            'setting_name'  => 'forumsignature',
+        );
+
+        // Note Reply
+        $settings['notereply']    = array
+        (
+            'name'          => 'notereply',
+            'max'           => 20000, // user input max
+            'column_max'    => 60000, // database max
+            'css'           => 'textarea_compose', 
+            'preview'       => 1,
+            'submit'        => 1,
+            'help'          => 1,
+            'nl2br'         => 1,
+            'basic'         => 1,
+            'images'        => 1,
+            'videos'        => 1,
+            'setting_name'  => 'notereply',
+        );
+
         // Set Type
         switch ($setting_name)
         {
+            case 'notereply':           $type = 'notereply';
+                                        break;
+
+            case 'forumsignature':      $type = 'forumsignature';
+                                        break;
+
             case 'composenote':         $type = 'composenote';
                                         break;
 

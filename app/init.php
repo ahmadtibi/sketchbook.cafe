@@ -9,14 +9,17 @@ require 'classes/ProcessAllData.php';
 require 'classes/Db.php';
 require 'classes/User.php';
 require 'classes/Member.php';
+require 'classes/Comment.php';
 
 // Vars
 $sbc_function['test']           = 1;
 $sbc_class['test']              = 1;
 
 // Initialize Objects
-$User   = new User();
-$Member = new Member();
+$User       = new User();
+$Member     = new Member();
+$Comment    = new Comment();
+$Member     = new Member();
 
 // Database Object
 require 'database_settings.php';

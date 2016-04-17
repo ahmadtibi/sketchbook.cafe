@@ -2,26 +2,27 @@
 
 class Login extends Controller
 {
-    public function __construct()
+    protected $obj_array = '';
+
+    public function __construct(&$obj_array)
     {
+        $this->obj_array = &$obj_array;
     }
 
-    // Submit
-    public function submit()
-    {
-        $this->model('UserLogin');
-    }
-
-    // Main Page
+    // Login Page
     public function index()
     {
         // Model
-        $loginObject    = $this->model('UserLoginPage');
+        $loginObject    = $this->model('UserLoginPage',$this->obj_array);
         $Form           = $loginObject->form;
 
         // View
-        require('header.php');
+        $this->view('sketchbookcafe/header');
         $this->view('login/index', ['Form' => $Form]);
-        require('footer.php');
+        $this->view('sketchbookcafe/footer');
+    }
+    public function submit()
+    {
+        $this->model('UserLogin',$this->obj_array);
     }
 }

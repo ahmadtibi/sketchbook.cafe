@@ -1,12 +1,7 @@
 <?php
-require 'header.php' ;
-// Settings
-$settings_page = 'avatar';
-
-// Start Form
-echo $data['Form']->start();
-
-require 'settings_top.php';
+// Set Objects
+$User   = &$data['User'];
+$Form   = &$data['Form'];
 ?>
 <div class="settingsInnerTopWrap">
     <div class="settingsInnerTitle">
@@ -16,6 +11,10 @@ require 'settings_top.php';
         Change your post and comment avatars.
     </div>
 </div>
+<?php
+// Start Form
+echo $Form->start();
+?>
 <div class="settingsInnerBottomWrap">
     <div class="settingsAvatarWrap">
         <div class="settingsAvatarLeft">
@@ -35,17 +34,13 @@ require 'settings_top.php';
             </div>
             File: 
 <?php
-echo $data['Form']->field['imagefile'];
-echo $data['Form']->field['upload'];
+echo $Form->field['imagefile'];
+echo $Form->field['upload'];
 ?>
         </div>
     </div>
 </div>
 <?php
-require 'settings_bottom.php';
-
 // End Form
-echo $data['Form']->end();
-
-require 'footer.php';
+echo $Form->end();
 ?>

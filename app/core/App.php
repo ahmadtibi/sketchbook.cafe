@@ -6,8 +6,13 @@ class App
     protected $method = 'index';
     protected $params = [];
 
-    public function __construct()
+    protected $obj_array = [];
+
+    public function __construct(&$obj_array)
     {
+        // Set DB
+        $this->obj_array = &$obj_array;
+
         $url = $this->parseURL();
 
         if (file_exists('../app/controllers/' . $url[0] . '.php'))
@@ -19,7 +24,7 @@ class App
         require_once '../app/controllers/' . $this->controller .'.php';
 
         // Create a new object of this controller
-        $this->controller = new $this->controller;
+        $this->controller = new $this->controller($obj_array);
 
         // Method
         if (isset($url[1]))

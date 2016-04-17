@@ -12,8 +12,12 @@ class ComposeNoteSubmit
     private $mail_id = 0;
 
     // Construct
-    public function __construct()
+    public function __construct(&$obj_array)
     {
+        // Initialize Objects
+        $db     = &$obj_array['db'];
+        $User   = &$obj_array['User'];
+
         // Classes and Functions
         sbc_class('UserTimer');
         sbc_class('Message');
@@ -22,9 +26,6 @@ class ComposeNoteSubmit
         sbc_class('UpdateMailbox');
         sbc_function('get_username');
         sbc_function('rd');
-
-        // Globals
-        global $db,$User;
 
         // Random Digit
         $this->rd = rd();
@@ -117,6 +118,7 @@ class ComposeNoteSubmit
     final private function createThread(&$db,&$messageObject)
     {
         // Classes + Functions
+        sbc_class('TableMailbox');
         sbc_function('check_number');
         sbc_function('check_empty');
 
@@ -200,6 +202,14 @@ class ComposeNoteSubmit
             error('Could not execute statement (update isdeleted) for ComposeNoteSubmit->createThread()');
         }
         $stmt->close();
+
+        // Update Comment's Parent ID
+        $messageObject->setParentId($comment_id);
+        $messageObject->updateParentId($db);
+
+        // Generate Mailbox Tables
+        $TableMailbox = new TableMailbox($mail_id);
+        $TableMailbox->checkTables($db);
     }
 
     // Get Other User Information

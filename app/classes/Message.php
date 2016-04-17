@@ -5,7 +5,7 @@
 *
 * @author       Jonathan Maltezo (Kameloh)
 * @copyright   (c) 2016, Jonathan Maltezo (Kameloh)
-* @lastupdated  2016-04-15
+* @lastupdated  2016-04-16
 *
 */
 class Message
@@ -35,6 +35,7 @@ class Message
 
     // Master Comment Information
     private $user_id = 0;
+    private $parent_id = 0; // for things like forums or mailboxes
     private $comment_type = '';
     private $comment_id = 0;
 
@@ -430,6 +431,9 @@ class Message
         $comment_type = '';
         switch ($type)
         {
+            case 'note_reply':      $comment_type = 'note_reply';
+                                    break;
+
             case 'new_mail_thread': $comment_type = 'new_mail_thread';
                                     break;
 
@@ -454,6 +458,43 @@ class Message
             error('Dev error: $comment_id is not set for Message->getComment()');
         }
         return $value;
+    }
+
+    // Set Parent ID
+    final public function setParentId($parent_id)
+    {
+        $parent_id = isset($parent_id) ? (int) $parent_id : 0;
+        if ($parent_id < 1)
+        {
+            $parent_id = 0;
+        }
+
+        // Set
+        $this->parent_id = $parent_id;
+    }
+
+    // Update Parent ID
+    final public function updateParentId(&$db)
+    {
+        // Initialize Vars
+        $comment_id = $this->comment_id;
+        $parent_id  = $this->parent_id;
+
+        // Switch
+        $db->sql_switch('sketchbookcafe');
+
+        // Update Comment
+        $sql = 'UPDATE sbc_comments
+            SET parent_id=?
+            WHERE id=?
+            LIMIT 1';
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param('ii',$parent_id,$comment_id);
+        if (!$stmt->execute())
+        {
+            error('Could not execute statement (update parent id) for Message->updateParentId()');
+        }
+        $stmt->close();
     }
 
     // Create Message
@@ -538,7 +579,26 @@ class Message
         {
             // Update comment + Mark as undeleted
             $sql = 'UPDATE sbc_comments
-                SET ismail=1,
+                SET type=1,
+                ismail=1,
+                isprivate=1,
+                isdeleted=0
+                WHERE id=?
+                LIMIT 1';
+            $stmt = $db->prepare($sql);
+            $stmt->bind_param('i',$comment_id);
+            if (!$stmt->execute())
+            {
+                error('Could not execute statement (update comment as mail thread) for Message->createMessage()');
+            }
+            $stmt->close();
+        }
+        else if ($comment_type == 'note_reply')
+        {
+            // Update comment + Mark as undeleted
+            $sql = 'UPDATE sbc_comments
+                SET type=1,
+                ismail=1,
                 isprivate=1,
                 isdeleted=0
                 WHERE id=?

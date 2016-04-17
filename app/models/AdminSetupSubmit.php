@@ -10,8 +10,12 @@ class AdminSetupSubmit
     private $isready = 0;
 
     // Construct
-    public function __construct()
+    public function __construct(&$obj_array)
     {
+        // Initialize Objects
+        $db     = &$obj_array['db'];
+        $User   = &$obj_array['User'];
+
         // Classes and Functions
         sbc_function('get_password');
 
@@ -30,9 +34,6 @@ class AdminSetupSubmit
         $this->password1    = password_hash($pass1,PASSWORD_DEFAULT);
         $this->password2    = password_hash($pass2,PASSWORD_DEFAULT);
         $this->password3    = password_hash($pass3,PASSWORD_DEFAULT);
-
-        // Globals
-        global $db,$User;
 
         // Open Connection
         $db->open();

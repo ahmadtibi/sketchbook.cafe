@@ -25,13 +25,14 @@ class UnblockUser
     }
 
     // Unblock user
-    final public function unblockUser()
+    final public function unblockUser(&$obj_array)
     {
+        // Initialize Objects
+        $db     = &$obj_array['db'];
+        $User   = &$obj_array['User'];
+
         // Classes
         sbc_class('CountContent');
-
-        // Globals
-        global $db,$User;
 
         // Initialize Vars
         $r_user_id = $this->r_user_id;

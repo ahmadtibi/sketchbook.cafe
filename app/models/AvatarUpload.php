@@ -6,10 +6,11 @@ class AvatarUpload
     private $ip_address = '';
 
     // Construct
-    public function __construct()
+    public function __construct(&$obj_array)
     {
-        // Globals
-        global $db,$User;
+        // Set Objects
+        $db     = &$obj_array['db'];
+        $User   = &$obj_array['User'];
 
         // Functions + Classes
         sbc_class('ImageFile');

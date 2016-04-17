@@ -3,14 +3,22 @@
 
 class Mailbox extends Controller
 {
+    protected $obj_array = '';
+
     // Construct
-    public function __construct()
+    public function __construct(&$obj_array)
     {
+        $this->obj_array = &$obj_array;
     }
 
     // View Note
     public function note($mail_id = 0, $pageno = 0)
     {
+        // Initialize Objects
+        $Comment    = $this->obj_array['Comment'];
+        $Member     = $this->obj_array['Member'];
+        $User       = $this->obj_array['User'];
+
         // Mail ID
         $mail_id    = isset($mail_id) ? (int) $mail_id : 0;
         if ($mail_id < 1)
@@ -26,52 +34,84 @@ class Mailbox extends Controller
         }
 
         // Model
-        $noteObject = $this->model('NotePage');
+        $noteObject = $this->model('NotePage',$this->obj_array);
         $noteObject->setNoteId($mail_id);
         $noteObject->setPageNumber($pageno);
         $noteObject->getNote();
 
-        // View
+        // Set Vars
+        $Form           = $noteObject->Form;
+        $result         = $noteObject->result;
+        $rownum         = $noteObject->rownum;
+        $comment_id     = $noteObject->comment_id;
+        $Mail           = $noteObject->data;
         $current_page   = 'viewnote';
-        require 'header.php';
-        require 'mailbox_top.php';
-        $this->view('mailbox/viewnote');
-        require 'mailbox_bottom.php';
-        require 'footer.php';
+        $total_replies  = $noteObject->total_replies;
+        $pagenumbers    = $noteObject->pagenumbers;
+
+        // View
+        $this->view('sketchbookcafe/header');
+        $this->view('sketchbookcafe/mailbox_top', ['current_page' => $current_page,]);
+        $this->view('mailbox/viewnote', 
+        [
+            'Form'          => $Form,
+            'result'        => $result,
+            'rownum'        => $rownum, 
+            'Mail'          => $Mail,
+            'Comment'       => $Comment,
+            'Member'        => $Member,
+            'User'          => $User,
+            'pageno'        => $pageno,
+            'total_replies' => $total_replies,
+            'pagenumbers'   => $pagenumbers,
+        ]);
+        $this->view('sketchbookcafe/mailbox_bottom');
+        $this->view('sketchbookcafe/footer');
+    }
+    public function note_submit()
+    {
+        // Model
+        $this->model('NoteReply',$this->obj_array);
     }
 
     // Compose Note
     public function compose()
     {
-        $ComposeObject  = $this->model('ComposeNotePage');
+        $ComposeObject  = $this->model('ComposeNotePage',$this->obj_array);
         $Form           = $ComposeObject->form;
 
-        // View
+        // Current Page
         $current_page   = 'compose';
-        require 'header.php';
-        require 'mailbox_top.php';
+
+        // View
+        $this->view('sketchbookcafe/header');
+        $this->view('sketchbookcafe/mailbox_top', ['current_page' => $current_page,]);
         $this->view('mailbox/composenote', ['Form' => $Form]);
-        require 'mailbox_bottom.php';
-        require 'footer.php';
+        $this->view('sketchbookcafe/mailbox_bottom');
+        $this->view('sketchbookcafe/footer');
     }
     public function compose_submit()
     {
-        $noteObject     = $this->model('ComposeNoteSubmit');
+        $noteObject     = $this->model('ComposeNoteSubmit',$this->obj_array);
         $mail_id        = $noteObject->mail_id;
     }
 
     // Main Page
     public function index()
     {
-        $this->model('MailboxPage');
+        // Model
+        $this->model('MailboxPage',$this->obj_array);
+
+        // Current Page
+        $current_page   = 'inbox';
 
         // View
-        $current_page   = 'inbox';
-        require 'header.php';
-        require 'mailbox_top.php';
+        $this->view('sketchbookcafe/header');
+        $this->view('sketchbookcafe/mailbox_top', ['current_page' => $current_page,]);
         $this->view('mailbox/index');
         require 'mailbox_bottom.php';
-        require 'footer.php';
+        $this->view('sketchbookcafe/mailbox_bottom');
+        $this->view('sketchbookcafe/footer');
     }
 
 }

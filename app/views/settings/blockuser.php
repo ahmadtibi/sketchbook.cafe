@@ -1,12 +1,11 @@
 <?php
-require 'header.php' ;
-// Settings
-$settings_page = 'blockuser';
+// Initialize Vars
+$Form   = &$data['Form'];
+$result = &$data['result'];
+$rownum = &$data['rownum'];
 
 // Start Form
-echo $data['Form']->start();
-
-require 'settings_top.php';
+echo $Form->start();
 ?>
 <div class="settingsInnerTopWrap">
     <div class="settingsInnerTitle">
@@ -24,7 +23,7 @@ require 'settings_top.php';
         </div>
         <div class="innerRight">
 <?php
-echo $data['Form']->field['username'];
+echo $Form->field['username'];
 ?>
             <div class="innerRightInfo">
                 The user that you want to block.
@@ -38,19 +37,19 @@ echo $data['Form']->field['username'];
         </div>
         <div class="innerRight">
 <?php
-echo $data['Form']->field['submit'];
+echo $Form->field['submit'];
 ?>
         </div>
     </div>
 
     <div class="innerWrap">
         <div class="innerLeft">
-            <?php echo $data['rownum'];?> Blocked User(s):
+            <?php echo $rownum;?> Blocked User(s):
         </div>
         <div class="innerRight">
 <?php
 // Loop Blocked Users
-while ($trow = mysqli_fetch_assoc($data['result']))
+while ($trow = mysqli_fetch_assoc($result))
 {
     $temp_id = $trow['cid'];
 ?>
@@ -60,17 +59,13 @@ while ($trow = mysqli_fetch_assoc($data['result']))
             </div>
 <?php
 }
-mysqli_data_seek($data['result'],0);
+mysqli_data_seek($result,0);
 ?>
         </div>
     </div>
 
 </div>
 <?php
-require 'settings_bottom.php';
-
 // End Form
-echo $data['Form']->end();
-
-require 'footer.php';
+echo $Form->end();
 ?>

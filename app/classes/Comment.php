@@ -1,6 +1,6 @@
 <?php
-// Member class - contains all members visible on the page
-class Member
+// Comment Class
+class Comment
 {
     // SQL Stuff
     public $result = '';
@@ -8,19 +8,20 @@ class Member
 
     // Vars
     private $id_list = '';
-    public $member = [];
+    public $comment = [];
 
     // Construct
     public function __construct()
     {
-
     }
 
-    // Get Users
-    final public function getUsers(&$db)
+    final public function getComments(&$db)
     {
         // Functions
         sbc_function('id_clean');
+
+        // Create list
+        $id_list = id_clean($this->id_list);
 
         // Create list
         $id_list = id_clean($this->id_list);
@@ -34,62 +35,90 @@ class Member
             foreach ($temp_array as $value)
             {
                 // Create Array
-                $this->member[$value]['id'] = $value;
+                $this->comment[$value]['id'] = $value;
             }
 
             // Switch
             $db->sql_switch('sketchbookcafe');
 
-            // Get members
-            $sql = 'SELECT id, username, avatar_id, avatar_url, title, forumsignature
-                FROM users
+            // Get Comments
+            $sql = 'SELECT id, user_id, date_created, message, ismail, isprivate, isdeleted
+                FROM sbc_comments
                 WHERE id IN('.$id_list.')';
             $result = $db->sql_query($sql);
             $rownum = $db->sql_numrows($result);
 
-            // Set vars
+            // Set Vars
             $this->result   = $result;
             $this->rownum   = $rownum;
 
             // Set Arrays
             while ($trow = mysqli_fetch_assoc($result))
             {
-                $this->member[$trow['id']] = array
+                $this->comment[$trow['id']] = array
                 (
-                    'title'             => $trow['title'],
-                    'forumsignature'    => $trow['forumsignature'], 
+                    'id'            => $trow['id'],
+                    'user_id'       => $trow['user_id'],
+                    'date_created'  => $trow['date_created'],
+                    'message'       => $trow['message'],
+                    'ismail'        => $trow['ismail'],
+                    'isprivate'     => $trow['isprivate'],
+                    'isdeleted'     => $trow['isdeleted'],
                 );
             }
             mysqli_data_seek($result,0);
         }
     }
 
-    // Display Title
-    final public function displayTitle($id)
+    // Get Date
+    final public function getDate($id)
     {
-        return $this->member[$id]['title'];
-    }
-
-    // Data Not Empty
-    final public function notEmpty($id,$data)
-    {
-        if (!empty($this->member[$id][$data]))
+        // Make sure ID is set
+        $id = isset($id) ? (int) $id : 0;
+        if ($id < 1)
         {
-            return true;
+            return time();
         }
-        else
+
+        // Comment ID
+        $comment_id = isset($this->comment[$id]) ? $this->comment[$id] : 0;
+        if ($comment_id < 1)
         {
-            return false;
+            return time();
         }
+
+        // Get Time
+        return $this->comment[$id]['date_created'];
     }
 
-    // Display Forum Signature
-    final public function displayForumSignature($id)
+    // Display Comment
+    final public function displayComment($id)
     {
-        return $this->member[$id]['forumsignature'];
+        // Make sure ID is set
+        $id = isset($id) ? (int) $id : 0;
+        if ($id < 1)
+        {
+            return null;
+        }
+
+        // Check if the comment exists
+        $comment_id = isset($this->comment[$id]) ? $this->comment[$id] : 0;
+        if ($comment_id < 1)
+        {
+            return 'Could not find comment';
+        }
+
+        // Comment deleted?
+        $isdeleted  = $this->comment[$id]['isdeleted'];
+        if ($isdeleted != 0)
+        {
+            return 'Comment no longer exists';
+        }
+
+        // Return
+        return $this->comment[$id]['message'];
     }
 
-    // Add String
     final public function addString($input)
     {
         if (!empty($input))
@@ -124,7 +153,7 @@ class Member
         }
     }
 
-    // Add One ID
+    // Add Single
     final public function idAddOne($id)
     {
         if ($id > 0)

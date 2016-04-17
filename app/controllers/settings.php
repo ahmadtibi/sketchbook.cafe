@@ -3,15 +3,28 @@
 
 class Settings extends Controller
 {
-    public function __construct()
+    protected $obj_array = '';
+
+    public function __construct(&$obj_array)
     {
+        $this->obj_array = &$obj_array;
     }
 
     // Main page
     public function index()
     {
-        $this->model('SettingsPage');
+        // Model
+        $this->model('SettingsPage',$this->obj_array);
+
+        // Settings Page
+        $settings_page  = 'indexpage';
+
+        // View
+        $this->view('sketchbookcafe/header');
+        $this->view('sketchbookcafe/settings_top', ['settings_page' => $settings_page,]);
         $this->view('settings/index');
+        $this->view('sketchbookcafe/settings_bottom');
+        $this->view('sketchbookcafe/footer');
     }
 
     // Unblock User
@@ -26,126 +39,178 @@ class Settings extends Controller
         // Model
         $UnblockUser = $this->model('UnblockUser');
         $UnblockUser->setUserId($r_user_id);
-        $UnblockUser->unblockUser();
+        $UnblockUser->unblockUser($this->obj_array);
     }
 
     // Block User
     public function blockuser()
     {
         // Model
-        $BlockUser      = $this->model('BlockUserEdit');
+        $BlockUser      = $this->model('BlockUserEdit',$this->obj_array);
         $Form           = $BlockUser->form;
         $result         = $BlockUser->result;
         $rownum         = $BlockUser->rownum;
 
+        // Vars
+        $settings_page  = 'blockuser';
+
         // View
+        $this->view('sketchbookcafe/header');
+        $this->view('sketchbookcafe/settings_top', ['settings_page' => $settings_page,]);
         $this->view('settings/blockuser', 
         [
             'Form'      => $Form, 
             'result'    => $result,
             'rownum'    => $rownum,
         ]);
+        $this->view('sketchbookcafe/settings_bottom');
+        $this->view('sketchbookcafe/footer');
     }
     public function blockuser_submit()
     {
         // Model
-        $this->model('BlockUserSubmit');
+        $this->model('BlockUserSubmit',$this->obj_array);
     }
 
     // Admin Setup
     public function adminsetup()
     {
         // Model
-        $AdminSetup     = $this->model('AdminSetup');
+        $AdminSetup     = $this->model('AdminSetup',$this->obj_array);
         $Form           = $AdminSetup->form;
 
+        // Settings Page
+        $settings_page  = 'adminpassword';
+
         // View
+        $this->view('sketchbookcafe/header');
+        $this->view('sketchbookcafe/settings_top', ['settings_page' => $settings_page,]);
         $this->view('settings/adminsetup', ['Form' => $Form]);
+        $this->view('sketchbookcafe/settings_bottom');
+        $this->view('sketchbookcafe/footer');
     }
     public function adminsetup_submit()
     {
         // Model
-        $this->model('AdminSetupSubmit');
+        $this->model('AdminSetupSubmit',$this->obj_array);
     }
 
     // Change Password
     public function changepassword()
     {
         // Model
-        $ChangePassword = $this->model('ChangePasswordEdit');
+        $ChangePassword = $this->model('ChangePasswordEdit',$this->obj_array);
         $Form           = $ChangePassword->form;
 
+        // Vars
+        $settings_page  = 'changepassword';
+
         // View
+        $this->view('sketchbookcafe/header');
+        $this->view('sketchbookcafe/settings_top', ['settings_page' => $settings_page,]);
         $this->view('settings/changepassword', ['Form' => $Form]);
+        $this->view('sketchbookcafe/settings_bottom');
+        $this->view('sketchbookcafe/footer');
     }
     public function changepassword_submit()
     {
         // Model
-        $this->model('ChangePasswordSubmit');
+        $this->model('ChangePasswordSubmit',$this->obj_array);
     }
 
     // Change E-mail
     public function changeemail()
     {
         // Model
-        $ChangeEmail    = $this->model('ChangeEmailEdit');
+        $ChangeEmail    = $this->model('ChangeEmailEdit',$this->obj_array);
         $Form           = $ChangeEmail->form;
         $current_email  = $ChangeEmail->current_email;
 
+        // Vars
+        $settings_page  = 'changeemail';
+
         // View
+        $this->view('sketchbookcafe/header');
+        $this->view('sketchbookcafe/settings_top', ['settings_page' => $settings_page,]);
         $this->view('settings/changeemail', [
             'Form'          => $Form,
             'current_email' => $current_email,
         ]);
+        $this->view('sketchbookcafe/settings_bottom');
+        $this->view('sketchbookcafe/footer');
     }
     public function changeemail_submit()
     {
         // Model
-        $this->model('ChangeEmailSubmit');
+        $this->model('ChangeEmailSubmit',$this->obj_array);
     }
 
     // Site Settings
     public function sitesettings()
     {
         // Model
-        $SiteSettings   = $this->model('SiteSettingsEdit');
+        $SiteSettings   = $this->model('SiteSettingsEdit',$this->obj_array);
         $Form           = $SiteSettings->form;
 
+        // Vars
+        $settings_page = 'sitesettings';
+
         // View
+        $this->view('sketchbookcafe/header');
+        $this->view('sketchbookcafe/settings_top', ['settings_page' => $settings_page,]);
         $this->view('settings/sitesettings', ['Form' => $Form]);
+        $this->view('sketchbookcafe/settings_bottom');
+        $this->view('sketchbookcafe/footer');
     }
     public function sitesettings_submit()
     {
-        $this->model('SiteSettingsSubmit');
+        $this->model('SiteSettingsSubmit',$this->obj_array);
     }
 
     // Profile Information
     public function info()
     {
         // Model
-        $ProfileInfo    = $this->model('ProfileInfoEdit');
+        $ProfileInfo    = $this->model('ProfileInfoEdit',$this->obj_array);
         $Form           = $ProfileInfo->form;
 
+        // Vars
+        $settings_page = 'info';
+
         // View
+        $this->view('sketchbookcafe/header');
+        $this->view('sketchbookcafe/settings_top', ['settings_page' => $settings_page,]);
         $this->view('settings/info', ['Form' => $Form]);
+        $this->view('sketchbookcafe/settings_bottom');
+        $this->view('sketchbookcafe/footer');
     }
     public function info_submit()
     {
-        $this->model('ProfileInfoSubmit');
+        $this->model('ProfileInfoSubmit',$this->obj_array);
     }
 
     // Avatars
     public function avatar()
     {
+        // Objects
+        $User       = $this->obj_array['User'];
+
         // Avatar Model
-        $AvatarEdit = $this->model('AvatarEdit');
+        $AvatarEdit = $this->model('AvatarEdit',$this->obj_array);
         $Form       = $AvatarEdit->form;
 
+        // Vars
+        $settings_page  = 'avatar';
+
         // View
-        $this->view('settings/avatar', ['Form' => $Form]);
+        $this->view('sketchbookcafe/header');
+        $this->view('sketchbookcafe/settings_top', ['settings_page' => $settings_page,]);
+        $this->view('settings/avatar', ['Form' => $Form, 'User' => $User]);
+        $this->view('sketchbookcafe/settings_bottom');
+        $this->view('sketchbookcafe/footer');
     }
     public function avatar_submit()
     {
-        $this->model('AvatarUpload');
+        $this->model('AvatarUpload',$this->obj_array);
     }
 }

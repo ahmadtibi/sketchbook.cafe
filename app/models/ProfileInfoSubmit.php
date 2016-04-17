@@ -3,14 +3,16 @@
 class ProfileInfoSubmit
 {
     // Construct
-    public function __construct()
+    public function __construct(&$obj_array)
     {
-        // Globals
-        global $db,$User;
+        // Set Objects
+        $db     = &$obj_array['db'];
+        $User   = &$obj_array['User'];
 
         // Classes
         sbc_class('UserTimer');
         sbc_class('Message');
+        sbc_class('TextareaSettings');
 
         // New Message
         $titleObject = new Message(array
@@ -26,12 +28,20 @@ class ProfileInfoSubmit
         ));
         $titleObject->insert($_POST['title']);
 
+        // Textarea Settings
+        $TextareaSettings   = new TextareaSettings('forumsignature');
+        $message_settings   = $TextareaSettings->getSettings();
+
+        // Forum Signature
+        $forumsignatureObject = new Message($message_settings);
+        $forumsignatureObject->insert($_POST['forumsignature']);
+
         // Set SQL Vars
-        $title      = $titleObject->getMessage();
-        $title_code = $titleObject->getMessageCode();
-
-        // === Do this last!
-
+        $title                  = $titleObject->getMessage();
+        $title_code             = $titleObject->getMessageCode();
+        $forumsignature         = $forumsignatureObject->getMessage();
+        $forumsignature_code    = $forumsignatureObject->getMessageCode();
+        
         // Open Connection
         $db->open();
 
@@ -50,11 +60,13 @@ class ProfileInfoSubmit
         // Update User Information
         $sql = 'UPDATE users
             SET title=?,
-            title_code=?
+            title_code=?,
+            forumsignature=?,
+            forumsignature_code=?
             WHERE id=?
             LIMIT 1';
         $stmt = $db->prepare($sql);
-        $stmt->bind_param('ssi',$title,$title_code,$user_id);
+        $stmt->bind_param('ssssi',$title,$title_code,$forumsignature,$forumsignature_code,$user_id);
         if (!$stmt->execute())
         {
             error('Could not execute statement (update user information) for ProfileInfoSubmit->construct()');

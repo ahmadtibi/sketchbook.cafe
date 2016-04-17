@@ -2,12 +2,13 @@
 // User logout stuff
 class UserLogout
 {
-    public function __construct()
+    public function __construct(&$obj_array)
     {
-        // Global
-        global $User;
+        // Initialize Objects
+        $db     = &$obj_array['db'];
+        $User   = &$obj_array['User'];
 
         // I guess we can logout with the user object?
-        $User->logout();
+        $User->logout($db);
     }
 }

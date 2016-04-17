@@ -3,20 +3,22 @@
 
 class Admin extends Controller
 {
-    public function __construct()
-    {
+    protected $obj_array = '';
 
+    public function __construct(&$obj_array)
+    {
+        $this->obj_array = &$obj_array;
     }
 
     // Main Page
     public function index()
     {
         // Model
-        $this->model('AdminPage');
+        $this->model('AdminPage',$this->obj_array);
 
         // View
-        require 'header.php';
+        $this->view('sketchbookcafe/header');
         $this->view('admin/index');
-        require 'footer.php';
+        $this->view('sketchbookcafe/footer');
     }
 }

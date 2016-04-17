@@ -8,5 +8,12 @@ if ($address != '199.27.133.30')
     echo 'Under construction!';
     exit;
 }
-$App = new App();
+$obj_array = array
+(
+    'db'        => $db,
+    'User'      => $User,
+    'Comment'   => $Comment,
+    'Member'    => $Member,
+);
+$App = new App($obj_array);
 ?>

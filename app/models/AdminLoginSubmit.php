@@ -17,15 +17,16 @@ class AdminLoginSubmit
     private $pass3 = '';
 
     // Construct
-    public function __construct()
+    public function __construct(&$obj_array)
     {
+        // Initialize Objects
+        $db     = &$obj_array['db'];
+        $User   = &$obj_array['User'];
+
         // Clases + Functions
         sbc_class('LoginTimer');
         sbc_function('get_password');
         sbc_function('generate_random');
-
-        // Globals
-        global $db,$User;
 
         // Initialize Vars
         $this->ip_address   = $_SERVER['REMOTE_ADDR'];

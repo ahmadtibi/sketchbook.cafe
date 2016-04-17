@@ -4,7 +4,7 @@ class UserLoginpage
     public $form = [];
 
     // Construct
-    public function __construct()
+    public function __construct(&$obj_array)
     {
         // Classes
         sbc_class('Form');

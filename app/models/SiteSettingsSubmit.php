@@ -3,14 +3,15 @@
 class SiteSettingsSubmit
 {
     // Construct
-    public function __construct()
+    public function __construct(&$obj_array)
     {
+        // Initialize Objects
+        $db     = &$obj_array['db'];
+        $User   = &$obj_array['User'];
+
         // Classes and Functions
         sbc_class('UserTimer');
         sbc_function('sbc_timezone');
-
-        // Globals
-        global $db,$User;
 
         // Timezone ID
         $timezone_id = isset($_POST['timezone_id']) ? (int) $_POST['timezone_id'] : 0;

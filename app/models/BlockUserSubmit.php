@@ -10,10 +10,11 @@ class BlockUserSubmit
     private $r_user_id = 0;
 
     // Construct
-    public function __construct()
+    public function __construct(&$obj_array)
     {
-        // Globals
-        global $db,$User;
+        // Initialize Objects
+        $db     = &$obj_array['db'];
+        $User   = &$obj_array['User'];
 
         // Classes + Functions
         sbc_class('UserTimer');

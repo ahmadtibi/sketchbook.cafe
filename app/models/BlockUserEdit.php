@@ -8,13 +8,14 @@ class BlockUserEdit
     public $rownum = 0;
 
     // Construct
-    public function __construct()
+    public function __construct(&$obj_array)
     {
+        // Initialize Objects
+        $db     = &$obj_array['db'];
+        $User   = &$obj_array['User'];
+
         // Classes + Functions
         sbc_class('Form');
-
-        // Globals
-        global $db,$User;
 
         // Open Connection
         $db->open();

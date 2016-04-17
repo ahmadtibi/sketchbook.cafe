@@ -5,13 +5,14 @@ class AdminLoginPage
     public $form;
 
     // Construct
-    public function __construct()
+    public function __construct(&$obj_array)
     {
+        // Initialize Objects
+        $db     = &$obj_array['db'];
+        $User   = &$obj_array['User'];
+
         // Classes and Functions
         sbc_class('Form');
-
-        // Globals
-        global $db,$User;
 
         // Open Connection
         $db->open();

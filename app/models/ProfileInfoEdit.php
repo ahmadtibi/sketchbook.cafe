@@ -5,13 +5,15 @@ class ProfileInfoEdit
     public $form;
 
     // Consruct
-    public function __construct()
+    public function __construct(&$obj_array)
     {
+        // Set Objects
+        $db     = &$obj_array['db'];
+        $User   = &$obj_array['User'];
+
         // Classes and Functions
         sbc_class('Form');
-
-        // Globals
-        global $db,$User;
+        sbc_class('TextareaSettings');
 
         // Open Connection
         $db->open();
@@ -25,7 +27,7 @@ class ProfileInfoEdit
         $db->sql_switch('sketchbookcafe');
 
         // Get User Information
-        $sql = 'SELECT title_code
+        $sql = 'SELECT title_code, forumsignature_code 
             FROM users
             WHERE id=?
             LIMIT 1';
@@ -44,7 +46,8 @@ class ProfileInfoEdit
         $db->close();
 
         // Set vars
-        $title_code = $row['title_code'];
+        $title_code             = $row['title_code'];
+        $forumsignature_code    = $row['forumsignature_code'];
 
         // New Form
         $Form = new Form(array
@@ -71,6 +74,14 @@ class ProfileInfoEdit
             'placeholder'   => 'title',
             'css'           => 'input300',
         ));
+
+        // Textarea Settings
+        $TextareaSettings = new TextareaSettings('forumsignature');
+        $TextareaSettings->setValue($forumsignature_code);
+        $message_settings   = $TextareaSettings->getSettings();
+
+        // Forum Signature
+        $Form->field['forumsignature'] = $Form->textarea($message_settings);
 
         // Set vars
         $this->form = $Form;

@@ -1,12 +1,9 @@
 <?php
-require 'header.php' ;
-// Settings
-$settings_page = 'info';
+// Initialize Vars
+$Form   = &$data['Form'];
 
 // Start Form
-echo $data['Form']->start();
-
-require 'settings_top.php';
+echo $Form->start();
 ?>
 <div class="settingsInnerTopWrap">
     <div class="settingsInnerTitle">
@@ -24,7 +21,7 @@ require 'settings_top.php';
         </div>
         <div class="innerRight">
 <?php
-echo $data['Form']->field['title'];
+echo $Form->field['title'];
 ?>
             <div class="innerRightInfo">
                 User title displayed in forum posts.
@@ -34,21 +31,28 @@ echo $data['Form']->field['title'];
 
     <div class="innerWrap">
         <div class="innerLeft">
+            Forum Signature:
+        </div>
+        <div class="innerRight">
+<?php
+echo $Form->field['forumsignature'];
+?>
+        </div>
+    </div>
+
+    <div class="innerWrap">
+        <div class="innerLeft">
             &nbsp;
         </div>
         <div class="innerRight">
 <?php
-echo $data['Form']->field['submit'];
+echo $Form->field['submit'];
 ?>
         </div>
     </div>
 
 </div>
 <?php
-require 'settings_bottom.php';
-
 // End Form
-echo $data['Form']->end();
-
-require 'footer.php';
+echo $Form->end();
 ?>

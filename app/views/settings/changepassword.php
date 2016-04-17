@@ -1,12 +1,9 @@
 <?php
-require 'header.php' ;
-// Settings
-$settings_page = 'changepassword';
+// Initialize Vars
+$Form   = &$data['Form'];
 
 // Start Form
-echo $data['Form']->start();
-
-require 'settings_top.php';
+echo $Form->start();
 ?>
 <div class="settingsInnerTopWrap">
     <div class="settingsInnerTitle">
@@ -24,7 +21,7 @@ require 'settings_top.php';
         </div>
         <div class="innerRight">
 <?php
-echo $data['Form']->field['pass1'];
+echo $Form->field['pass1'];
 ?>
         </div>
     </div>
@@ -35,7 +32,7 @@ echo $data['Form']->field['pass1'];
         </div>
         <div class="innerRight">
 <?php
-echo $data['Form']->field['pass2'];
+echo $Form->field['pass2'];
 ?>
         </div>
     </div>
@@ -46,7 +43,7 @@ echo $data['Form']->field['pass2'];
         </div>
         <div class="innerRight">
 <?php
-echo $data['Form']->field['current_password'];
+echo $Form->field['current_password'];
 ?>
         </div>
     </div>
@@ -57,17 +54,13 @@ echo $data['Form']->field['current_password'];
         </div>
         <div class="innerRight">
 <?php
-echo $data['Form']->field['submit'];
+echo $Form->field['submit'];
 ?>
         </div>
     </div>
 
 </div>
 <?php
-require 'settings_bottom.php';
-
 // End Form
-echo $data['Form']->end();
-
-require 'footer.php';
+echo $Form->end();
 ?>

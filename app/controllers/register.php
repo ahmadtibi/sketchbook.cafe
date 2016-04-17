@@ -2,41 +2,28 @@
 
 class Register extends Controller
 {
-    private $db;
+    protected $obj_array = '';
 
-    public function __construct()
+    public function __construct(&$obj_array)
     {
-        global $db;
-        $this->db = &$db;
-    }
-
-    // Submit
-    public function submit()
-    {
-        $this->model('UserRegistration');
+        $this->obj_array = &$obj_array;
     }
 
     // Main Registration Page
     public function index()
     {
-        // Database
-        $db = $this->db;
-        $db->open();
-        $sql = 'SELECT username FROM users WHERE id=2 LIMIT 1';
-        $result = $db->sql_query($sql);
-        $row    = $db->sql_fetchrow($result);
-        echo 'username is '.$row['username'];
-        $db->close();
-
         // Model
-        $registerObject = $this->model('UserRegistrationPage');
+        $registerObject = $this->model('UserRegistrationPage',$this->obj_array);
         $Form           = $registerObject->form;
-
-        // Use Variables instead of the whole object
 
         // View
         $this->view('sketchbookcafe/header');
         $this->view('register/index', ['Form' => $Form]);
         $this->view('sketchbookcafe/footer');
+    }
+    public function submit()
+    {
+        // Model
+        $this->model('UserRegistration',$this->obj_array);
     }
 }

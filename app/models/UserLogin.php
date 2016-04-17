@@ -10,10 +10,10 @@ class UserLogin
     private $rd = 0;
 
     // Construct
-    public function __construct()
+    public function __construct(&$obj_array)
     {
-        // Globals
-        global $db;
+        // Initialize Objects
+        $db     = &$obj_array['db'];
 
         // Functions + Classes
         sbc_function('get_username');

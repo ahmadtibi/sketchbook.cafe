@@ -1,12 +1,9 @@
 <?php
-require 'header.php' ;
-// Settings
-$settings_page = 'sitesettings';
+// Initialize Vars
+$Form   = &$data['Form'];
 
 // Start Form
-echo $data['Form']->start();
-
-require 'settings_top.php';
+echo $Form->start();
 ?>
 <div class="settingsInnerTopWrap">
     <div class="settingsInnerTitle">
@@ -24,7 +21,7 @@ require 'settings_top.php';
         </div>
         <div class="innerRight">
 <?php
-echo $data['Form']->field['timezone'];
+echo $Form->field['timezone'];
 ?>
             <div class="innerRightInfo">
                 Your current timezone.
@@ -38,17 +35,13 @@ echo $data['Form']->field['timezone'];
         </div>
         <div class="innerRight">
 <?php
-echo $data['Form']->field['submit'];
+echo $Form->field['submit'];
 ?>
         </div>
     </div>
 
 </div>
 <?php
-require 'settings_bottom.php';
-
 // End Form
-echo $data['Form']->end();
-
-require 'footer.php';
+echo $Form->end();
 ?>

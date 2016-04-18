@@ -11,6 +11,13 @@ class Mailbox extends Controller
         $this->obj_array = &$obj_array;
     }
 
+    // Delete Note
+    public function note_delete_submit()
+    {
+        // Model
+        $this->model('NoteDeleteSubmit',$this->obj_array);
+    }
+
     // View Note
     public function note($mail_id = 0, $pageno = 0)
     {
@@ -40,6 +47,7 @@ class Mailbox extends Controller
         $noteObject->getNote();
 
         // Set Vars
+        $DeleteForm     = $noteObject->DeleteForm;
         $Form           = $noteObject->Form;
         $result         = $noteObject->result;
         $rownum         = $noteObject->rownum;
@@ -48,12 +56,16 @@ class Mailbox extends Controller
         $current_page   = 'viewnote';
         $total_replies  = $noteObject->total_replies;
         $pagenumbers    = $noteObject->pagenumbers;
+        $pages_min      = $noteObject->pages_min;
+        $pages_max      = $noteObject->pages_max;
+        $pages_total    = $noteObject->pages_total;
 
         // View
         $this->view('sketchbookcafe/header');
         $this->view('sketchbookcafe/mailbox_top', ['current_page' => $current_page,]);
         $this->view('mailbox/viewnote', 
         [
+            'DeleteForm'    => $DeleteForm,
             'Form'          => $Form,
             'result'        => $result,
             'rownum'        => $rownum, 
@@ -64,6 +76,9 @@ class Mailbox extends Controller
             'pageno'        => $pageno,
             'total_replies' => $total_replies,
             'pagenumbers'   => $pagenumbers,
+            'pages_min'     => $pages_min,
+            'pages_max'     => $pages_max,
+            'pages_total'   => $pages_total,
         ]);
         $this->view('sketchbookcafe/mailbox_bottom');
         $this->view('sketchbookcafe/footer');
@@ -97,10 +112,33 @@ class Mailbox extends Controller
     }
 
     // Main Page
-    public function index()
+    public function index($pageno = 0)
     {
+        // Initialize Objects
+        $Member     = $this->obj_array['Member'];
+        $User       = $this->obj_array['User'];
+
+        // Page Numbers
+        $pageno     = isset($pageno) ? (int) $pageno : 0;
+        if ($pageno < 1)
+        {
+            $pageno = 0;
+        }
+
         // Model
-        $this->model('MailboxPage',$this->obj_array);
+        $InboxObject    = $this->model('MailboxPage');
+        $InboxObject->setPageNumber($pageno);
+        $InboxObject->processPage($this->obj_array);
+
+        // Vars
+        $user_id        = $InboxObject->user_id;
+        $result         = $InboxObject->result;
+        $rownum         = $InboxObject->rownum;
+        $isnew          = $InboxObject->isnew;
+        $pagenumbers    = $InboxObject->pagenumbers;
+        $pages_min      = $InboxObject->pages_min;
+        $pages_max      = $InboxObject->pages_max;
+        $pages_total    = $InboxObject->pages_total;
 
         // Current Page
         $current_page   = 'inbox';
@@ -108,8 +146,19 @@ class Mailbox extends Controller
         // View
         $this->view('sketchbookcafe/header');
         $this->view('sketchbookcafe/mailbox_top', ['current_page' => $current_page,]);
-        $this->view('mailbox/index');
-        require 'mailbox_bottom.php';
+        $this->view('mailbox/index',
+        [
+            'Member'        => $Member,
+            'result'        => $result,
+            'rownum'        => $rownum,
+            'User'          => $User,
+            'user_id'       => $user_id,
+            'isnew'         => $isnew,
+            'pagenumbers'   => $pagenumbers,
+            'pages_min'     => $pages_min,
+            'pages_max'     => $pages_max,
+            'pages_total'   => $pages_total,
+        ]);
         $this->view('sketchbookcafe/mailbox_bottom');
         $this->view('sketchbookcafe/footer');
     }

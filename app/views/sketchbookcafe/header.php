@@ -1,6 +1,10 @@
 <?php
 // Might have to use some globals here
+// Fix this later!
 global $User, $Member;
+
+// Initialize Vars
+$mail_total = $User->mail_total;
 ?>
 <!doctype html>
 <html>
@@ -50,7 +54,7 @@ if ($User->loggedIn())
             <div class="headerUserDiv">
                 <script>sbc_username(<?php echo $User->getUserId();?>, 'fb');</script>
                 <span style="padding-left: 12px;">
-                    <a href="https://www.sketchbook.cafe/mailbox/">Inbox (0)</a>
+                    <a href="https://www.sketchbook.cafe/mailbox/" class="<?php if ($mail_total > 0) { echo 'fb'; } ?>">Inbox (<?php echo $mail_total;?>)</a>
                 </span>
                 <span style="padding-left: 12px;">
                     <a href="">Notifications (0)</a>

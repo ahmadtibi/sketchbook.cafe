@@ -41,6 +41,7 @@ class AvatarEdit
         $db->open();
 
         // Required User + Process Data
+        $User->setFrontpage();
         $User->required($db);
         $ProcessAllData = new ProcessAllData();
 

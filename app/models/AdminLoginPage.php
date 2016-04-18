@@ -18,6 +18,7 @@ class AdminLoginPage
         $db->open();
 
         // Required User + Process Data
+        $User->setFrontpage();
         $User->required($db);
         $ProcessAllData = new ProcessAllData();
         if (!$User->isAdmin())

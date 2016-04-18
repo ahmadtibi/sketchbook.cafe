@@ -5,7 +5,7 @@
 * 
 * @author       Jonathan Maltezo (Kameloh)
 * @copyright    (c) 2016, Jonathan Maltezo (Kameloh)
-* @lastUpdated  2016-04-14
+* @lastUpdated  2016-04-17
 *
 */
 class Form
@@ -209,16 +209,23 @@ class Form
     }
 
     // Submit
-    // $input:  'name', 'css'
+    // $input:  'name', 'css', 'value'
     final public function submit($input)
     {
         // Vars
         $name   = isset($input['name']) ? $input['name'] : 'submit';
         $css    = isset($input['css']) ? $input['css'] : '';
         $css    = $this->data['submit_class'] . ' ' . $css;
+        $value  = isset($input['value']) ? $input['value'] : '';
+
+        // Do we have a value?
+        if (empty($value))
+        {
+            $value = $this->data['inactive'];
+        }
 
         // Button
-        $button = '<input id="'.$this->data['submit_id'].'" type="Submit" name="'.$name.'" value="'.$this->data['inactive'].'" class="'.$css.'">';
+        $button = '<input id="'.$this->data['submit_id'].'" type="Submit" name="'.$name.'" value="'.$value.'" class="'.$css.'">';
         $button .= "\n";
 
         // Return

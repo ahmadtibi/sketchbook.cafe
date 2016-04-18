@@ -8,6 +8,7 @@ class NoteReply
     private $ip_address = '';
     private $time = '';
 
+    private $total = 0;
     private $comment_id = 0;
 
     // Construct
@@ -23,6 +24,7 @@ class NoteReply
         sbc_class('Message');
         sbc_class('BlockCheck');
         sbc_class('UpdateMailbox');
+        sbc_function('current_page');
         sbc_function('check_number');
 
         // Mail ID
@@ -77,6 +79,9 @@ class NoteReply
         // Insert into mail table
         $this->insertIntoTable($db);
 
+        // Mark thread as new
+        $this->markThreadAsNew($db);
+
         // Update Mailbox Timers
         $mailbox_timer1 = new UpdateMailbox($user_id);
         $mailbox_timer2 = new UpdateMailbox($r_user_id);
@@ -89,8 +94,13 @@ class NoteReply
         // Close Connection
         $db->close();
 
+        // Calculate Page
+        $ppage  = 10;
+        $total  = $this->total;
+        $pageno = current_page($ppage,$total);
+
         // Header
-        header('Location: https://www.sketchbook.cafe/mailbox/note/'.$mail_id.'/');
+        header('Location: https://www.sketchbook.cafe/mailbox/note/'.$mail_id.'/'.$pageno.'/#recent');
         exit;
     }
 
@@ -108,7 +118,7 @@ class NoteReply
         $db->sql_switch('sketchbookcafe');
 
         // Get mail information
-        $sql = 'SELECT id, user_id, r_user_id, removed_user_id, removed_r_user_id, isdeleted
+        $sql = 'SELECT id, user_id, r_user_id, removed_user_id, removed_r_user_id, total_replies, isdeleted
             FROM mailbox_threads
             WHERE id=?
             LIMIT 1';
@@ -141,16 +151,19 @@ class NoteReply
 
         // Who are they?
         $who        = '';
+        $other      = '';
         $r_user_id  = 0;
         if ($row['user_id'] == $user_id)
         {
-            $who = 'user_id';
-            $r_user_id = $row['r_user_id'];
+            $who        = 'user_id';
+            $other      = 'r_user_id';
+            $r_user_id  = $row['r_user_id'];
         }
         else if ($row['r_user_id'] == $user_id)
         {
-            $who = 'r_user_id';
-            $r_user_id = $row['user_id'];
+            $who        = 'r_user_id';
+            $other      = 'user_id';
+            $r_user_id  = $row['user_id'];
         }
         else
         {
@@ -163,6 +176,12 @@ class NoteReply
             error('Sorry, this note no longer exists in your mailbox');
         }
 
+        // Check if the other user removed this thread from their mailbox
+        if ($row['removed_'.$other] != 0)
+        {
+            error('Sorry, the other user has removed this from their mailbox');
+        }
+
         // Check if it's deleted
         if ($row['isdeleted'] != 0)
         {
@@ -171,6 +190,7 @@ class NoteReply
 
         // Set Vars
         $this->r_user_id    = $r_user_id;
+        $this->total        = (int) $row['total_replies'];
     }
 
     // Create a Reply
@@ -202,6 +222,7 @@ class NoteReply
     final private function insertIntoTable(&$db)
     {
         // Initialize Vars
+        $user_id    = $this->user_id;
         $mail_id    = $this->mail_id;
         $comment_id = $this->comment_id;
         if ($comment_id < 1)
@@ -243,14 +264,48 @@ class NoteReply
 
         // Update Mailbox Thread
         $sql = 'UPDATE mailbox_threads
-            SET total_replies=?
+            SET total_replies=?,
+            last_user_id=?
             WHERE id=?
             LIMIT 1';
         $stmt = $db->prepare($sql);
-        $stmt->bind_param('ii',$total,$mail_id);
+        $stmt->bind_param('iii',$total,$user_id,$mail_id);
         if (!$stmt->execute())
         {
             error('Could not execute statement (update total for mailbox thread) in NoteReply->insertIntoTable()');
+        }
+        $stmt->close();
+    }
+
+    // Mark Thread as New
+    final private function markThreadAsNew(&$db)
+    {
+        // Initialize Vars
+        $r_user_id  = $this->r_user_id;
+        $mail_id    = $this->mail_id;
+
+        // Check
+        if ($r_user_id < 1 || $mail_id < 1)
+        {
+            error('Dev error: $r_user_id or $mail_id is not set for NoteRply->markThreadAsNew()');
+        }
+
+        // Switch
+        $db->sql_switch('sketchbookcafe_users');
+
+        // Set Table
+        $table_name = 'u'.$r_user_id.'m';
+
+        // Update thread
+        $sql = 'UPDATE '.$table_name.'
+            SET isnew=1
+            WHERE cid=?
+            LIMIT 1';
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param('i',$mail_id);
+        if (!$stmt->execute())
+        {
+            error('Could not execute statement (mark thread as new) for NoteReply->markThreadAsNew()');
         }
         $stmt->close();
     }

@@ -13,6 +13,7 @@ class AdminPage
         $db->open();
 
         // Admin Required + Process Data
+        $User->setFrontpage();
         $User->admin($db);
         $ProcessAllData = new ProcessAllData();
 

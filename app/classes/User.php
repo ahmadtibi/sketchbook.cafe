@@ -5,7 +5,7 @@
 *
 * @author       Jonathan Maltezo (Kameloh)
 * @copyright    (c) 2016, Jonathan Maltezo (Kameloh)
-* @lastupdated  2016-04-16
+* @lastupdated  2016-04-17
 *
 */
 // Main user class
@@ -16,6 +16,7 @@ class User
     private $session_id = 0;
     private $session_code = '';
     private $ip_address = '';
+    private $frontpage = 0;
 
     // Settings
     public $username = 'Guest';
@@ -24,6 +25,9 @@ class User
     private $auth_type = 0; // 1 optional, 2 required
     private $timezone_my = 'America/Los_Angeles';
     private $timezone_id = 6;
+    public $mailbox_update = 0;
+    public $mailbox_lastupdate = 0;
+    public $mail_total = 0;
 
     // Generated Variables
     private $dtzone = '';
@@ -343,7 +347,8 @@ class User
         }
 
         // Get User Information
-        $sql = 'SELECT id, username, isadmin, timezone_my, timezone_id, avatar_id, avatar_url 
+        $sql = 'SELECT id, username, isadmin, timezone_my, timezone_id, avatar_id, avatar_url, 
+            mail_total, mailbox_update, mailbox_lastupdate 
             FROM users
             WHERE id=?
             LIMIT 1';
@@ -368,6 +373,14 @@ class User
             $this->timezone_my  = $row['timezone_my'];
             $this->avatar_id    = $row['avatar_id'];
             $this->avatar_url   = $row['avatar_url'];
+            $this->mail_total   = $row['mail_total'];
+
+            // Only calculate message centers from the frontpage
+            if ($this->frontpage == 1)
+            {
+                // Check Mail
+                $this->checkMail($db);
+            }
         }
         else
         {
@@ -376,6 +389,75 @@ class User
             {
                 error('Odd.. cannot find user in database.');
             }
+        }
+    }
+
+    // Check Mail
+    final private function checkMail(&$db)
+    {
+        // Initialize Vars
+        $user_id            = $this->id;
+        $time               = time();
+        $mailbox_update     = isset($this->data['mailbox_update']) ? $this->data['mailbox_update'] : 0;
+        $mailbox_lastupdate = isset($this->data['mailbox_lastupdate']) ? $this->data['mailbox_lastupdate'] : 0;
+
+        // Check
+        if ($user_id < 1)
+        {
+            return null;
+        }
+        if ($mailbox_update < 1)
+        {
+            $mailbox_update = 0;
+        }
+        if ($mailbox_lastupdate < 1)
+        {
+            $mailbox_lastupdate = 0;
+        }
+
+        // Should we do a check?
+        if ($mailbox_update > $mailbox_lastupdate)
+        {
+            // Switch
+            $db->sql_switch('sketchbookcafe_users');
+
+            // Table name
+            $table_name = 'u'.$user_id.'m';
+
+            // Count New
+            $sql = 'SELECT COUNT(*) 
+                FROM '.$table_name.'
+                WHERE isnew=1';
+            $result = $db->sql_query($sql);
+            $row    = $db->sql_fetchrow($result);
+            $db->sql_freeresult($result);
+
+            // Set Total
+            $total = isset($row[0]) ? (int) $row[0] : 0;
+            if ($total < 1)
+            {
+                $total = 0;
+            }
+
+            // Switch
+            $db->sql_switch('sketchbookcafe');
+
+            // Update User
+            $sql = 'UPDATE users
+                SET mail_total=?,
+                mailbox_lastupdate=?
+                WHERE id=?
+                LIMIT 1';
+            $stmt = $db->prepare($sql);
+            $stmt->bind_param('iii',$total,$time,$user_id);
+            if (!$stmt->execute())
+            {
+                error('Could not execute statement (update mail total) for User->checkMail()');
+            }
+            $stmt->close();
+
+            // Update Vars
+            $this->mail_total   = $total;
         }
     }
 
@@ -607,5 +689,39 @@ class User
 
         // Return
         return $n_time;
+    }
+
+    // Force an update for mailbox
+    final public function forceMailboxUpdate(&$db)
+    {
+        // Initialize Vars
+        $time       = time();
+        $user_id    = $this->id;
+        if ($user_id < 1)
+        {
+            return null;
+        }
+
+        // Switch
+        $db->sql_switch('sketchbookcafe');
+
+        // Update user
+        $sql = 'UPDATE users
+            SET mailbox_update=?
+            WHERE id=?
+            LIMIT 1';
+        $stmt   = $db->prepare($sql);
+        $stmt->bind_param('ii',$time,$user_id);
+        if (!$stmt->execute())
+        {
+            error('Could not execute statement (update mailbox timer) for User->forceMailboxUpdate()');
+        }
+        $stmt->close();
+    }
+
+    // Set Frontpage
+    final public function setFrontpage()
+    {
+        $this->frontpage = 1;
     }
 }

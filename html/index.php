@@ -5,6 +5,7 @@ require_once('../app/init.php');
 $address = $_SERVER['REMOTE_ADDR'];
 if ($address != '199.27.133.30')
 {
+    echo $address;
     echo 'Under construction!';
     exit;
 }

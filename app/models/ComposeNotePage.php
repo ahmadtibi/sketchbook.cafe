@@ -19,6 +19,7 @@ class ComposeNotePage
         $db->open();
 
         // User Required
+        $User->setFrontpage();
         $User->required($db);
         $ProcessAllData = new ProcessAllData();
 

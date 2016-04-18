@@ -19,6 +19,7 @@ class ChangeEmailEdit
         $db->open();
 
         // Required User + Process Data
+        $User->setFrontpage();
         $User->required($db);
         $user_id        = $User->getUserId();
         $ProcessAllData = new ProcessAllData();

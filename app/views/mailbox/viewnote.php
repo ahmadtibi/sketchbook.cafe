@@ -4,10 +4,14 @@ $Mail           = &$data['Mail'];
 $Comment        = &$data['Comment'];
 $Member         = &$data['Member'];
 $User           = &$data['User'];
+$DeleteForm     = &$data['DeleteForm'];
 $Form           = &$data['Form'];
 $result         = &$data['result'];
 $rownum         = &$data['rownum'];
 $pagenumbers    = &$data['pagenumbers'];
+$pages_min      = &$data['pages_min'];
+$pages_max      = &$data['pages_max'];
+$pages_total    = &$data['pages_total'];
 
 // Set Vars
 $mail_id        = $Mail['id'];
@@ -16,22 +20,62 @@ $r_user_id      = $Mail['r_user_id'];
 $main_user_id   = $Mail['user_id'];
 $main_id        = $Mail['comment_id'];
 
-// Start Form
-echo $Form->start();
+// Is removed
+$is_removed     = 0;
+if ($Mail['removed_user_id'] != 0 || $Mail['removed_r_user_id'] != 0)
+{
+    $is_removed = 1;
+}
 
-// Hidden ID
-echo $Form->field['id']
+// Other ID
+$other_id       = 0;
+if ($user_id == $Mail['user_id'])
+{
+    $other_id   = $Mail['r_user_id'];
+}
+else
+{
+    $other_id   = $Mail['user_id'];
+}
 ?>
-<div class="threadTitle">
-    <?php echo $Mail['title'];?>
+<div class="threadTitleWrap">
+    <div class="threadTitleRight">
+        <div id="deletethreadlink" class="inboxDeleteButton">
+            x
+        </div>
+    </div>
+    <div class="threadTitle">
+        <a href="https://www.sketchbook.cafe/mailbox/note/<?php echo $mail_id;?>/" class="<?php if ($is_removed == 1) { echo 'strike'; } ?>"><?php echo $Mail['title'];?></a>
+    </div>
 </div>
 <div class="breadCrumbs">
-    <a href="https://www.sketchbook.cafe/">Home</a>
-    <span class="breadCrumbSeparator">></span>
     <a href="https://www.sketchbook.cafe/mailbox/">Mailbox</a>
     <span class="breadCrumbSeparator">></span>
-    <a href=""><?php echo $Mail['title'];?></a>
+    <a href="https://www.sketchbook.cafe/mailbox/note/<?php echo $mail_id;?>/"><?php echo $Mail['title'];?></a>
 </div>
+<?php
+// Delete Form
+echo $DeleteForm->start();
+echo $DeleteForm->field['mail_id'];
+?>
+<div id="deletethread" class="noteDeleteDiv" style="display: none;">
+    <div class="noteDeleteTitle">
+        Delete Note?
+    </div>
+    <div class="noteDeleteOptions">
+<?php
+echo $DeleteForm->field['submit'];
+?>
+        /
+        <span id="deletethreadcancel" class="noteDeleteCancelSpan">
+            No
+        </span>
+    </div>
+</div>
+<?php
+// End Delete Form
+echo $DeleteForm->end();
+?>
 
 <!-- Start Main Post -->
 <div class="commentWrap">
@@ -79,61 +123,14 @@ if ($Member->notEmpty($main_user_id,'forumsignature'))
 </div>
 <!-- End Main Post -->
 
-<style type="text/css">
-.pageNumbersWrap {
-    overflow: hidden;
-    margin-top: 9px;
-    margin-bottom: 9px;
-    margin-left: 9px;
-    margin-right: 9px;
-    font-size: 11px;
-    font-family: Georgia, serif;
-
-    color: #6E6E6E;
-}
-.pageNumbersLeft {
-    width: 50%;
-    float: left;
-    overflow: hidden;
-    line-height: 25px;
-    font-size: 12px;
-}
-.pageNumbersRight {
-    overflow: hidden;
-    text-align: right;
-}
-.pageNumbersItem {
-    overflow: hidden;
-    display: inline-block;
-    padding-left: 6px;
-    padding-right: 6px;
-    margin-right: 2px;
-
-    font-size: 14px;
-    line-height: 25px;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-
-    color: #484848;
-}
-.pageNumbersItem:hover {
-    background-color: #848484;
-}
-.pageNumbersItemSelected {
-    color: #151515;
-    background-color: #848484;
-}
-.pageNumbersItemUnselected {
-    background-color: #ACACAC;
-}
-.pageNumbersItemUnselected:hover {
-    color: #151515;
-}
-</style>
-
+<?php
+// Page Numbers
+if ($rownum > 0)
+{
+?>
 <div class="pageNumbersWrap">
     <div class="pageNumbersLeft">
-        Viewing 1-3 posts (3 total). 
-        Last updated 2 months ago by <u>Kameloh</u>
+        Viewing <?php echo $pages_min;?>-<?php echo $pages_max;?> posts (<?php echo $pages_total;?> total). 
     </div>
     <div class="pageNumbersRight">
 
@@ -143,6 +140,9 @@ echo $pagenumbers;
 
     </div>
 </div>
+<?php
+}
+?>
 
 
 <!-- Start Comments -->
@@ -151,8 +151,18 @@ echo $pagenumbers;
 if ($rownum > 0)
 {
     // Loop
+    $i = 0;
     while ($trow = mysqli_fetch_assoc($result))
     {
+        // Recent Anchor
+        if ($i >= ($rownum - 1))
+        {
+            echo '<a name="recent"></a>';
+        }
+
+        // Add
+        $i++;
+
         // Comment ID
         $comment_id         = $trow['cid'];
         $comment_user_id    = $Comment->comment[$comment_id]['user_id'];
@@ -202,12 +212,6 @@ if ($Member->notEmpty($comment_user_id,'forumsignature'))
     </div>
 </div>
 
-
-
-
-
-
-
 <?php
     }
     mysqli_data_seek($result,0);
@@ -216,6 +220,11 @@ if ($Member->notEmpty($comment_user_id,'forumsignature'))
 
 <!-- End Comments -->
 
+<?php
+// Page Numbers
+if ($rownum > 0)
+{
+?>
 <div class="pageNumbersWrap">
     <div class="pageNumbersLeft">
     </div>
@@ -225,8 +234,46 @@ echo $pagenumbers;
 ?>
     </div>
 </div>
+<?php
+}
+?>
 
 
+<?php
+// Comments
+if ($is_removed == 1)
+{
+?>
+
+<div class="commentWrap">
+
+    <div class="commentLeft">
+        <div class="commentAvatarDiv">
+            &nbsp;
+        </div>
+        <div class="commentUsername">
+            &nbsp;
+        </div>
+        <div class="commentUserTitle">
+            &nbsp;
+        </div>
+    </div>
+    <div class="commentRight">
+        <span class="fi">
+            <script>sbc_username(<?php echo $other_id;?>,'');</script>
+            has removed this from their mailbox and it cannot be replied to.
+        </span>
+    </div>
+</div>
+
+<?php
+}
+else
+{
+    // Start Form
+    echo $Form->start();
+    echo $Form->field['id']
+?>
 <!-- Start Reply -->
 <div class="commentWrap">
 
@@ -247,16 +294,15 @@ echo $pagenumbers;
         </div>
         <div>
 <?php
-// Message
-echo $Form->field['message'];
+    // Message
+    echo $Form->field['message'];
 ?>
         </div>
     </div>
 </div>
-<!-- End Reply -->
-
-
 <?php
-// End Form
-echo $Form->end();
+    // End Form
+    echo $Form->end();
+}
 ?>
+<!-- End Reply -->

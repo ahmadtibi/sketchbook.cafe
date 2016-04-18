@@ -5,11 +5,17 @@ class NotePage
     private $mail_id = 0;
     private $user_id = 0;
     public $Form = [];
+    public $DeleteForm = [];
 
     // Page Numbers
     private $pageno = 0;
     private $ppage = 20; // 20 comments per page
+    private $pages = 0;
+    private $offset = 0;
     public $pagenumbers = '';
+    public $pages_min = 0;
+    public $pages_max = 0;
+    public $pages_total = 0;
 
     // Total
     public $total_replies = 0;
@@ -70,7 +76,7 @@ class NotePage
         sbc_class('TextareaSettings');
         sbc_class('PageNumbers');
 
-        // Initialize Vars
+        // Initialize Objects
         $db     = $this->db;
         $User   = $this->User;
 
@@ -85,6 +91,7 @@ class NotePage
         $db->open();
 
         // User Required
+        $User->setFrontpage();
         $User->required($db);
         $user_id        = $User->getUserId();
         $this->user_id  = $user_id;
@@ -92,15 +99,26 @@ class NotePage
         // Get Thread Info
         $this->getMailThread($db);
 
+        // Mark thread as read
+        $this->markMailAsRead($db);
+
         // Page Numbers (total must be after getMailThread)
-        $ppage          = 1;
+        $ppage          = 10;
         $pageno         = $this->pageno;
         $total          = $this->total_replies;
-        $offset         = $pageno * $ppage;
         $pages_link     = 'https://www.sketchbook.cafe/mailbox/note/'.$mail_id.'/{page_link}/';
+
+        // Page Numbers (SQL)
+        $offset         = $pageno * $ppage;
+        $this->offset   = $offset;
+        $this->ppage    = $ppage;
+        $this->pages    = ceil($total / $ppage);
 
         // Get Comments and Process
         $this->getComments($db);
+
+        // Force the user to have a mailbox update
+        $User->forceMailboxUpdate($db);
 
         // Process Data should be at the end
         $ProcessAllData = new ProcessAllData();
@@ -123,6 +141,11 @@ class NotePage
             'css_active'    => 'pageNumbersItem pageNumbersItemSelected',
         ));
         $this->pagenumbers  = $PageNumbersObject->getPageNumbers();
+
+        // More Pagenumbers
+        $this->pages_min    = $PageNumbersObject->pages_min;
+        $this->pages_max    = $PageNumbersObject->pages_max;
+        $this->pages_total  = $PageNumbersObject->pages_total;
 
         // Textarea Settings
         $TextareaSettings = new TextareaSettings('notereply');
@@ -147,8 +170,32 @@ class NotePage
             'value' => $mail_id,
         ));
 
+        // Delete Form DeleteForm
+        $DeleteForm = new Form(array
+        (
+            'name'      => 'deleteform',
+            'action'    => 'https://www.sketchbook.cafe/mailbox/note_delete_submit/',
+            'method'    => 'POST',
+        ));
+
+        // Hidden
+        $DeleteForm->field['mail_id'] = $DeleteForm->hidden(array
+        (
+            'name'      => 'mail_id',
+            'value'     => $mail_id,
+        ));
+
+        // Submit
+        $DeleteForm->field['submit'] = $DeleteForm->submit(array
+        (
+            'name'      => 'submit',
+            'css'       => 'deleteSubmit',
+            'value'     => 'Yes',
+        ));
+
         // Set Vars
-        $this->Form = $Form;
+        $this->Form         = $Form;
+        $this->DeleteForm   = $DeleteForm;
     }
 
     // Get Mail Thread
@@ -229,6 +276,39 @@ class NotePage
         $this->total_replies    = $row['total_replies'];
     }
 
+    // Mark mail as read in the user's mailbox
+    final private function markMailAsRead(&$db)
+    {
+        // Initialize Vars
+        $user_id    = $this->user_id;
+        $mail_id    = $this->mail_id;
+
+        // Check just in case
+        if ($user_id < 1 || $mail_id < 1)
+        {
+            error('Dev error: $user_id or $mail_id is not set for NotePage->markMailAsRead()');
+        }
+
+        // Switch
+        $db->sql_switch('sketchbookcafe_users');
+
+        // Set Table
+        $table_name = 'u'.$user_id.'m';
+
+        // Mark thread as read
+        $sql = 'UPDATE '.$table_name.'
+            SET isnew=0
+            WHERE cid=?
+            LIMIT 1';
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param('i',$mail_id);
+        if (!$stmt->execute())
+        {
+            error('Could not execute statement (mark thread as read) for NotePage->markMailAsRead()');
+        }
+        $stmt->close();
+    }
+
     // Get Comments
     final private function getComments(&$db)
     {
@@ -236,6 +316,8 @@ class NotePage
         global $Comment,$Member;
 
         // Initialize Vars
+        $offset     = $this->offset;
+        $ppage      = $this->ppage;
         $mail_id    = $this->mail_id;
         $pageno     = $this->pageno;
         if ($pageno < 1)
@@ -255,7 +337,8 @@ class NotePage
         $sql = 'SELECT cid
             FROM '.$table_name.'
             ORDER BY id
-            ASC';
+            ASC
+            LIMIT '.$offset.', '.$ppage;
         $result = $db->sql_query($sql);
         $rownum = $db->sql_numrows($result);
 

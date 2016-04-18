@@ -5,7 +5,7 @@
 *
 * @author       Jonathan Maltezo (Kameloh)
 * @copyright    (c) 2016, Jonathan Maltezo (Kameloh)
-* @lastupdated  2016-04-16
+* @lastupdated  2016-04-17
 *
 */
 class PageNumbers {
@@ -14,6 +14,9 @@ class PageNumbers {
 
     // Generated
     private $pagenumbers = '';
+    public $pages_min = 0;
+    public $pages_max = 0;
+    public $pages_total = 0;
 
     // Construct
     // $input:  'first', 'current', 'total', 'display', 'link',
@@ -41,6 +44,29 @@ class PageNumbers {
         // Total Calculations
         $this->data['posts']            = isset($input['posts']) ? (int) $input['posts'] : 0;
         $this->data['ppage']            = isset($input['ppage']) ? (int) $input['ppage'] : 0;
+
+        // Min, Max, and Total Values
+        $pageno         = $this->data['current'];
+        $ppage          = $this->data['ppage'];
+        $offset         = $pageno * $ppage;
+        $total          = $this->data['posts'];
+        $current_off    = $offset + $ppage;
+        $showmin        = $offset + 1;
+        $showmax        = $current_off;
+        if ($showmax > $total)
+        {
+            $showmax = $total;
+        }
+        if ($showmin > $total)
+        {
+            $showmin = 0;
+            $showmax = 0;
+        }
+
+        // Set vars
+        $this->pages_min    = $showmin;
+        $this->pages_max    = $showmax;
+        $this->pages_total  = $total;
 
         // Generate Pagenumbers
         $this->pagenumbers = $this->generatePageNumbers();
@@ -115,6 +141,8 @@ class PageNumbers {
         $page_link          = str_replace('{link}',$link,$in['link_format']);
         $in['prev_enabled'] = str_replace('{link}',$link,$in['prev_enabled']);
         $in['next_enabled'] = str_replace('{link}',$link,$in['next_enabled']);
+
+        echo $page_link;
 
         // Calculate the list
         $list_start = 1;

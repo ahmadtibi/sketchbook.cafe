@@ -21,6 +21,7 @@ class BlockUserEdit
         $db->open();
 
         // Required User + Process Data
+        $User->setFrontpage();
         $User->required($db);
         $user_id        = $User->getUserId();
         $this->user_id  = $user_id;

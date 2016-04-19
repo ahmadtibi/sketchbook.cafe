@@ -113,7 +113,7 @@ else
         <a href="https://www.sketchbook.cafe/">Home</a>
     </span>
     <span class="headerMenuItem">
-        <a href="">Forums</a>
+        <a href="https://www.sketchbook.cafe/forums/">Forums</a>
     </span>
     <span class="headerMenuItem">
         <a href="">Link 2</a>

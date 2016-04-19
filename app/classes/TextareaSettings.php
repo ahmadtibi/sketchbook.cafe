@@ -29,6 +29,40 @@ class TextareaSettings
        // Initialize Vars
         $settings = [];
 
+        // Forum Reply
+        $settings['forum_reply']    = array
+        (
+            'name'          => 'message',
+            'max'           => 20000, // user input max
+            'column_max'    => 60000, // database max
+            'css'           => 'textarea_forum_reply', 
+            'preview'       => 1,
+            'submit'        => 1,
+            'help'          => 1,
+            'nl2br'         => 1,
+            'basic'         => 1,
+            'images'        => 1,
+            'videos'        => 1,
+            'setting_name'  => 'forum_reply',
+        );
+
+        // Forum Thread
+        $settings['forum_thread']    = array
+        (
+            'name'          => 'message',
+            'max'           => 20000, // user input max
+            'column_max'    => 60000, // database max
+            'css'           => 'textarea_forum_thread', 
+            'preview'       => 1,
+            'submit'        => 1,
+            'help'          => 1,
+            'nl2br'         => 1,
+            'basic'         => 1,
+            'images'        => 1,
+            'videos'        => 1,
+            'setting_name'  => 'forum_thread',
+        );
+
         // AdminForumForumDescription
         $settings['admin_forum_forum_description']    = array
         (
@@ -117,6 +151,12 @@ class TextareaSettings
         // Set Type
         switch ($setting_name)
         {
+            case 'forum_reply':         $type = 'forum_reply';
+                                        break;
+
+            case 'forum_thread':        $type = 'forum_thread';
+                                        break;
+
             case 'admin_forum_forum_description':
                                         $type = 'admin_forum_forum_description';
                                         break;

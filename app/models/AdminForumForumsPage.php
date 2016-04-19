@@ -97,7 +97,7 @@ class AdminForumForumsPage
         $db->sql_switch('sketchbookcafe');
 
         // Get Categories
-        $sql = 'SELECT id, name
+        $sql = 'SELECT id, name, description
             FROM forums
             WHERE iscategory=1
             AND isdeleted=0
@@ -118,7 +118,7 @@ class AdminForumForumsPage
         $db->sql_switch('sketchbookcafe');
 
         // Get Forums
-        $sql = 'SELECT id, name
+        $sql = 'SELECT id, name, description, parent_id
             FROM forums
             WHERE isforum=1
             AND isdeleted=0

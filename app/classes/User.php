@@ -5,7 +5,7 @@
 *
 * @author       Jonathan Maltezo (Kameloh)
 * @copyright    (c) 2016, Jonathan Maltezo (Kameloh)
-* @lastupdated  2016-04-18
+* @lastupdated  2016-04-19
 *
 */
 // Main user class
@@ -487,6 +487,9 @@ class User
         // If user ID is set or not
         if ($this->id < 1)
         {
+            // Generate dtzone
+            $this->dtzone();
+
             return null;
         }
 

@@ -33,6 +33,10 @@ class UserTimer
         // Switch
         switch ($value)
         {
+            case 'new_forum_thread':    $column = 'new_forum_thread';
+                                        $cooldown = 30; // 30 second flood limit? might lower this
+                                        break;
+
             case 'message':             $column = 'message';
                                         $cooldown = 3;
                                         break;

@@ -1,5 +1,10 @@
 // JQuery Stuff
 $(document).ready(function() {
+    // Forum Thread Button
+    $('#fpNewThreadButton').click(function() {
+        $('#fpNewThreadDiv').toggle(400);
+    });
+
     // Cancel
     $('#deletethreadcancel').click(function() {
         $('#deletethread').toggle(400);

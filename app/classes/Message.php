@@ -5,7 +5,7 @@
 *
 * @author       Jonathan Maltezo (Kameloh)
 * @copyright   (c) 2016, Jonathan Maltezo (Kameloh)
-* @lastupdated  2016-04-16
+* @lastupdated  2016-04-19
 *
 */
 class Message
@@ -431,14 +431,17 @@ class Message
         $comment_type = '';
         switch ($type)
         {
-            case 'note_reply':      $comment_type = 'note_reply';
-                                    break;
+            case 'forum_message':       $comment_type   = 'forum_message';
+                                        break;
 
-            case 'new_mail_thread': $comment_type = 'new_mail_thread';
-                                    break;
+            case 'note_reply':          $comment_type = 'note_reply';
+                                        break;
 
-            default:                $comment_type = '';
-                                    break;
+            case 'new_mail_thread':     $comment_type = 'new_mail_thread';
+                                        break;
+
+            default:                    $comment_type = '';
+                                        break;
         }
 
         // Set and check
@@ -574,8 +577,25 @@ class Message
         }
         $this->comment_id = $comment_id;
 
-        // Comment Type
-        if ($comment_type == 'new_mail_thread')
+        // Forum Message (type 2)
+        if ($comment_type == 'forum_message')
+        {
+            // Update comment and mark as undeleted
+            $sql = 'UPDATE sbc_comments
+                SET type=2,
+                isdeleted=0
+                WHERE id=?
+                LIMIT 1';
+            $stmt = $db->prepare($sql);
+            $stmt->bind_param('i',$comment_id);
+            if (!$stmt->execute())
+            {
+                error('Could not execute statement (update comment as forum message) for Message->createMessage()');
+            }
+            $stmt->close();
+        }
+        // Mail Threads (type 1)
+        else if ($comment_type == 'new_mail_thread')
         {
             // Update comment + Mark as undeleted
             $sql = 'UPDATE sbc_comments
@@ -593,6 +613,7 @@ class Message
             }
             $stmt->close();
         }
+        // Note reply (type 1)
         else if ($comment_type == 'note_reply')
         {
             // Update comment + Mark as undeleted

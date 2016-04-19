@@ -917,6 +917,7 @@
 /* Bread Crumbs */
 /* --------------------------------------------------------------- */
 .breadCrumbs {
+    overflow: hidden;
     margin-top: 9px;
     margin-bottom: 9px;
     margin-left: 9px;
@@ -988,6 +989,14 @@
 
 /* Sizes */
 /* --------------------------------------------------------------- */
+.textarea_forum_reply {
+    width: 600px;
+    height: 210px;
+}
+.textarea_forum_thread {
+    width: 700px;
+    height: 380px;
+}
 .textarea_admin {
     width: 400px;
     height: 180px;

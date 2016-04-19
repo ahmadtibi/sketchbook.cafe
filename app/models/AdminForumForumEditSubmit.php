@@ -1,14 +1,14 @@
 <?php
 
-class AdminForumCategoriesEditSubmit
+class AdminForumForumEditSubmit
 {
     // Category ID
     private $id = 0;
     private $user_id = 0;
     private $ip_address = '';
 
-    private $category = '';
-    private $category_code = '';
+    private $name = '';
+    private $name_code = '';
     private $description = '';
     private $description_code = '';
 
@@ -26,18 +26,18 @@ class AdminForumCategoriesEditSubmit
         // Initialize Vars
         $this->ip_address   = $_SERVER['REMOTE_ADDR'];
 
-        // Category ID
+        // Forum ID
         $id = isset($_POST['id']) ? (int) $_POST['id'] : 0;
         if ($id < 1)
         {
-            error('Category ID is not set for AdminForumCategoriesEditSubmit->construct()');
+            error('Forum ID is not set for AdminForumForumEditSubmit->construct()');
         }
         $this->id = $id;
 
-        // Category
-        $CategoryObject = new Message(array
+        // Forum
+        $ForumObject = new Message(array
         (
-            'name'          => 'category',
+            'name'          => 'name',
             'min'           => 1,
             'column_max'    => 250,
             'nl2br'         => 0,
@@ -46,10 +46,10 @@ class AdminForumCategoriesEditSubmit
             'images'        => 0,
             'videos'        => 0,
         ));
-        $CategoryObject->insert($_POST['category']);
+        $ForumObject->insert($_POST['name']);
 
         // Textarea Settings
-        $TextareaSettings = new TextareaSettings('admin_forum_category_description');
+        $TextareaSettings = new TextareaSettings('admin_forum_forum_description');
         $TextareaSettings->setValue('');
         $message_settings   = $TextareaSettings->getSettings();
 
@@ -58,8 +58,8 @@ class AdminForumCategoriesEditSubmit
         $DescriptionObject->insert($_POST['description']);
 
         // Set SQL Vars
-        $this->category         = $CategoryObject->getMessage();
-        $this->category_code    = $CategoryObject->getMessageCode();
+        $this->name             = $ForumObject->getMessage();
+        $this->name_code        = $ForumObject->getMessageCode();
         $this->description      = $DescriptionObject->getMessage();
         $this->description_code = $DescriptionObject->getMessageCode();
 
@@ -71,22 +71,22 @@ class AdminForumCategoriesEditSubmit
         $User->requireAdminFlag('manage_forum_forums');
         $this->user_id = $User->getUserId();
 
-        // Get Category Information
-        $this->getCategoryInfo($db);
+        // Get Forum Information
+        $this->getForumInfo($db);
 
-        // Update Category
-        $this->updateCategory($db);
+        // Update Forum
+        $this->updateForum($db);
 
         // Close Connection
         $db->close();
 
         // Header
-        header('Location: https://www.sketchbook.cafe/admin/forum_categories/');
+        header('Location: https://www.sketchbook.cafe/admin/forum_forums/');
         exit;
     }
 
-    // Get Category Information
-    final private function getCategoryInfo(&$db)
+    // Get Forum Information
+    final private function getForumInfo(&$db)
     {
         // Initialize Vars
         $id = $this->id;
@@ -94,14 +94,14 @@ class AdminForumCategoriesEditSubmit
         // Check just in case
         if ($id < 1)
         {
-            error('Dev error: $id is not set for AdminForumCategoriesEditSubmit->getCategoryInfo()');
+            error('Dev error: $id is not set for AdminForumForumEditSubmit->getForumInfo()');
         }
 
         // Switch
         $db->sql_switch('sketchbookcafe');
 
         // Get Category Information
-        $sql = 'SELECT id, iscategory
+        $sql = 'SELECT id, isforum
             FROM forums
             WHERE id=?
             LIMIT 1';
@@ -109,7 +109,7 @@ class AdminForumCategoriesEditSubmit
         $stmt->bind_param('i',$id);
         if (!$stmt->execute())
         {
-            error('Could not execute statement (get category info) for AdminForumCategoriesEditSubmit->getCategoryInfo()');
+            error('Could not execute statement (get forum info) for AdminForumForumEditSubmit->getForumInfo()');
         }
         $result = $stmt->get_result();
         $row    = $db->sql_fetchrow($result);
@@ -120,30 +120,30 @@ class AdminForumCategoriesEditSubmit
         $id = isset($row['id']) ? (int) $row['id'] : 0;
         if ($id < 1)
         {
-            error('Could not find category in database for AdminForumCategoriesEditSubmit->getCategoryInfo()');
+            error('Could not find forum in database for AdminForumForumEditSubmit->getForumInfo()');
         }
 
-        // Make sure it's a category
-        if ($row['iscategory'] != 1)
+        // Make sure it's a forum
+        if ($row['isforum'] != 1)
         {
-            error('ID is not a category.');
+            error('ID is not a forum.');
         }
     }
 
-    // Update Category
-    final private function updateCategory(&$db)
+    // Update Forum
+    final private function updateForum(&$db)
     {
         // Initialize Vars
         $id                 = $this->id;
-        $name               = $this->category;
-        $name_code          = $this->category_code;
+        $name               = $this->name;
+        $name_code          = $this->name_code;
         $description        = $this->description;
         $description_code   = $this->description_code;
 
         // Just in case
         if ($id < 1)
         {
-            error('Dev error: $id is not set for AdminForumCategoriesEditSubmit->updateCategory()');
+            error('Dev error: $id is not set for AdminForumForumEditSubmit->updateForum()');
         }
 
         // Switch
@@ -161,7 +161,7 @@ class AdminForumCategoriesEditSubmit
         $stmt->bind_param('ssssi',$name,$name_code,$description,$description_code,$id);
         if (!$stmt->execute())
         {
-            error('Could not execute statement (update category) for AdminForumCategoriesEditSubmit->updateCategory()');
+            error('Could not execute statement (update forum) for AdminForumForumEditSubmit->updateForum()');
         }
         $stmt->close();
     }

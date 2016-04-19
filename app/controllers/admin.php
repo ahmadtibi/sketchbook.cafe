@@ -10,6 +10,49 @@ class Admin extends Controller
         $this->obj_array = &$obj_array;
     }
 
+    // Edit Forum
+    public function forum_forums_edit($id = 0)
+    {
+        // Objects
+        $User   = $this->obj_array['User'];
+
+        // Initialize Vars
+        $id = isset($id) ? (int) $id : 0;
+        if ($id < 1)
+        {
+            error('Forum ID is not set');
+        }
+
+        // Model
+        $ForumObject    = $this->model('AdminForumForumEditPage');
+        $ForumObject->setId($id);
+        $ForumObject->process($this->obj_array);
+        $Form           = $ForumObject->Form;
+
+        // Vars
+        $current_page   = 'forumforums';
+
+        // View
+        $this->view('sketchbookcafe/header');
+        $this->view('sketchbookcafe/admin_top', 
+        [
+            'User'          => $User,
+            'current_page'  => $current_page,
+        ]);
+        $this->view('admin/forumforumsedit', 
+        [
+            'User'          => $User,
+            'Form'          => $Form,
+        ]);
+        $this->view('sketchbookcafe/admin_bottom');
+        $this->view('sketchbookcafe/footer');
+    }
+    public function forum_forums_edit_submit()
+    {
+        // Model
+        $this->model('AdminForumForumEditSubmit',$this->obj_array);
+    }
+
     // Forum Forums
     public function forum_forums()
     {

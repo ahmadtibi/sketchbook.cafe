@@ -86,9 +86,6 @@ if ($rownum > 0)
             $temp_user_id   = $trow['user_id'];
         }
 ?>
-
-
-
         <div class="tr inboxTr">
             <div class="tdInbox inboxCell inboxInnerLeft">
 
@@ -109,7 +106,7 @@ if ($rownum > 0)
                 </div>
             </div>
             <div class="tdInbox inboxCell inboxInnerRight">
-                <?php echo $User->mytz($trow['date_updated'],'F jS, Y @ g:iA');?>
+                <?php echo $User->mytz($trow['date_updated'],'F jS, Y - g:iA');?>
                 by 
                 <script>sbc_username(<?php echo $trow['last_user_id'];?>, '');</script>
             </div>

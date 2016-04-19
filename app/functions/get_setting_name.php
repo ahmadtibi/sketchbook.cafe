@@ -9,7 +9,7 @@ function get_setting_name($value)
     $value = strtolower($value);
 
     // Length Check
-    if (isset($value{30}))
+    if (isset($value{60}))
     {
         error('Invalid Setting Name');
     }

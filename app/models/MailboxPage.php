@@ -64,10 +64,10 @@ class MailboxPage
         $this->countMail($db);
 
         // Page Numbers
-        $ppage      = 1;
+        $ppage      = 10;
         $pageno     = $this->pageno;
         $total      = $this->total;
-        $pages_link = 'https://www.sketchbook.cafe/mailbox/{pages_link}/';
+        $pages_link = 'https://www.sketchbook.cafe/mailbox/{page_link}/';
 
         // Page Numbers for SQL
         $offset         = $pageno * $ppage;
@@ -85,8 +85,6 @@ class MailboxPage
 
         // Close Connection
         $db->close();
-
-        echo '<div>pageno:'.$pageno.', total:'.$total.', ppage:'.$ppage.', link:'.$pages_link.'</div>';
 
         // Page numbers
         $PageNumbersObject  = new PageNumbers(array
@@ -108,8 +106,6 @@ class MailboxPage
         $this->pages_min    = $PageNumbersObject->pages_min;
         $this->pages_max    = $PageNumbersObject->pages_max;
         $this->pages_total  = $PageNumbersObject->pages_total;
-
-        echo $this->pagenumbers;
     }
 
     // Count Mail

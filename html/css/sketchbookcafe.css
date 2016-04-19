@@ -1,3 +1,117 @@
+/* Admin */
+/* --------------------------------------------------------------- */
+.adminForumCategory {
+    border: 1px solid #FFFFFF;
+    margin-top: 6px;
+    margin-bottom: 6px;
+}
+.adminForumCategoryTitleWrap {
+    overflow: hidden;
+    background-color: #ACACAC;
+}
+.adminForumCategoryTitleRight {
+    padding-right: 12px;
+    float: right;
+    width: 100px;
+    overflow: hidden;
+    text-align: right;
+
+    font-size: 12px;
+
+    min-height: 30px;
+    line-height: 30px;
+
+}
+.adminForumCategoryTitle {
+    min-height: 30px;
+    line-height: 30px;
+
+    overflow: hidden;
+    padding-left: 12px;
+    padding-right: 12px;
+    font-size: 14px;
+    font-weight: bold;
+    font-family: Georgia, serif;
+}
+.adminForumCategoryDescription {
+    padding-top: 9px;
+    padding-bottom: 9px;
+    padding-left: 12px;
+    padding-right: 12px;
+    font-size: 12px;
+    font-family: Georgia, serif;
+    line-height: 14px;
+    background-color: #D4D4D4;
+}
+.adminRightWrap {
+    overflow: hidden;
+}
+
+/* Mailbox */
+/* --------------------------------------------------------------- */
+.mailboxTitle {
+    min-height: 50px;
+    line-height: 50px;
+    font-size: 24px;
+    font-family: Georgia, serif;
+    padding-left: 15px;
+
+    background-color: #7D7D7D;
+    color: #FFFFFF;
+}
+.mailboxTitle a:link, .mailboxTitle a:visited, .mailboxTitle a:active {
+    color: #FFFFFF;
+}
+.mailboxTitle a:hover {
+    color: #FFFFFF;
+    text-decoration: underline;
+}
+.mailboxWrap {
+    overflow: hidden;
+
+    background-color: #BCBCBC;
+}
+.mailboxLeft {
+    float: left;
+    width: 250px;
+    overflow: hidden;
+
+}
+.mailboxRight {
+    overflow: hidden;
+    padding: 15px;
+    font-size: 13px;
+    font-family: Georgia, serif;
+    line-height: 18px;
+}
+.mailboxItem {
+    min-height: 25px;
+    padding-left: 15px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    font-size: 14px;
+    font-family: Georgia, serif;
+    line-height: 25px;
+
+    color: #505050;
+}
+.mailboxItem:hover {
+    color: #151515;
+    background-color: #A5A5A5;
+}
+.mailboxItemSelected {
+    color: #151515;
+    background-color: #A5A5A5;
+}
+.mailboxInnerTitle {
+    font-size: 16px;
+    font-family: Georgia, serif;
+    font-weight: bold;
+    margin-bottom: 12px;
+
+    color: #353535;
+}
+
 /* Note */
 /* --------------------------------------------------------------- */
 .noteDeleteDiv {
@@ -874,6 +988,10 @@
 
 /* Sizes */
 /* --------------------------------------------------------------- */
+.textarea_admin {
+    width: 400px;
+    height: 180px;
+}
 .textarea_forumsignature {
     width: 400px;
     height: 180px;

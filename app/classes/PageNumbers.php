@@ -142,8 +142,6 @@ class PageNumbers {
         $in['prev_enabled'] = str_replace('{link}',$link,$in['prev_enabled']);
         $in['next_enabled'] = str_replace('{link}',$link,$in['next_enabled']);
 
-        echo $page_link;
-
         // Calculate the list
         $list_start = 1;
         $list_end   = $total;

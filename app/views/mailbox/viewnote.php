@@ -98,10 +98,10 @@ echo $DeleteForm->end();
 
         <div class="commentTopWrap">
             <div class="commentTopRight">
-                #1
+                #<?php echo $Mail['comment_id'];?>
             </div>
             <div class="commentDate">
-                <?php echo $User->mytz($Comment->getDate($Mail['comment_id']),'F jS, Y g:iA');?>
+                <?php echo $User->mytz($Comment->getDate($Mail['comment_id']),'F jS, Y - g:iA');?>
             </div>
         </div>
 
@@ -188,10 +188,10 @@ if ($rownum > 0)
 
         <div class="commentTopWrap">
             <div class="commentTopRight">
-                #1
+                #<?php echo $comment_id;?>
             </div>
             <div class="commentDate">
-                <?php echo $User->mytz($Comment->getDate($comment_id),'F jS, Y g:iA');?>
+                <?php echo $User->mytz($Comment->getDate($comment_id),'F jS, Y - g:iA');?>
             </div>
         </div>
 

@@ -154,9 +154,10 @@ class ComposeNoteSubmit
             title=?,
             title_code=?,
             comment_id=?,
+            last_user_id=?,
             isdeleted=1';
         $stmt = $db->prepare($sql);
-        $stmt->bind_param('iiissiissi',$rd,$user_id,$r_user_id,$ip_address,$ip_address,$time,$time,$title,$title_code,$comment_id);
+        $stmt->bind_param('iiissiissii',$rd,$user_id,$r_user_id,$ip_address,$ip_address,$time,$time,$title,$title_code,$comment_id,$user_id);
         if (!$stmt->execute())
         {
             error('Could not execute statement (insert new mail thread) for ComposeNoteSubmit->createThread()');

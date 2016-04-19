@@ -5,7 +5,7 @@
 *
 * @author       Jonathan Maltezo (Kameloh)
 * @copyright    (c) 2016, Jonathan Maltezo (Kameloh)
-* @lastupdated  2016-04-17
+* @lastupdated  2016-04-18
 *
 */
 // Main user class
@@ -41,6 +41,7 @@ class User
     private $admin_session1 = '';
     private $admin_session2 = '';
     private $admin_session3 = '';
+    private $admin_flag = [];
 
     // Construct
     public function __construct()
@@ -599,9 +600,9 @@ class User
 
         // Initialize Vars
         $ip_address = $this->ip_address;
+        $user_id    = $this->id;
 
-        // User ID
-        $user_id = $this->id;
+        // Make sure User ID is set
         if ($user_id < 1)
         {
             error('Dev error: $user_id is not set for User->adminCheckAuth()');
@@ -629,7 +630,8 @@ class User
         $db->sql_switch('sketchbookcafe');
 
         // Get Admin Info
-        $sql = 'SELECT id, haspass, ip_address, session_active, admin_session1, admin_session2, admin_session3 
+        $sql = 'SELECT id, haspass, ip_address, session_active, admin_session1, admin_session2, admin_session3,
+            manage_forum_categories, manage_forum_forums
             FROM admins
             WHERE user_id=?
             LIMIT 1';
@@ -675,6 +677,47 @@ class User
 
             // Generate Error
             error($error_invalid);
+        }
+
+        // Set Admin Flags
+        $this->admin_flag['manage_forum_categories']    = $row['manage_forum_categories'];
+        $this->admin_flag['manage_forum_forums']        = $row['manage_forum_forums'];
+    }
+
+    // Require Admin Flag
+    final public function requireAdminFlag($flag)
+    {
+        // Make sure a flag is set
+        $flag   = isset($flag) ? $flag : '';
+        if (empty($flag))
+        {
+            error('Dev error: $flag is not set for User->requireAdminFlag()');
+        }
+
+        // Flag must be set
+        if ($this->admin_flag[$flag] != 1)
+        {
+            error('Sorry, you do not have the necessary flags to access this area');
+        }
+    }
+
+    // Has Admin Flag
+    final public function hasAdminFlag($flag)
+    {
+        if (isset($this->admin_flag[$flag]))
+        {
+            if ($this->admin_flag[$flag] == 1)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return false;
         }
     }
 

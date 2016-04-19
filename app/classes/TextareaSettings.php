@@ -29,6 +29,40 @@ class TextareaSettings
        // Initialize Vars
         $settings = [];
 
+        // AdminForumForumDescription
+        $settings['admin_forum_forum_description']    = array
+        (
+            'name'          => 'description',
+            'max'           => 20000, // user input max
+            'column_max'    => 60000, // database max
+            'css'           => 'textarea_admin', 
+            'preview'       => 1,
+            'submit'        => 1,
+            'help'          => 1,
+            'nl2br'         => 1,
+            'basic'         => 1,
+            'images'        => 1,
+            'videos'        => 1,
+            'setting_name'  => 'admin_forum_forum_description',
+        );
+
+        // AdminForumCategoryDescription
+        $settings['admin_forum_category_description']    = array
+        (
+            'name'          => 'description',
+            'max'           => 20000, // user input max
+            'column_max'    => 60000, // database max
+            'css'           => 'textarea_admin', 
+            'preview'       => 1,
+            'submit'        => 1,
+            'help'          => 1,
+            'nl2br'         => 1,
+            'basic'         => 1,
+            'images'        => 1,
+            'videos'        => 1,
+            'setting_name'  => 'admin_forum_category_description',
+        );
+
         // Compose Note for Mailbox
         $settings['composenote']    = array
         (
@@ -83,6 +117,14 @@ class TextareaSettings
         // Set Type
         switch ($setting_name)
         {
+            case 'admin_forum_forum_description':
+                                        $type = 'admin_forum_forum_description';
+                                        break;
+        
+            case 'admin_forum_category_description':
+                                        $type = 'admin_forum_category_description';
+                                        break;
+
             case 'notereply':           $type = 'notereply';
                                         break;
 

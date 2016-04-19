@@ -62,7 +62,11 @@ class Mailbox extends Controller
 
         // View
         $this->view('sketchbookcafe/header');
-        $this->view('sketchbookcafe/mailbox_top', ['current_page' => $current_page,]);
+        $this->view('sketchbookcafe/mailbox_top', 
+        [
+            'current_page'  => $current_page,
+            'User'          => $User,
+        ]);
         $this->view('mailbox/viewnote', 
         [
             'DeleteForm'    => $DeleteForm,
@@ -92,6 +96,7 @@ class Mailbox extends Controller
     // Compose Note
     public function compose()
     {
+        $User           = $this->obj_array['User'];
         $ComposeObject  = $this->model('ComposeNotePage',$this->obj_array);
         $Form           = $ComposeObject->form;
 
@@ -100,7 +105,11 @@ class Mailbox extends Controller
 
         // View
         $this->view('sketchbookcafe/header');
-        $this->view('sketchbookcafe/mailbox_top', ['current_page' => $current_page,]);
+        $this->view('sketchbookcafe/mailbox_top', 
+        [
+            'current_page'  => $current_page,
+            'User'          => $User,
+        ]);
         $this->view('mailbox/composenote', ['Form' => $Form]);
         $this->view('sketchbookcafe/mailbox_bottom');
         $this->view('sketchbookcafe/footer');
@@ -145,7 +154,11 @@ class Mailbox extends Controller
 
         // View
         $this->view('sketchbookcafe/header');
-        $this->view('sketchbookcafe/mailbox_top', ['current_page' => $current_page,]);
+        $this->view('sketchbookcafe/mailbox_top', 
+        [
+            'current_page'  => $current_page,
+            'User'          => $User,
+        ]);
         $this->view('mailbox/index',
         [
             'Member'        => $Member,

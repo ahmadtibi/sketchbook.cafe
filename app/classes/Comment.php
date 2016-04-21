@@ -17,6 +17,9 @@ class Comment
 
     final public function getComments(&$db)
     {
+        // Global (for now);
+        global $Member;
+
         // Functions
         sbc_function('id_clean');
 
@@ -67,6 +70,9 @@ class Comment
                 );
             }
             mysqli_data_seek($result,0);
+
+            // Add User ID
+            $Member->idAddRows($result,'user_id');
         }
     }
 

@@ -41,7 +41,7 @@ class Member
             $db->sql_switch('sketchbookcafe');
 
             // Get members
-            $sql = 'SELECT id, username, avatar_id, avatar_url, title, forumsignature
+            $sql = 'SELECT id, username, avatar_id, avatar_url, title, forumsignature, total_posts
                 FROM users
                 WHERE id IN('.$id_list.')';
             $result = $db->sql_query($sql);
@@ -58,10 +58,17 @@ class Member
                 (
                     'title'             => $trow['title'],
                     'forumsignature'    => $trow['forumsignature'], 
+                    'total_posts'       => $trow['total_posts'],
                 );
             }
             mysqli_data_seek($result,0);
         }
+    }
+
+    // Display Posts
+    final public function displayPosts($id)
+    {
+        return $this->member[$id]['total_posts'];
     }
 
     // Display Title

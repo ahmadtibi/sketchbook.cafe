@@ -841,6 +841,12 @@
     line-height: 18px;
     color: #5a5a5a;
 }
+.commentPosts {
+    text-align: center;
+    font-size: 11px;
+    line-height: 13px;
+    color: #9A9A9A;
+}
 
 .commentTopWrap {
     overflow: hidden;
@@ -995,7 +1001,7 @@
 }
 .textarea_forum_thread {
     width: 700px;
-    height: 380px;
+    height: 210px;
 }
 .textarea_admin {
     width: 400px;

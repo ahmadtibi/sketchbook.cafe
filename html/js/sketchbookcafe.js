@@ -27,7 +27,7 @@ $(document).ready(function() {
 });
 
 // Disable All Buttons
-function sbc_button_sumbit_enable()
+function sbc_button_sumbit_disable()
 {
     var inputs = document.getElementsByTagName("INPUT");
     for (var i = 0; i < inputs.length; i++)
@@ -339,3 +339,246 @@ function sbc_numbered_links(url,ppage,posts,css)
     // Write
     document.write(new_url);
 }
+
+
+// Date Ago
+function sbc_dateago_calc(current_date, old_date)
+{
+    var seconds = Math.floor(current_date - old_date);
+
+    var year    = 31536000;
+    var month   = 2592000;
+    var week    = 604800;
+    var day     = 86400;
+    var hour    = 3600;
+    var minute  = 60;
+
+    // Years
+    interval = Math.floor(seconds / year);
+    if (interval >= 1)
+    {
+        if (interval != 1)
+        {
+            return interval + ' years ago ';
+        }
+        else
+        {
+            return interval + 'year ago';
+        }
+    }
+
+    // Months
+    interval = Math.floor(seconds / month);
+    if (interval >= 1)
+    {
+        if (interval != 1)
+        {
+            return interval + ' months ago ';
+        }
+        else
+        {
+            return interval + 'month ago';
+        }
+    }
+
+    // Weeks
+    interval = Math.floor(seconds / week);
+    if (interval >= 1)
+    {
+        if (interval != 1)
+        {
+            return interval + ' weeks ago ';
+        }
+        else
+        {
+            return interval + 'week ago';
+        }
+    }
+
+    // Days
+    interval = Math.floor(seconds / day);
+    if (interval >= 1)
+    {
+        if (interval != 1)
+        {
+            return interval + ' days ago ';
+        }
+        else
+        {
+            return interval + 'day ago';
+        }
+    }
+
+    // Hours
+    interval = Math.floor(seconds / hour);
+    if (interval >= 1)
+    {
+        if (interval != 1)
+        {
+            return interval + ' hours ago ';
+        }
+        else
+        {
+            return interval + 'hour ago';
+        }
+    }
+
+    // Minutes
+    interval = Math.floor(seconds / minute);
+    if (interval >= 1)
+    {
+        if (interval != 1)
+        {
+            return interval + ' minutes ago ';
+        }
+        else
+        {
+            return interval + 'minute ago';
+        }
+    }
+
+    // Seconds
+    interval = Math.floor(seconds);
+    if (interval >= 1)
+    {
+        if (interval != 1)
+        {
+            return interval + ' seconds ago ';
+        }
+        else
+        {
+            return interval + 'second ago';
+        }
+    }
+}
+
+function sbc_dateago(current_date, old_date)
+{
+    // Calculate
+    var value = '';
+    value = sbc_dateago_calc(current_date, old_date);
+
+    document.write(value);
+}
+
+// Simple Number Formatting
+function sbc_number_format_calc(numberString)
+{
+    numberString += '';
+    var x = numberString.split('.');
+    x1 = x[0];
+    x2 = x.length > 1 ? '.' + x[1] : '';
+    rgxp = /(\d+)(\d{3})/;
+
+    // Format Number
+	while (rgxp.test(x1)) {
+		x1 = x1.replace(rgxp, '$1' + ',' + '$2');
+	}
+
+    return x1 + x2;
+}
+function sbc_number_format(numberString)
+{
+    var value = '';
+    value = sbc_number_format_calc(numberString);
+    document.write(value);
+}
+
+// Number Display
+function sbc_number_display(numberValue,name1,name2)
+{
+    var name = '';
+    var value = '';
+    if (numberValue != 1)
+    {
+        name = name2;
+    }
+    else
+    {
+        name = name1;
+    }
+
+    // Calculate
+    value = sbc_number_format_calc(numberValue);
+
+    document.write(value + ' ' + name);
+}
+
+// Ajax Submit Form
+function sbc_ajax_submit(page_url,f_window,id)
+{
+    var xmlhttp;
+
+    if (window.XMLHttpRequest)
+    {
+        xmlhttp = new XMLHttpRequest();
+    }
+    else
+    {
+        xmlhttp = new ActiveObject("Microsoft.XMLHTTP");
+    }
+
+    // Window
+    xmlhttp.onreadystatechange = function()
+    {
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200)
+        {
+            document.getElementById(f_window).innerHTML = xmlhttp.responseText;
+        }
+    }
+
+    // Message
+    var message = document.getElementById('textarea_commenteditform'+id+'_message').value;
+    message = encodeURIComponent(message);
+
+    // Get
+    xmlhttp.open("POST",page_url,true);
+    xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+    xmlhttp.send('message=' + message);
+}
+
+// Ajax Get Form
+function sbc_ajax_form(page_url,f_window)
+{
+    var xmlhttp;
+
+    if (window.XMLHttpRequest)
+    {
+        xmlhttp = new XMLHttpRequest();
+    }
+    else
+    {
+        xmlhttp = new ActiveObject("Microsoft.XMLHTTP");
+    }
+
+    // Window
+    xmlhttp.onreadystatechange = function()
+    {
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200)
+        {
+            document.getElementById(f_window).innerHTML = xmlhttp.responseText;
+        }
+    }
+
+    // Get
+    xmlhttp.open("GET",page_url,true);
+    xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+    xmlhttp.send('');
+}
+
+// Edit Comment Form
+function sbc_edit_comment_form(id)
+{
+    var page_url = 'https://www.sketchbook.cafe/ajax/edit_comment/' + id + '/';
+    var f_window = 'edit_comment_window' + id;
+    return sbc_ajax_form(page_url,f_window);
+}
+
+// Edit Submit Form
+function sbc_edit_submit_form(id)
+{
+    var page_url = 'https://www.sketchbook.cafe/ajax/edit_comment_submit/' + id + '/';
+    var f_window = 'edit_comment_window' + id;
+    return sbc_ajax_submit(page_url,f_window,id);
+}
+

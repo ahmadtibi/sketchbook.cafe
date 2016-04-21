@@ -7,6 +7,7 @@ class TextareaSettings
 
     // Array
     private $name = '';
+    private $min = 0;
     private $max = 0;
     private $column_max = 0;
     private $css = '';
@@ -33,6 +34,7 @@ class TextareaSettings
         $settings['forum_reply']    = array
         (
             'name'          => 'message',
+            'min'           => 2, // min value
             'max'           => 20000, // user input max
             'column_max'    => 60000, // database max
             'css'           => 'textarea_forum_reply', 
@@ -50,6 +52,7 @@ class TextareaSettings
         $settings['forum_thread']    = array
         (
             'name'          => 'message',
+            'min'           => 2, // min value
             'max'           => 20000, // user input max
             'column_max'    => 60000, // database max
             'css'           => 'textarea_forum_thread', 
@@ -101,6 +104,7 @@ class TextareaSettings
         $settings['composenote']    = array
         (
             'name'          => 'message',
+            'min'           => 2, // min value
             'max'           => 20000, // user input max
             'column_max'    => 60000, // database max
             'css'           => 'textarea_compose', 
@@ -135,6 +139,7 @@ class TextareaSettings
         $settings['notereply']    = array
         (
             'name'          => 'notereply',
+            'min'           => 2, // min value
             'max'           => 20000, // user input max
             'column_max'    => 60000, // database max
             'css'           => 'textarea_compose', 
@@ -186,6 +191,7 @@ class TextareaSettings
 
         // Set vars
         $this->name         = $settings[$type]['name'];
+        $this->min          = $settings[$type]['min'];
         $this->max          = $settings[$type]['max'];
         $this->column_max   = $settings[$type]['column_max'];
         $this->css          = $settings[$type]['css'];
@@ -227,6 +233,7 @@ class TextareaSettings
         $settings_array = array
         (
             'name'          => $this->name,
+            'min'           => $this->min,
             'max'           => $this->max, // user input max
             'column_max'    => $this->column_max, // database max
             'css'           => $this->css, 

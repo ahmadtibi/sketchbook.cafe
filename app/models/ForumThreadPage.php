@@ -10,8 +10,23 @@ class ForumThreadPage
     public $forum_row = [];
     public $category_row = [];
 
-    public $result = 0;
-    public $rownum = 0;
+    public $comments_result = '';
+    public $comments_rownum = 0;
+
+    private $obj_array = [];
+
+    // Total
+    private $total = 0;
+
+    // Page Numbers
+    private $pageno = 0;
+    private $ppage = 20; // 20 threads per page
+    private $pages = 0;
+    private $offset = 0;
+    public $pagenumbers = '';
+    public $pages_min = 0;
+    public $pages_max = 0;
+    public $pages_total = 0;
 
     // Construct
     public function __construct()
@@ -29,18 +44,32 @@ class ForumThreadPage
         }
     }
 
+    // Set Page Number
+    final public function setPageNumber($number)
+    {
+        $this->pageno = isset($number) ? (int) $number : 0;
+        if ($this->pageno < 1)
+        {
+            $this->pageno = 0;
+        }
+    }
+
     // Process
     final public function process(&$obj_array)
     {
+        // Object Array
+        $this->obj_array    = &$obj_array;
+
         // Initialize Objects
-        $db         = &$obj_array['db'];
-        $User       = &$obj_array['User'];
-        $Member     = &$obj_array['Member'];
-        $Comment    = &$obj_array['Comment'];
+        $db                 = &$obj_array['db'];
+        $User               = &$obj_array['User'];
+        $Member             = &$obj_array['Member'];
+        $Comment            = &$obj_array['Comment'];
 
         // Classes
         sbc_class('Form');
         sbc_class('TextareaSettings');
+        sbc_class('PageNumbers');
 
         // Thread Id
         $thread_id = $this->thread_id;
@@ -61,11 +90,47 @@ class ForumThreadPage
         // Get Thread Info
         $this->getThreadInfo($db,$Member,$Comment);
 
+        // Page Numbers
+        $ppage          = 20;
+        $pageno         = $this->pageno;
+        $total          = $this->total;
+        $pages_link     = 'https://www.sketchbook.cafe/forum/thread/22/{page_link}/';
+
+        // Page Numbers (SQL)
+        $offset         = $pageno * $ppage;
+        $this->offset   = $offset;
+        $this->ppage    = $ppage;
+        $this->pages    = ceil($total / $ppage);
+
+        // Get Thread Comments
+        $this->getComments($db);
+
         // Process all data
         $ProcessAllData = new ProcessAllData();
 
         // Close Connection
         $db->close();
+
+        // Page Numbers
+        $PageNumbersObject  = new PageNumbers(array
+        (
+            'name'          => 'pagenumbers',
+            'first'         => 0, // current page
+            'current'       => $pageno, // page number
+            'posts'         => $total, // count(*) value
+            'ppage'         => $ppage, // max number of posts per page
+            'display'       => 4, // numbers of pages to display as links per side
+            'link'          => $pages_link, 
+            'css_overlay'   => '',
+            'css_inactive'  => 'pageNumbersItem pageNumbersItemUnselected',
+            'css_active'    => 'pageNumbersItem pageNumbersItemSelected',
+        ));
+        $this->pagenumbers  = $PageNumbersObject->getPageNumbers();
+
+        // More Pagenumbers
+        $this->pages_min    = $PageNumbersObject->pages_min;
+        $this->pages_max    = $PageNumbersObject->pages_max;
+        $this->pages_total  = $PageNumbersObject->pages_total;
 
         // New Form
         $Form = new Form(array
@@ -108,7 +173,7 @@ class ForumThreadPage
         $db->sql_switch('sketchbookcafe');
  
         // Get Thread Information
-        $sql = 'SELECT id, forum_id, user_id, date_created, comment_id, title, isdeleted
+        $sql = 'SELECT id, forum_id, user_id, date_created, comment_id, title, total_comments, isdeleted
             FROM forum_threads
             WHERE id=?
             LIMIT 1';
@@ -140,6 +205,9 @@ class ForumThreadPage
         {
             error('Thread does not have a forum set.');
         }
+
+        // Set Total for Page Numbers
+        $this->total = $thread_row['total_comments'];
 
         // Get Forum Information
         $sql = 'SELECT id, parent_id, name
@@ -194,7 +262,6 @@ class ForumThreadPage
             error('Forum thread is not part of a forum category and it cannot be viewed');
         }
 
-
         // Set
         $this->category_row = $category_row;
         $this->forum_row    = $forum_row;
@@ -206,4 +273,50 @@ class ForumThreadPage
         // Add Comment ID
         $Comment->idAddOne($thread_row['comment_id']);
    }
+
+    // Get Thread Comments
+    final private function getComments(&$db)
+    {
+        // Initialize Objects and Vars
+        $Comment    = &$this->obj_array['Comment'];
+        $Member     = &$this->obj_array['Member'];
+        $thread_id  = $this->thread_id;
+        $offset     = $this->offset;
+        $pageno     = $this->pageno;
+        $ppage      = $this->ppage;
+
+        // Pagenumbers
+        if ($pageno < 1)
+        {
+            $pageno = 0;
+        }
+
+        // Check
+        if ($thread_id < 1)
+        {
+            error('Dev error: $thread_id is not set for ForumThreadPage->getComments()');
+        }
+
+        // Switch
+        $db->sql_switch('sketchbookcafe_forums');
+
+        // Table
+        $table_name = 't'.$thread_id.'d';
+
+        // Get Comments
+        $sql = 'SELECT cid
+            FROM '.$table_name.'
+            ORDER BY id
+            ASC
+            LIMIT '.$offset.', '.$ppage;
+        $comments_result = $db->sql_query($sql);
+        $comments_rownum = $db->sql_numrows($comments_result);
+
+        // Set Vars
+        $this->comments_result  = $comments_result;
+        $this->comments_rownum  = $comments_rownum;
+
+        // Add Comment IDs
+        $Comment->idAddRows($comments_result,'cid');
+    }
 }

@@ -11,7 +11,7 @@ class Forum extends Controller
     }
 
     // Forum Thread
-    public function thread($thread_id = 0)
+    public function thread($thread_id = 0, $pageno = 0)
     {
         // Objects
         $User       = $this->obj_array['User'];
@@ -19,38 +19,59 @@ class Forum extends Controller
         $Member     = $this->obj_array['Member'];
 
         // Thread ID
-        $thread_id = isset($thread_id) ? (int) $thread_id : 0;
+        $thread_id  = isset($thread_id) ? (int) $thread_id : 0;
         if ($thread_id < 1)
         {
             error('Invalid Thread ID');
         }
 
+        // Page Numbers
+        $pageno     = isset($pageno) ? (int) $pageno : 0;
+        if ($pageno < 1)
+        {
+            $pageno = 0;
+        }
+
         // Model
-        $ThreadObject   = $this->model('ForumThreadPage');
+        $ThreadObject       = $this->model('ForumThreadPage');
         $ThreadObject->setThreadId($thread_id);
+        $ThreadObject->setPageNumber($pageno);
         $ThreadObject->process($this->obj_array);
-        $thread_row     = $ThreadObject->thread_row;
-        $category_row   = $ThreadObject->category_row;
-        $forum_row      = $ThreadObject->forum_row;
-        $Form           = $ThreadObject->Form;
+        $thread_row         = $ThreadObject->thread_row;
+        $category_row       = $ThreadObject->category_row;
+        $forum_row          = $ThreadObject->forum_row;
+        $Form               = $ThreadObject->Form;
+        $comments_result    = $ThreadObject->comments_result;
+        $comments_rownum    = $ThreadObject->comments_rownum;
+        $pagenumbers        = $ThreadObject->pagenumbers;
+        $pages_min          = $ThreadObject->pages_min;
+        $pages_max          = $ThreadObject->pages_max;
+        $pages_total        = $ThreadObject->pages_total;
 
         // View
         $this->view('sketchbookcafe/header');
         $this->view('forum/threadpage',
         [
-            'User'          => $User,
-            'thread_row'    => $thread_row,
-            'category_row'  => $category_row,
-            'forum_row'     => $forum_row,
-            'Comment'       => $Comment,
-            'Member'        => $Member,
-            'Form'          => $Form,
+            'User'              => $User,
+            'thread_row'        => $thread_row,
+            'category_row'      => $category_row,
+            'forum_row'         => $forum_row,
+            'Comment'           => $Comment,
+            'Member'            => $Member,
+            'Form'              => $Form,
+            'comments_result'   => $comments_result,
+            'comments_rownum'   => $comments_rownum,
+            'pagenumbers'       => $pagenumbers,
+            'pages_min'         => $pages_min,
+            'pages_max'         => $pages_max,
+            'pages_total'       => $pages_total,
         ]);
         $this->view('sketchbookcafe/footer');
     }
     public function thread_reply()
     {
-        // That boy needs therapy!
+        // Model
+        $this->model('ForumThreadReply',$this->obj_array);
     }
 
     // Submit New Thread
@@ -64,8 +85,9 @@ class Forum extends Controller
     public function index($forum_id = 0)
     {
         // Objects
-        $db     = $this->obj_array['db'];
-        $User   = $this->obj_array['User'];
+        $User       = $this->obj_array['User'];
+        $Member     = $this->obj_array['Member'];
+        $Comment    = $this->obj_array['Comment'];
 
         // Initialize Vars
         $forum_id = isset($forum_id) ? (int) $forum_id : 0;
@@ -81,6 +103,8 @@ class Forum extends Controller
         $Form           = $ForumObject->Form;
         $category_row   = $ForumObject->category_row;
         $forum_row      = $ForumObject->forum_row;
+        $threads_result = $ForumObject->threads_result;
+        $threads_rownum = $ForumObject->threads_rownum;
 
         // View
         $this->view('sketchbookcafe/header');
@@ -90,6 +114,10 @@ class Forum extends Controller
             'Form'              => $Form,
             'category_row'      => $category_row,
             'forum_row'         => $forum_row,
+            'threads_result'    => $threads_result,
+            'threads_rownum'    => $threads_rownum,
+            'Member'            => $Member,
+            'Comment'           => $Comment,
         ]);
         $this->view('sketchbookcafe/footer');
 

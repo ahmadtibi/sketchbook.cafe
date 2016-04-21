@@ -3,6 +3,7 @@ use SketchbookCafe\Db\Db as Db;
 
 // Functions + Classes
 require 'functions/error.php';
+require 'functions/statement_error.php';
 require 'functions/sbc_function.php';
 require 'functions/sbc_class.php';
 require 'classes/ProcessAllData.php';

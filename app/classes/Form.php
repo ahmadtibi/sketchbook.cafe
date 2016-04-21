@@ -50,7 +50,7 @@ class Form
 
         // Create Vars
         $this->onKeyPress   = 'formOnKeyPress(\''.$this->data['submit_id'].'\', \''.$this->data['inactive'].'\'); sbc_button_sumbit_enable();';
-        $this->onSubmit     = 'formOnSubmit (\''.$this->data['submit_id'].'\', \''.$this->data['active'].'\');';
+        $this->onSubmit     = 'formOnSubmit (\''.$this->data['submit_id'].'\', \''.$this->data['active'].'\'); sbc_button_sumbit_disable();';
         $this->onKey        = ' onkeypress="'.$this->onKeyPress.'" onsubmit="'.$this->onSubmit.'" ';
 
         // Ajax
@@ -63,6 +63,21 @@ class Form
 
         // Set has info
         $this->hasinfo = 1;
+    }
+
+    // Set Javascript
+    final public function setJavascript($javascript)
+    {
+        // Set?
+        $javascript = isset($javascript) ? $javascript : '';
+        if (!empty($javascript))
+        {
+            $this->data['ajax']         = 1;
+            $this->data['javascript']   = $javascript;
+
+            // On Submit
+            $this->onSubmit .= ' '.$javascript.' return false; ';
+        }
     }
 
     // Start Form
@@ -224,8 +239,21 @@ class Form
             $value = $this->data['inactive'];
         }
 
-        // Button
-        $button = '<input id="'.$this->data['submit_id'].'" type="Submit" name="'.$name.'" value="'.$value.'" class="'.$css.'">';
+        // Ajax?
+        if ($this->data['ajax'] == 1)
+        {
+            $css = $this->data['button_class'] . ' ' . $css;
+
+            // Ajax Button
+            $button = '<button id="'.$this->data['submit_id'].'" type="button" name="'.$name.'" value="'.$value.'" class="'.$css.'" onclick="'.$this->data['javascript'].'" >'.$value.'</button>';
+        }
+        else
+        {
+            // Button
+            $button = '<input id="'.$this->data['submit_id'].'" type="Submit" name="'.$name.'" value="'.$value.'" class="'.$css.'">';
+        }
+
+        // Line Spacer
         $button .= "\n";
 
         // Return

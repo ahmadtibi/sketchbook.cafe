@@ -5,7 +5,7 @@
 *
 * @author       Jonathan Maltezo (Kameloh)
 * @copyright   (c) 2016, Jonathan Maltezo (Kameloh)
-* @lastupdated  2016-04-19
+* @lastupdated  2016-04-20
 *
 */
 class Message
@@ -431,6 +431,9 @@ class Message
         $comment_type = '';
         switch ($type)
         {
+            case 'forum_thread_reply':  $comment_type   = 'forum_thread_reply';
+                                        break;
+
             case 'forum_message':       $comment_type   = 'forum_message';
                                         break;
 
@@ -577,8 +580,25 @@ class Message
         }
         $this->comment_id = $comment_id;
 
+        // Forum Thread Reply (type 3)
+        if ($comment_type == 'forum_thread_reply')
+        {
+            // Update comment and mark as undeleted
+            $sql = 'UPDATE sbc_comments
+                SET type=3,
+                isdeleted=0
+                WHERE id=?
+                LIMIT 1';
+            $stmt = $db->prepare($sql);
+            $stmt->bind_param('i',$comment_id);
+            if (!$stmt->execute())
+            {
+                error('Could not execute statement (update comment as forum reply) for Message->createMessage()');
+            }
+            $stmt->close();
+        }
         // Forum Message (type 2)
-        if ($comment_type == 'forum_message')
+        else if ($comment_type == 'forum_message')
         {
             // Update comment and mark as undeleted
             $sql = 'UPDATE sbc_comments

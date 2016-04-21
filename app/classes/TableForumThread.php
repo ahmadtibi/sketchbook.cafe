@@ -37,14 +37,23 @@ class TableForumThread
         // Class
         sbc_class('TableCreator');
 
-        // Tables
+        // Comment Table
         $tablename  = 't'.$this->thread_id.'d';
         $database   = 'sketchbookcafe_forums';
         $columns    = array
         (
             'id'    => 'INT NOT NULL AUTO_INCREMENT',
             'cid'   => 'INT DEFAULT 0 NOT NULL',
+            'uid'   => 'INT DEFAULT 0 NOT NULL',
         );
         $TableCreator   = new TableCreator($tablename,$database,$columns);
+        $TableCreator->createTable($db);
+
+        // Unset
+        unset($tablename);
+        unset($database);
+        unset($columns);
+        unset($TableCreator);
+
     }
 }

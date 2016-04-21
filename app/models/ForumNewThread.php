@@ -27,6 +27,7 @@ class ForumNewThread
         sbc_class('UserTimer');
         sbc_class('Message');
         sbc_class('TextareaSettings');
+        sbc_class('ForumOrganizer');
         sbc_function('rd');
 
         // Initialize Vars
@@ -98,6 +99,12 @@ class ForumNewThread
 
         // Insert Into Forum's Table
         $this->insertThread($db);
+
+        // Forum Organizer
+        $ForumOrganizer = new ForumOrganizer($db);
+
+        // Count Unique Comments
+        $ForumOrganizer->threadUniqueComments($this->thread_id);
 
         // Count Total Threads for Forums (fix this)
 
@@ -245,6 +252,10 @@ class ForumNewThread
             error('Dev error: could not insert new thread for ForumNewThread->createThread()');
         }
         $this->thread_id = $thread_id;
+
+        // Update the message's parent_id as thread_id
+        $messageObject->setParentId($thread_id);
+        $messageObject->updateParentId($db);
     }
 
     // Create Thread Table

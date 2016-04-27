@@ -1,4 +1,9 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\Form\Form as Form;
 
 class AdminLoginPage
 {
@@ -7,24 +12,25 @@ class AdminLoginPage
     // Construct
     public function __construct(&$obj_array)
     {
+        $method = 'AdminLoginPage->__construct()';
+
         // Initialize Objects
         $db     = &$obj_array['db'];
         $User   = &$obj_array['User'];
 
-        // Classes and Functions
-        sbc_class('Form');
-
         // Open Connection
         $db->open();
 
-        // Required User + Process Data
+        // Required User
         $User->setFrontpage();
         $User->required($db);
-        $ProcessAllData = new ProcessAllData();
         if (!$User->isAdmin())
         {
-            error('Sorry, only administrators may access this area');
+            SBC::userError('Sorry, only administrators may access this area');
         }
+
+        // Process Data
+        $ProcessAllData = new ProcessAllData();
 
         // Close Connection
         $db->close();

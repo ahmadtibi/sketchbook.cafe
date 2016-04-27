@@ -1,4 +1,5 @@
 <?php
+// Last Updated:    2016-04-26
 
 class SettingsPage
 {
@@ -12,9 +13,11 @@ class SettingsPage
         // Open Connection
         $db->open();
 
-        // Required User + Process Data
+        // Required User
         $User->setFrontpage();
         $User->required($db);
+
+        // Process Data
         $ProcessAllData = new ProcessAllData();
 
         // Close Connection

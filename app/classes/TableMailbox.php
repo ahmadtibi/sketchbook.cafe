@@ -1,4 +1,10 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
+namespace SketchbookCafe\TableMailbox;
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\TableCreator\TableCreator as TableCreator;
 
 class TableMailbox
 {
@@ -8,11 +14,13 @@ class TableMailbox
     // Construct
     public function __construct($mail_id)
     {
+        $method = 'TableMailbox->__construct()';
+
         // Set Mailbox ID
         $this->mail_id = isset($mail_id) ? (int) $mail_id : 0;
         if ($this->mail_id < 1)
         {
-            error('Dev error: $mail_id is not set for TableMailbox->construct()');
+            SBC::devError('$mail_id is not set',$method);
         }
 
         // Set hasinfo
@@ -22,20 +30,21 @@ class TableMailbox
     // Has info
     final private function hasInfo()
     {
+        $method = 'TableMailbox->hasInfo()';
+
         if ($this->hasinfo != 1)
         {
-            error('Dev error: $hasinfo is not set for TableMailbox->hasInfo()');
+            SBC::devError('$hasinfo is not set',$method);
         }
     }
 
     // Check Tables
     final public function checkTables(&$db)
     {
+        $method = 'TableMailbox->checkTables()';
+
         // has info
         $this->hasInfo();
-
-        // Class
-        sbc_class('TableCreator');
 
         // Tables
         $tablename  = 'm'.$this->mail_id.'x';

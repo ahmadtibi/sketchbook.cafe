@@ -10,6 +10,214 @@ class Admin extends Controller
         $this->obj_array = &$obj_array;
     }
 
+    // Edit Forum Admin
+    public function edit_forum_admin($id = 0)
+    {
+        // Objects
+        $User   = &$this->obj_array['User'];
+        $Member = &$this->obj_array['Member'];
+
+        // ID of Admin
+        $id     = isset($id) ? (int) $id : 0;
+        if ($id < 1)
+        {
+            error('Admin ID not set');
+        }
+
+        // Edit Forum Admin
+        $EditObject = $this->model('AdminEditForumAdminPage', $id);
+        $EditObject->process($this->obj_array);
+        $Form       = $EditObject->Form;
+        $forum_row  = $EditObject->forum_row;
+
+        // Current Page
+        $current_page = 'manage_forum_admins';
+
+        // View
+        $this->view('sketchbookcafe/header');
+        $this->view('sketchbookcafe/admin_top', 
+        [
+            'User'          => $User,
+            'current_page'  => $current_page,
+        ]);
+        $this->view('admin/editforumadmin',
+        [
+            'Form'      => $Form,
+            'Member'    => $Member,
+            'forum_row' => $forum_row,
+            'id'        => $id,
+        ]);
+        $this->view('sketchbookcafe/admin_bottom');
+        $this->view('sketchbookcafe/footer');
+    }
+    public function edit_forum_admin_submit()
+    {
+        // Model
+        $this->model('AdminEditForumAdminSubmit', $this->obj_array);
+    }
+
+    // Manage Forum Admins
+    public function manage_forum_admins()
+    {
+        // Objects
+        $User   = &$this->obj_array['User'];
+
+        // Model
+        $ManageObject       = $this->model('AdminForumAdminsPage',$this->obj_array);
+        $forums_result      = $ManageObject->forums_result;
+        $forums_rownum      = $ManageObject->forums_rownum;
+        $f_admin_result     = $ManageObject->f_admin_result;
+        $f_admin_rownum     = $ManageObject->f_admin_rownum;
+        $Form               = $ManageObject->Form;
+
+        // Vars
+        $current_page       = 'manage_forum_admins';
+
+        // View
+        $this->view('sketchbookcafe/header');
+        $this->view('sketchbookcafe/admin_top', 
+        [
+            'User'          => $User,
+            'current_page'  => $current_page,
+        ]);
+        $this->view('admin/manageforumadmins',
+        [
+            'forums_result'     => $forums_result,
+            'forums_rownum'     => $forums_rownum,
+            'f_admin_result'    => $f_admin_result,
+            'f_admin_rownum'    => $f_admin_rownum,
+            'Form'              => $Form,
+        ]);
+        $this->view('sketchbookcafe/admin_bottom');
+        $this->view('sketchbookcafe/footer');
+    }
+    public function manage_forum_admins_submit()
+    {
+        // Model
+        $this->model('AdminForumAdminsSubmit',$this->obj_array);
+    }
+
+    // Manage Forum
+    public function manage_forum()
+    {
+        // User
+        $User   = &$this->obj_array['User'];
+
+        // Model
+        $ManageObject       = $this->model('AdminManageForumPage',$this->obj_array);
+        $categories_result  = $ManageObject->categories_result;
+        $categories_rownum  = $ManageObject->categories_rownum;
+        $forums_result      = $ManageObject->forums_result;
+        $forums_rownum      = $ManageObject->forums_rownum;
+        $f_admin_result     = $ManageObject->f_admin_result;
+        $f_admin_rownum     = $ManageObject->f_admin_rownum;
+
+        // Vars
+        $current_page   = 'manage_forum';
+
+        // View
+        $this->view('sketchbookcafe/header');
+        $this->view('sketchbookcafe/admin_top', 
+        [
+            'User'          => $User,
+            'current_page'  => $current_page,
+        ]);
+        $this->view('admin/manageforum',
+        [
+            'categories_result' => $categories_result,
+            'categories_rownum' => $categories_rownum,
+            'forums_result'     => $forums_result,
+            'forums_rownum'     => $forums_rownum,
+            'f_admin_result'    => $f_admin_result,
+            'f_admin_rownum'    => $f_admin_rownum,
+        ]);
+        $this->view('sketchbookcafe/admin_bottom');
+        $this->view('sketchbookcafe/footer');
+    }
+
+    // Fix Forum Table
+    public function fix_forum_table($updated = 0)
+    {
+        // Objects
+        $User   = $this->obj_array['User'];
+
+        // Updated
+        $updated    = isset($updated) ? (int) $updated : 0;
+        if ($updated != 1)
+        {
+            $updated = 0;
+        }
+
+        // Model
+        $FixObject  = $this->model('AdminFixForumTablePage',$this->obj_array);
+        $Form       = $FixObject->Form;
+
+        // Current Page
+        $current_page = 'fix_forum_table';
+
+        // View
+        $this->view('sketchbookcafe/header');
+        $this->view('sketchbookcafe/admin_top', 
+        [
+            'User'          => $User,
+            'current_page'  => $current_page,
+        ]);
+        $this->view('admin/fixforumtablepage', 
+        [
+            'Form'          => $Form,
+            'updated'       => $updated,
+        ]);
+        $this->view('sketchbookcafe/admin_bottom');
+        $this->view('sketchbookcafe/footer');
+    }
+    public function fix_forum_table_submit()
+    {
+        // Model
+        $this->model('AdminFixForumTableSubmit',$this->obj_array);
+    }
+
+    // Fix User Table
+    public function fix_user_table($updated = 0)
+    {
+        // Objects
+        $User   = $this->obj_array['User'];
+
+        // Updated
+        $updated    = isset($updated) ? (int) $updated : 0;
+        if ($updated != 1)
+        {
+            $updated = 0;
+        }
+
+        // Model
+        $FixObject  = $this->model('AdminFixUserTablePage',$this->obj_array);
+        $Form       = $FixObject->Form;
+
+        // Current Page
+        $current_page = 'fix_user_table';
+
+        // View
+        $this->view('sketchbookcafe/header');
+        $this->view('sketchbookcafe/admin_top', 
+        [
+            'User'          => $User,
+            'current_page'  => $current_page,
+        ]);
+        $this->view('admin/fixusertablepage', 
+        [
+            'User'          => $User,
+            'Form'          => $Form,
+            'updated'       => $updated,
+        ]);
+        $this->view('sketchbookcafe/admin_bottom');
+        $this->view('sketchbookcafe/footer');
+    }
+    public function fix_user_table_submit()
+    {
+        // Model
+        $this->model('AdminFixUserTableSubmit',$this->obj_array);
+    }
+
     // Edit Forum
     public function forum_forums_edit($id = 0)
     {

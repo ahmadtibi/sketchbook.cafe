@@ -1,7 +1,14 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-26
 // User Sessions - Creates/Cleans/Updates login sessions
 // This assumes that the user is authenticated either through
 // registration or login
+namespace SketchbookCafe\UserSession;
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\GenerateRandom\GenerateRandom as GenerateRandom;
+
 class UserSession
 {
     private $user_id = 0;
@@ -17,11 +24,13 @@ class UserSession
     // Consruct
     public function __construct($input)
     {
+        $method = 'UserSession->__construct()';
+
         // Make sure the ID is set
         $user_id = isset($input['user_id']) ? (int) $input['user_id'] : 0;
         if ($user_id < 1)
         {
-            error('Dev error: $user_id is not set for UserSession->construct()');
+            SBC::devError('$user_id is not set',$method);
         }
 
         // IP Lock
@@ -33,7 +42,7 @@ class UserSession
 
         // Set values
         $this->user_id      = $user_id;
-        $this->ip_address   = $_SERVER['REMOTE_ADDR'];
+        $this->ip_address   = SBC::getIpAddress();
         $this->ip_lock      = $ip_lock;
         $this->hasinfo      = 1;
     }
@@ -41,15 +50,19 @@ class UserSession
     // Check Info
     private function checkInfo()
     {
+        $method = 'UserSession->checkInfo()';
+
         if ($this->hasinfo != 1)
         {
-            error('Session does not have info');
+            SBC::userError('Session does not have info');
         }
     }
 
     // Clean Sessions
     private function cleanSessions(&$db)
     {
+        $method = 'UserSession->cleanSession()';
+
         // Make sure db is correct
         $db->sql_switch('sketchbookcafe');
 
@@ -71,10 +84,7 @@ class UserSession
             LIMIT '.$limit;
         $stmt = $db->prepare($sql);
         $stmt->bind_param('i',$user_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement for UserSession->cleanSessions()');
-        }
+        SBC::statementExecuteCommand($stmt,$db,$sql,$method);
         $result = $stmt->get_result();
         $rownum = $db->sql_numrows($result);
         $stmt->close();
@@ -95,11 +105,7 @@ class UserSession
                 AND id<?';
             $stmt = $db->prepare($sql);
             $stmt->bind_param('ii',$user_id,$delete_lower_id);
-            if (!$stmt->execute())
-            {
-                error('Could not execute statement (clean below id) for UserSession->cleanSessions())');
-            }
-            $stmt->close();
+            SBC::statementExecute($stmt,$db,$sql,$method);
 
             // Clear memory
             $db->sql_freeresult($result);
@@ -109,24 +115,22 @@ class UserSession
     // Create Session
     public function createSession(&$db)
     {
+        $method = 'UserSession->createSession()';
+
         // Make sure info is set
         $this->checkInfo();
-
-        // Functions
-        sbc_function('rd');
-        sbc_function('generate_random');
 
         // Make sure database is correct
         $db->sql_switch('sketchbookcafe');
 
         // Generate Session
-        $this->user_session = generate_random(250);
+        $this->user_session = GenerateRandom::process(250);
 
         // Set values
         $ip_address         = $this->ip_address;
         $ip_lock            = $this->ip_lock;
-        $time               = time();
-        $rd                 = rd();
+        $time               = SBC::getTime();
+        $rd                 = SBC::rd();
         $user_session       = $this->user_session;
         $user_id            = $this->user_id;
 
@@ -143,11 +147,7 @@ class UserSession
             ip_lock=?';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('iiissi',$rd,$user_id,$time,$user_session,$ip_address,$ip_lock);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement for UserSession->createSession()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
 
         // Get new Session ID
         $sql = 'SELECT id
@@ -157,21 +157,15 @@ class UserSession
             AND date_created=?
             AND session_code=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('iiis',$rd,$user_id,$time,$user_session);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (get ID) for UserSession->createSession()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // New Session ID
         $this->new_session_id = $row['id'];
         if ($this->new_session_id < 1)
         {
-            error('Dev error: could not get new session ID for UserSession->createSession()');
+            SBC::devError('could not get new session ID',$method);
         }
 
         // Clean Old Sessions
@@ -187,11 +181,13 @@ class UserSession
     // Set Cookies
     private function setCookies()
     {
+        $method = 'UserSession->setCookies()';
+
         // Make sure info is set
         $this->checkInfo();
 
         // Set Vars
-        $time           = time();
+        $time           = SBC::getTime();
         $cookie_path    = '/';
         $cookie_domain  = '.sketchbook.cafe';
         $cookie_life    = 5184000;
@@ -209,6 +205,8 @@ class UserSession
     // Update User
     private function updateUser(&$db)
     {
+        $method = 'UserSession->updateUser()';
+
         // Switch
         $db->sql_switch('sketchbookcafe');
 
@@ -222,7 +220,7 @@ class UserSession
         // Just in case
         if ($new_session_id < 1)
         {
-            error('Dev error: $new_session_id is not set for UserSession->updateUser()');
+            SBC::devError('$new_session_id is not set',$method);
         }
 
         // Get user session
@@ -230,15 +228,9 @@ class UserSession
             FROM users
             WHERE id=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('i',$user_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement for UserSession->updateUser()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Check which one is older
         $session_id1    = $row['session_id1'];
@@ -259,10 +251,6 @@ class UserSession
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('ii',$new_session_id,$user_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (update user) for UserSession->updateUser()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 }

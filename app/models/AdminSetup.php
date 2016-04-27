@@ -1,4 +1,9 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\Form\Form as Form;
 
 class AdminSetup
 {
@@ -11,20 +16,17 @@ class AdminSetup
         $db     = &$obj_array['db'];
         $User   = &$obj_array['User'];
 
-        // Classes + Functions
-        sbc_class('Form');
-
         // Open Connection
         $db->open();
 
         // Required User + Process Data
         $User->required($db);
-        $user_id        = $User->getUserId();
+        $user_id = $User->getUserId();
 
         // Is Admin?
         if (!$User->isAdmin())
         {
-            error('Sorry, only administrators may access this page');
+            SBC::userError('Sorry, only administrators may access this page');
         }
 
         // Close Connection

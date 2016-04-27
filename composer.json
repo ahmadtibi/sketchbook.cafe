@@ -1,11 +1,14 @@
 {
+    "name": "sketchbookcafe/sketchbookcafe",
+    "description": "Art Forum",
     "require": {
         "illuminate/database": "^5.2",
-        "aws/aws-sdk-php": "^3.17"
+        "aws/aws-sdk-php": "^3.17",
+        "google/recaptcha": "~1.1"
     },
     "autoload": {
-    	"classmap": [
-    		"app/models"
-    	]
+        "psr-4": {
+            "SketchbookCafe\\": "app/classes/"
+        }
     }
 }

@@ -14,6 +14,10 @@ function sbc_class($name)
     // Global
     global $sbc_class;
 
+    error('sbc_class is no longer used :x');
+
+/*
+
     // Check if array is set
     $sbc_class[$name] = isset($sbc_class[$name]) ? $sbc_class[$name] : 0;
     if ($sbc_class[$name] != 1)
@@ -23,4 +27,5 @@ function sbc_class($name)
         // Set as included
         $sbc_class[$name] = 1;
     }
+*/
 }

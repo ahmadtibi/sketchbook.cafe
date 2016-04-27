@@ -10,6 +10,7 @@ $Comment            = &$data['Comment'];
 $Member             = &$data['Member'];
 $Form               = &$data['Form'];
 $user_id            = $User->getUserId();
+$ForumAdmin         = &$data['ForumAdmin'];
 
 // Page Numbers
 $pagenumbers        = &$data['pagenumbers'];
@@ -31,67 +32,10 @@ $pages_total        = &$data['pages_total'];
     <a href="https://www.sketchbook.cafe/forum/thread/<?php echo $thread_row['id'];?>/"><?php echo $thread_row['title'];?></a>
 </div>
 
-<div style="overflow: hidden;">
-
-    <!-- Start Main Post -->
-    <div class="commentWrap">
-
-        <div class="commentLeft">
-
-            <div class="commentAvatarDiv">
-                <script>sbc_avatar(<?php echo $thread_row['user_id'];?>);</script>
-            </div>
-            <div class="commentUsername">
-                <script>sbc_username(<?php echo $thread_row['user_id'];?>);</script>
-            </div>
-            <div class="commentUserTitle">
-                <?php echo $Member->displayTitle($thread_row['user_id']);?>
-            </div>
-            <div class="commentPosts">
-                <script>sbc_number_display(<?php echo $Member->displayPosts($thread_row['user_id']);?>,'Post','Posts');</script>
-            </div>
-
-        </div>
-        <div class="commentRight">
-
-            <div class="commentTopWrap">
-                <div class="commentTopRight">
 <?php
-// Owner Only
-if ($user_id == $thread_row['user_id'])
-{
-?>
-                    <a href="#" onClick="sbc_edit_comment_form(<?php echo $thread_row['comment_id'];?>); return false;">edit</a>
-<?php
-}
-?>
-                    #<?php echo $thread_row['comment_id'];?>
-                </div>
-                <div class="commentDate">
-                    <?php echo $User->mytz($Comment->getDate($thread_row['comment_id']),'F jS, Y - g:iA');?>
-                </div>
-            </div>
-            <div class="commentMessage">
-                <span id="edit_comment_window<?php echo $thread_row['comment_id'];?>">
-                    <?php echo $Comment->displayComment($thread_row['comment_id']);?>
-                </span>
-            </div>
-<?php
-// Signature?
-if ($Member->notEmpty($thread_row['user_id'],'forumsignature'))
-{
-?>
-            <div class="commentSignature">
-                <?php echo $Member->displayForumSignature($thread_row['user_id']);?>
-            </div>
-<?php
-}
-?>
-        </div>
-    </div>
-    <!-- End Main Post -->
+// Thread Comment
+echo display_comment($thread_row['comment_id']);
 
-<?php
 // Page Numbers
 if ($comments_rownum > 0)
 {
@@ -129,70 +73,8 @@ if ($comments_rownum > 0)
         // Add
         $i++;
 
-        // comment ID
-        $comment_id         = $trow['cid'];
-        $comment_user_id    = $Comment->comment[$comment_id]['user_id'];
-?>
-
-<div class="commentWrap">
-
-    <div class="commentLeft">
-
-        <div class="commentAvatarDiv">
-            <script>sbc_avatar(<?php echo $comment_user_id;?>);</script>
-        </div>
-        <div class="commentUsername">
-            <script>sbc_username(<?php echo $comment_user_id;?>);</script>
-        </div>
-        <div class="commentUserTitle">
-            <?php echo $Member->displayTitle($comment_user_id);?>
-        </div>
-        <div class="commentPosts">
-            <script>sbc_number_display(<?php echo $Member->displayPosts($comment_user_id);?>,'Post','Posts');</script>
-        </div>
-
-    </div>
-
-    <div class="commentRight">
-
-        <div class="commentTopWrap">
-            <div class="commentTopRight">
-<?php
-// Comment Owner Only
-if ($user_id == $comment_user_id)
-{
-?>
-                <a href="#" onClick="sbc_edit_comment_form(<?php echo $comment_id;?>); return false;">edit</a>
-<?php
-}
-?>
-                #<?php echo $comment_id;?>
-            </div>
-            <div class="commentDate">
-                <?php echo $User->mytz($Comment->getDate($comment_id),'F jS, Y - g:iA');?>
-            </div>
-        </div>
-
-        <div class="commentMessage">
-            <span id="edit_comment_window<?php echo $comment_id;?>">
-                <?php echo $Comment->displayComment($comment_id);?>
-            </span>
-        </div>
-<?php
-// Signature?
-if ($Member->notEmpty($comment_user_id,'forumsignature'))
-{
-?>
-        <div class="commentSignature">
-            <?php echo $Member->displayForumSignature($comment_user_id);?>
-        </div>
-<?php
-}
-?>
-    </div>
-</div>
-
-<?php
+        // Display Comment
+        echo display_comment($trow['cid']);
     }
     mysqli_data_seek($comments_result,0);
 }
@@ -212,13 +94,14 @@ if ($comments_rownum > 0)
 <?php
 echo $pagenumbers;
 ?>
-
     </div>
 </div>
 <?php
 }
 ?>
 
+<!-- User Reply Start -->
+<div class="commentWrap">
 <?php
 // Users Only
 if ($User->loggedIn())
@@ -227,9 +110,6 @@ if ($User->loggedIn())
     echo $Form->start();
     echo $Form->field['thread_id'];
 ?>
-
-<div class="commentWrap">
-
     <div class="commentLeft">
         <div class="commentAvatarDiv">
             <script>sbc_avatar(<?php echo $user_id;?>);</script>
@@ -258,6 +138,5 @@ if ($User->loggedIn())
     echo $Form->end();
 }
 ?>
-
-
 </div>
+<!-- User Reply End -->

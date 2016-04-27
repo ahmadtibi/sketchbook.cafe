@@ -5,9 +5,13 @@
 *
 * @author       Jonathan Maltezo (Kameloh)
 * @copyright    (c) 2016, Jonathan Maltezo (Kameloh)
-* @lastupdated  2016-04-12
+* @lastupdated  2016-04-26
 *
 */
+namespace SketchbookCafe\ImageFile;
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\GenerateRandom\GenerateRandom as GenerateRandom;
 
 class ImageFile
 {
@@ -51,19 +55,19 @@ class ImageFile
     //          'allow_apng', 'width_min', 'width_max', 'height_min', 'height_max'
     public function __construct($input)
     {
-        // Functions
-        sbc_function('generate_random');
+        $method = 'ImageFile->__construct()';
 
         // Set Vars
-        $this->ip_address   = $_SERVER['REMOTE_ADDR'];
-        $this->rd           = rand(100000,9999999);
-        $this->rd_code      = generate_random(5);
+        $this->ip_address   = SBC::getIpAddress();
+        $this->rd           = SBC::rd();
+        $randObj            = new GenerateRandom(5);
+        $this->rd_code      = $randObj->getValue();
 
         // Name
         $this->name = isset($input['name']) ? $input['name'] : '';
         if (empty($this->name))
         {
-            error('Dev error: $name is not set for ImageFile->construct()');
+            SBC::devError('$name is not set',$method);
         }
 
         // User ID
@@ -77,7 +81,7 @@ class ImageFile
         $this->max_filesize = isset($input['max_filesize']) ? (int) $input['max_filesize'] : 0;
         if ($this->max_filesize < 1 || $this->max_filesize > 20971520)
         {
-            error('Dev error: $max_filesize is not set for ImageFile->construct()');
+            SBC::devError('$max_filesize is not set',$method);
         }
 
         // Required
@@ -106,7 +110,7 @@ class ImageFile
         }
         if ($this->width_max < 1 || $this->width_max > 10000)
         {
-            error('Dev error: $width_max must be between 1 and 10000 for ImageFile->construct()');
+            SBC::devError('$width_max must be between 1 and 10000',$method);
         }
 
         // Check Height
@@ -116,7 +120,7 @@ class ImageFile
         }
         if ($this->height_max < 1 || $this->height_max > 10000)
         {
-            error('Dev error: $height_max must be between 1 and 10000 for ImageFile->construct()');
+            SBC::devError('$height_max must be between 1 and 10000',$method);
         }
 
         // Has Info
@@ -126,6 +130,8 @@ class ImageFile
     // Identify APNG
     private function identifyAPNG(&$data)
     {
+        $method = 'ImageFile->identifyAPNG()';
+
         // Initialize Vars
         $value = 0;
 
@@ -145,6 +151,8 @@ class ImageFile
     // Check File Type
     private function checkFileType(&$data)
     {
+        $method = 'ImageFile->checkFileType';
+
         // Initialize Vars
         $type = '';
 
@@ -169,6 +177,8 @@ class ImageFile
     // Send File
     final public function sendFile()
     {
+        $method = 'ImageFile->sendFile()';
+
         // Has Info?
         $this->hasInfo();
 
@@ -185,7 +195,7 @@ class ImageFile
         $this->filesize = strlen($this->buffer);
         if ($this->filesize > $this->max_filesize)
         {
-            error('Sorry, the filesize is too large. Max filesize is '.$this->max_filesize.' bytes.');
+            SBC::userError('Sorry, the filesize is too large. Max filesize is '.$this->max_filesize.' bytes.');
         }
 
         // Empty buffer?
@@ -194,7 +204,7 @@ class ImageFile
             // Is the file required?
             if ($this->required == 1)
             {
-                error('Please select a file to upload.');
+                SBC::userError('Please select a file to upload.');
             }
         }
         else
@@ -226,7 +236,7 @@ class ImageFile
             // Allowed?
             if ($allowed_filetype != 1)
             {
-                error('Sorry, this filetype is not allowed for uploads.');
+                SBC::userError('Sorry, this filetype is not allowed for uploads.');
             }
 
             // Animated PNGs
@@ -236,7 +246,7 @@ class ImageFile
                 $apng_check = $this->identifyAPNG($this->buffer);
                 if ($apng_check == 1)
                 {
-                    error('Sorry, animated PNGs are not allowed for uploads.');
+                    SBC::userError('Sorry, animated PNGs are not allowed for uploads.');
                 }
             }
 
@@ -244,7 +254,7 @@ class ImageFile
             $imagesize = @getimagesize($file);
             if (!$imagesize)
             {
-                error('Image cannot be read. File may be corrupt.');
+                SBC::userError('Image cannot be read. File may be corrupt.');
             }
 
             // Set image width and height
@@ -254,21 +264,21 @@ class ImageFile
             // Width Check
             if ($this->image_width < $this->width_min)
             {
-                error('Minimum image width must be at least '.$this->width_min.'px');
+                SBC::userError('Minimum image width must be at least '.$this->width_min.'px');
             }
             if ($this->image_width > $this->width_max)
             {
-                error('Maximum image width is '.$this->width_max.'px (width is '.$this->image_width.'px)');
+                SBC::userError('Maximum image width is '.$this->width_max.'px (width is '.$this->image_width.'px)');
             }
 
             // Height Check
             if ($this->image_height < $this->height_min)
             {
-                error('Minimum image height must be at least '.$this->height_min.'px');
+                SBC::userError('Minimum image height must be at least '.$this->height_min.'px');
             }
             if ($this->image_height > $this->height_max)
             {
-                error('Maximum image height is '.$this->height_max.'px (height is '.$this->image_height.'px)');
+                SBC::userError('Maximum image height is '.$this->height_max.'px (height is '.$this->image_height.'px)');
             }
 
             // Set has file
@@ -279,15 +289,19 @@ class ImageFile
     // Has Info
     final public function hasInfo()
     {
+        $method = 'ImageFile->hasInfo()';
+
         if ($this->hasinfo != 1)
         {
-            error('Information is not set for ImageFile->hasInfo()');
+            SBC::devError('Information is not set',$method);
         }
     }
 
     // Has File
     final public function hasFile()
     {
+        $method = 'ImageFile->hasFile()';
+
         // True?
         if ($this->hasfile == 1)
         {
@@ -302,6 +316,8 @@ class ImageFile
     // Set User ID
     final public function setUserId($user_id)
     {
+        $method = 'ImageFile->setUserId()';
+
         // Has info?
         $this->hasInfo();
 
@@ -309,7 +325,7 @@ class ImageFile
         $user_id = isset($user_id) ? (int) $user_id : 0;
         if ($user_id < 1)
         {
-            error('Dev error: $user_id is not set for ImageFile->setUserId()');
+            SBC::devError('$user_id is not set',$method);
         }
 
         // Set
@@ -320,6 +336,8 @@ class ImageFile
     // Get Info
     final public function getInfo()
     {
+        $method = 'ImageFile->getInfo()';
+
         // Make sure we have the file
         $this->hasFile();
 

@@ -1,4 +1,11 @@
 <?php
+// @author          Jonathan Maltezo
+// @lastUpdated     2016-04-27
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\LoginTimer\LoginTimer as LoginTimer;
+use SketchbookCafe\SBCGetPassword\SBCGetPassword as SBCGetPassword;
+use SketchbookCafe\GenerateRandom\GenerateRandom as GenerateRandom;
 
 class AdminLoginSubmit
 {
@@ -16,31 +23,31 @@ class AdminLoginSubmit
     private $pass2 = '';
     private $pass3 = '';
 
+    private $obj_array = [];
+
     // Construct
     public function __construct(&$obj_array)
     {
-        // Initialize Objects
-        $db     = &$obj_array['db'];
-        $User   = &$obj_array['User'];
+        $method = 'AdminLoginSubmit->__construct()';
 
-        // Clases + Functions
-        sbc_class('LoginTimer');
-        sbc_function('get_password');
-        sbc_function('generate_random');
+        // Initialize Objects
+        $db                 = &$obj_array['db'];
+        $User               = &$obj_array['User'];
+        $this->obj_array    = &$obj_array;
 
         // Initialize Vars
-        $this->ip_address   = $_SERVER['REMOTE_ADDR'];
-        $this->time         = time();
+        $this->ip_address   = SBC::getIpAddress();
+        $this->time         = SBC::getTime();
 
         // Get Passwords
-        $this->pass1        = get_password($_POST['pass1']);
-        $this->pass2        = get_password($_POST['pass2']);
-        $this->pass3        = get_password($_POST['pass3']);
+        $this->pass1        = SBCGetPassword::process($_POST['pass1']);
+        $this->pass2        = SBCGetPassword::process($_POST['pass2']);
+        $this->pass3        = SBCGetPassword::process($_POST['pass3']);
 
         // Generate Admin Sessions
-        $this->admin_session1   = generate_random(250);
-        $this->admin_session2   = generate_random(250);
-        $this->admin_session3   = generate_random(250);
+        $this->admin_session1   = GenerateRandom::process(250);
+        $this->admin_session2   = GenerateRandom::process(250);
+        $this->admin_session3   = GenerateRandom::process(250);
 
         // Open
         $db->open();
@@ -51,7 +58,7 @@ class AdminLoginSubmit
         $this->user_id  = $user_id;
         if (!$User->isAdmin())
         {
-            error('Sorry, only administrators may access this area.');
+            SBC::userError('Sorry, only administrators may access this area.');
         }
 
         // Login Timer
@@ -66,16 +73,9 @@ class AdminLoginSubmit
             FROM admins
             WHERE user_id=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('i',$user_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (get admin information) for AdminLoginSubmit->construct()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Admin ID
         $admin_id = isset($row['id']) ? (int) $row['id'] : 0;
@@ -85,7 +85,7 @@ class AdminLoginSubmit
             $LoginTimer->failedLogin($db);
 
             // Generate Error
-            error('Could not find admin in database.');
+            SBC::userError('Could not find admin in database.');
         }
 
         // Set vars
@@ -119,6 +119,8 @@ class AdminLoginSubmit
     // Admin Login Log
     private function logAdmin(&$db)
     {
+        $method = 'AdminLoginSubmit->logAdmin()';
+
         // Has info?
         $this->hasinfo();
 
@@ -137,16 +139,14 @@ class AdminLoginSubmit
             date_created=?';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('isi',$user_id,$ip_address,$time);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (create new log) for AdminLoginSubmit->logAdmin()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 
     // Set Cookies
     private function setCookies(&$db)
     {
+        $method = 'AdminLoginSubmit->setCookies()';
+
         // Has info?
         $this->hasinfo();
 
@@ -173,6 +173,8 @@ class AdminLoginSubmit
     // Update Admin's Session
     private function createNewSession(&$db)
     {
+        $method = 'AdminLoginSubmit->createNewSession()';
+
         // Do we have info?
         $this->hasInfo();
 
@@ -200,32 +202,32 @@ class AdminLoginSubmit
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('ssssii',$ip_address,$admin_session1,$admin_session2,$admin_session3,$admin_id,$user_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (update administrator) for AdminLoginSumit->createNewSession()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 
     // Has info
     private function hasInfo()
     {
+        $method = 'AdminLoginSubmit->hasInfo()';
+
         if ($this->hasinfo != 1)
         {
-            error('Dev error: $hasinfo is not set for AdminLoginSubmit->hasInfo()');
+            SBC::devError('$hasinfo is not set',$method);
         }
     }
 
     // Admin Verify Password
     final private function adminVerifyPassword($password,$admin_password,&$LoginTimer)
     {
-        // Globals
-        global $db;
+        $method = 'AdminLoginSubmit->adminVerifyPassword()';
+
+        // Set Object
+        $db = &$this->obj_array['db'];
 
         // Double check
         if (empty($password) || empty($admin_password))
         {
-            error('Dev error: $password or $admin_password is empty for function admin_verify_password()');
+            SBC::devError('$password or $admin_password is empty',$method);
         }
 
         // Verify 
@@ -235,7 +237,7 @@ class AdminLoginSubmit
             $LoginTimer->failedLogin($db);
 
             // Generate Error
-            error('Invalid admin password.');
+            SBC::userError('Invalid admin password.');
         }
     }
 }

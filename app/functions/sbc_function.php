@@ -12,6 +12,8 @@
 // Sketchbook Cafe Function Require
 function sbc_function($name)
 {
+    error('SBC_FUNCTION is noo longer used');
+
     // Global
     global $sbc_function;
 

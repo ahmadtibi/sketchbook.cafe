@@ -1,16 +1,22 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-26
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\GetSettingName\GetSettingName as GetSettingName;
 use SketchbookCafe\Db\Db as Db;
+use SketchbookCafe\User\User as User;
+use SketchbookCafe\Member\Member as Member;
+use SketchbookCafe\Comment\Comment as Comment;
+
+use SketchbookCafe\UserTimer\UserTimer as UserTimer;
+use SketchbookCafe\TextareaSettings\TextareaSettings as TextareaSettings;
+use SketchbookCafe\Message\Message as Message;
+
+// Composer AutoLoader
+require '../vendor/autoload.php';
 
 // Functions + Classes
 require 'functions/error.php';
-require 'functions/sbc_function.php';
-require 'functions/sbc_class.php';
-require 'classes/Db.php';
-require 'classes/User.php';
-
-// Global Vars
-$sbc_function['test']   = 1;
-$sbc_class['test']      = 1;
 
 // Initialize Objects
 $User = new User();
@@ -22,15 +28,9 @@ unset($database_settings); // just in case
 
 // == Comment Previews ==================================================
 
-// Classes + Functions
-sbc_class('UserTimer');
-sbc_class('Message');
-sbc_class('TextareaSettings');
-sbc_function('get_setting_name');
-
 // Get Setting Name
-$setting_name   = '';
-$setting_name   = get_setting_name($_POST['setting_name']);
+$nameObj        = new GetSettingName($_POST['setting_name']);
+$setting_name   = $nameObj->getValue();
 
 // Textarea Settings
 $TextareaSettings   = new TextareaSettings($setting_name);

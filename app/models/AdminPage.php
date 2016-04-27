@@ -1,5 +1,6 @@
 <?php
-
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
 class AdminPage
 {
     // Construct
@@ -12,9 +13,11 @@ class AdminPage
         // Open Connection
         $db->open();
 
-        // Admin Required + Process Data
+        // Admin Required
         $User->setFrontpage();
         $User->admin($db);
+
+        // Process Data
         $ProcessAllData = new ProcessAllData();
 
         // Close Connection

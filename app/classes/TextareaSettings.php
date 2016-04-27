@@ -1,5 +1,9 @@
 <?php
-// Textarea Settings Class
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-26
+namespace SketchbookCafe\TextareaSettings;
+
+use SketchbookCafe\SBC\SBC as SBC;
 
 class TextareaSettings
 {
@@ -27,6 +31,8 @@ class TextareaSettings
     // Construct
     public function __construct($setting_name)
     {
+        $method = 'TextareaSettings->__construct()';
+
        // Initialize Vars
         $settings = [];
 
@@ -186,12 +192,17 @@ class TextareaSettings
         // Type check
         if (empty($type))
         {
-            error('Dev error: $setting_name is not set for TextareaSettings->getSettings()');
+            SBC::devError('$setting_name is not set',$method);
+        }
+
+        // Optional
+        if (isset($settings[$type]['min']))
+        {
+            $this->min = $settings[$type]['min'];
         }
 
         // Set vars
         $this->name         = $settings[$type]['name'];
-        $this->min          = $settings[$type]['min'];
         $this->max          = $settings[$type]['max'];
         $this->column_max   = $settings[$type]['column_max'];
         $this->css          = $settings[$type]['css'];
@@ -208,6 +219,8 @@ class TextareaSettings
     // Set Ajax
     public function setAjax($value)
     {
+        $method = 'TextareaSettings->setAjax()';
+
         $value = isset($value) ? (int) $value : 0;
         if ($value != 1)
         {
@@ -221,6 +234,8 @@ class TextareaSettings
     // Set Value
     public function setValue($value)
     {
+        $method = 'TextareaSettings->setValue()';
+
         $value          = isset($value) ? $value : '';
         $this->value    = $value;
     }
@@ -228,6 +243,8 @@ class TextareaSettings
     // Get Settings
     public function getSettings()
     {
+        $method = 'TextareaSettings->getSettings()';
+
         // Set Array
         $settings_array = [];
         $settings_array = array

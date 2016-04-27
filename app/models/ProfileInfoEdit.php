@@ -1,4 +1,9 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-26
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\Form\Form as Form;
+use SketchbookCafe\TextareaSettings\TextareaSettings as TextareaSettings;
 
 class ProfileInfoEdit
 {
@@ -7,13 +12,11 @@ class ProfileInfoEdit
     // Consruct
     public function __construct(&$obj_array)
     {
+        $method = 'ProfileInfoEdit->__construct()';
+
         // Set Objects
         $db     = &$obj_array['db'];
         $User   = &$obj_array['User'];
-
-        // Classes and Functions
-        sbc_class('Form');
-        sbc_class('TextareaSettings');
 
         // Open Connection
         $db->open();
@@ -21,8 +24,7 @@ class ProfileInfoEdit
         // Required User + Process Data
         $User->setFrontpage();
         $User->required($db);
-        $user_id        = $User->getUserId();
-        $ProcessAllData = new ProcessAllData();
+        $user_id = $User->getUserId();
 
         // Switch
         $db->sql_switch('sketchbookcafe');
@@ -34,14 +36,10 @@ class ProfileInfoEdit
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('i',$user_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (get user information) for Settings->info()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $row  = SBC::statementFetchRow($stmt,$db,$sql,$method);
+
+        // Process Data Last
+        $ProcessAllData = new ProcessAllData();
 
         // Close Connection
         $db->close();
@@ -79,7 +77,7 @@ class ProfileInfoEdit
         // Textarea Settings
         $TextareaSettings = new TextareaSettings('forumsignature');
         $TextareaSettings->setValue($forumsignature_code);
-        $message_settings   = $TextareaSettings->getSettings();
+        $message_settings = $TextareaSettings->getSettings();
 
         // Forum Signature
         $Form->field['forumsignature'] = $Form->textarea($message_settings);

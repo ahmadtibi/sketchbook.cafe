@@ -5,9 +5,13 @@
 *
 * @author       Jonathan Maltezo (Kameloh)
 * @copyright   (c) 2016, Jonathan Maltezo (Kameloh)
-* @lastupdated  2016-04-20
+* @lastupdated  2016-04-27
 *
 */
+namespace SketchbookCafe\Message;
+
+use SketchbookCafe\SBC\SBC as SBC;
+
 class Message
 {
     // Constructed
@@ -42,11 +46,13 @@ class Message
     // Construct
     public function __construct($input)
     {
+        $method = 'Message->__construct()';
+
         // Name
         $this->name         = isset($input['name']) ? $input['name'] : '';
         if (empty($this->name))
         {
-            error('Dev error: $name is not set for Message->construct()');
+            SBC::devError('$name is not set',$method);
         }
 
         // Min Length
@@ -60,7 +66,7 @@ class Message
         $this->column_max   = isset($input['column_max']) ? (int) $input['column_max'] : 0;
         if ($this->column_max < 1)
         {
-            error('Dev error: $column_max is not set for Message->construct()');
+            SBC::devError('$column_max is not set',$method);
         }
 
         // New line to <br/>
@@ -99,7 +105,7 @@ class Message
         }
 
         // IP Address
-        $this->ip_address = $_SERVER['REMOTE_ADDR'];
+        $this->ip_address = SBC::getIpAddress();
 
         // We got some info!
         $this->hasinfo = 1;
@@ -108,67 +114,45 @@ class Message
     // Has Info?
     final public function hasInfo()
     {
+        $method = 'Message->hasInfo()';
+
         if ($this->hasinfo != 1)
         {
-            error('Dev error: $hasinfo is not set for Message->hasInfo()');
+            SBC::devError('$hasinfo is not set',$method);
         }
     }
-
-    // Special Characters Fix : This is a temporary solution
-/*
-    final private function MessageSpecialChars($input)
-    {
-        // Arrays
-        $s_start	= array (
-                '"', 
-                "'", 
-                '<', 
-                '>', 
-                '•', 
-                '–', 
-                '—'
-                );
-        $s_end	= array (
-                '&quot;', 
-                '&#039;', 
-                '&lt;', 
-                '&gt;',
-                '&#8226;', 
-                '&ndash;',
-                '&mdash;'
-                );
-        $input	= str_replace($s_start, $s_end, $input);
-
-        // Return
-        return $input;
-    }
-*/
 
     // Check Max Size
     final private function checkMax(&$input)
     {
+        $method = 'Message->checkMax()';
+
         if (isset($input{$this->column_max}))
         {
-            error('Sorry, '.$this->name.' is too long. Max length is '.$this->column_max.' characters.');
+            SBC::userError('Sorry, '.$this->name.' is too long. Max length is '.$this->column_max.' characters.');
         }
     }
 
     // Check Min Size
     final private function checkMin(&$input)
     {
+        $method = 'Message->checkMin()';
+
         // Set size
         $size = $this->min - 1;
 
         // Check min
         if (!isset($input{$size}))
         {
-            error($this->name.' must be at least '.$this->min.' character(s) long.');
+            SBC::userError($this->name.' must be at least '.$this->min.' character(s) long.');
         }
     }
 
     // Paranoid Replacers
     final private function paranoidReplacers($input)
     {
+        $method = 'Message->paranoidReplacers()';
+
         // Arrays
         $search     = array
         (
@@ -193,6 +177,8 @@ class Message
     // Basic HTML and URLs
     final private function basic($input)
     {
+        $method = 'Message->basic()';
+
         // Arrays
         $search = array
         (
@@ -255,6 +241,8 @@ class Message
     // Images
     final private function images($input)
     {
+        $method = 'Message->images()';
+
         // Arrays
         $search     = array
         (
@@ -275,6 +263,8 @@ class Message
     // Videos
     final private function videos($input)
     {
+        $method = 'Message->videos()';
+
         // Arrays
         $search     = array
         (
@@ -297,6 +287,8 @@ class Message
     // Insert Message
     final public function insert($input)
     {
+        $method = 'Message->insert()';
+
         // Strip whitespaces
         $input = trim($input);
 
@@ -328,7 +320,7 @@ class Message
         {
             if (!filter_var($input,FILTER_SANITIZE_STRING) === true)
             {
-                error('Invalid input for '.$this->name);
+                SBC::userError('Invalid input for '.$this->name);
             }
         }
 
@@ -379,15 +371,19 @@ class Message
     // Has Message
     final public function hasMessage()
     {
+        $method = 'Message->hasMessage()';
+
         if ($this->hasmessage != 1)
         {
-            error('Dev error: $hasmessage is not set for Message->hasMessage()');
+            SBC::devError('$hasmessage is not set',$method);
         }
     }
 
     // Get Message
     final public function getMessage()
     {
+        $method = 'Message->getMessage()';
+
         // Check
         $this->hasMessage();
 
@@ -397,6 +393,8 @@ class Message
     // Get Message Code
     final public function getMessageCode()
     {
+        $method = 'Message->getMessageCode()';
+
         // Check
         $this->hasMessage();
 
@@ -406,11 +404,13 @@ class Message
     // Set User ID
     final public function setUserId($user_id)
     {
+        $method = 'Message->setUserId()';
+
         // Initialize Vars
         $user_id = isset($user_id) ? (int) $user_id : 0;
         if ($user_id < 1)
         {
-            error('Dev error: $user_id is not set for Message->setUserId()');
+            SBC::devError('$user_id is not set',$method);
         }
 
         // Set vars
@@ -420,11 +420,13 @@ class Message
     // Set Comment Type
     final public function setType($type)
     {
+        $method = 'Message->setType()';
+
         // Initialize vars
         $type = isset($type) ? $type : '';
         if (empty($type))
         {
-            error('Dev error: $type is not set for Message->setType()');
+            SBC::devError('$type is not set',$method);
         }
 
         // Switch type
@@ -451,17 +453,19 @@ class Message
         $this->comment_type = $comment_type;
         if (empty($this->comment_type))
         {
-            error('Dev error: invalid $comment_type for Message->setType()');
+            SBC::devError('invalid $comment_type',$method);
         }
     }
 
     // Get Comment ID
     final public function getCommentId()
     {
+        $method = 'Message->getCommentId()';
+
         $value = $this->comment_id;
         if ($value < 1)
         {
-            error('Dev error: $comment_id is not set for Message->getComment()');
+            SBC::devError('$comment_id is not set',$method);
         }
         return $value;
     }
@@ -469,6 +473,8 @@ class Message
     // Set Parent ID
     final public function setParentId($parent_id)
     {
+        $method = 'Message->setParentId()';
+
         $parent_id = isset($parent_id) ? (int) $parent_id : 0;
         if ($parent_id < 1)
         {
@@ -482,6 +488,8 @@ class Message
     // Update Parent ID
     final public function updateParentId(&$db)
     {
+        $method = 'Message->updateParentId()';
+
         // Initialize Vars
         $comment_id = $this->comment_id;
         $parent_id  = $this->parent_id;
@@ -496,41 +504,36 @@ class Message
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('ii',$parent_id,$comment_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (update parent id) for Message->updateParentId()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 
     // Create Message
     final public function createMessage(&$db)
     {
+        $method = 'Message->createMessage()';
+
         // Check if we have a message
         $this->hasMessage();
 
-        // Classes + Functions
-        sbc_function('rd');
-
         // Initialize Vars
-        $rd             = rd();
+        $rd             = SBC::rd();
         $user_id        = $this->user_id;
         $comment_type   = $this->comment_type;
-        $time           = time();
-        $ip_address     = $_SERVER['REMOTE_ADDR'];
+        $time           = SBC::getTime();
+        $ip_address     = SBC::getIpAddress();
         $message        = $this->message;
         $message_code   = $this->message_code;
 
         // Make sure a User ID is set
         if ($user_id < 1)
         {
-            error('Dev error: $user_id is not set for Message->createMessage()');
+            SBC::devError('$user_id is not set',$method);
         }
 
         // Make sure we have a comment type
         if (empty($comment_type))
         {
-            error('Dev error: $comment_type is not set for Message->createMessage()');
+            SBC::devError('$comment_type is not set',$method);
         }
 
         // Switch
@@ -547,11 +550,7 @@ class Message
             isdeleted=1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('iiisss',$rd,$user_id,$time,$ip_address,$message,$message_code);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (insert comment) for Message->createMessage()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
 
         // Get Comment ID
         $sql = 'SELECT id
@@ -561,22 +560,15 @@ class Message
             AND date_created=?
             AND isdeleted=1
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('iii',$rd,$user_id,$time);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (get comment ID) for Message->createMessage()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Comment ID?
         $comment_id = isset($row['id']) ? (int) $row['id'] : 0;
         if ($comment_id < 1)
         {
-            error('Dev error: could not get new comment_id for Message->createMessage()');
+            SBC::devError('could not get new comment_id',$method);
         }
         $this->comment_id = $comment_id;
 
@@ -591,11 +583,7 @@ class Message
                 LIMIT 1';
             $stmt = $db->prepare($sql);
             $stmt->bind_param('i',$comment_id);
-            if (!$stmt->execute())
-            {
-                error('Could not execute statement (update comment as forum reply) for Message->createMessage()');
-            }
-            $stmt->close();
+            SBC::statementExecute($stmt,$db,$sql,$method);
         }
         // Forum Message (type 2)
         else if ($comment_type == 'forum_message')
@@ -608,11 +596,7 @@ class Message
                 LIMIT 1';
             $stmt = $db->prepare($sql);
             $stmt->bind_param('i',$comment_id);
-            if (!$stmt->execute())
-            {
-                error('Could not execute statement (update comment as forum message) for Message->createMessage()');
-            }
-            $stmt->close();
+            SBC::statementExecute($stmt,$db,$sql,$method);
         }
         // Mail Threads (type 1)
         else if ($comment_type == 'new_mail_thread')
@@ -627,11 +611,7 @@ class Message
                 LIMIT 1';
             $stmt = $db->prepare($sql);
             $stmt->bind_param('i',$comment_id);
-            if (!$stmt->execute())
-            {
-                error('Could not execute statement (update comment as mail thread) for Message->createMessage()');
-            }
-            $stmt->close();
+            SBC::statementExecute($stmt,$db,$sql,$method);
         }
         // Note reply (type 1)
         else if ($comment_type == 'note_reply')
@@ -646,15 +626,11 @@ class Message
                 LIMIT 1';
             $stmt = $db->prepare($sql);
             $stmt->bind_param('i',$comment_id);
-            if (!$stmt->execute())
-            {
-                error('Could not execute statement (update comment as mail thread) for Message->createMessage()');
-            }
-            $stmt->close();
+            SBC::statementExecute($stmt,$db,$sql,$method);
         }
         else
         {
-            error('Dev error: something went wrong... (invalid $comment_type) for Message->createMessage()');
+            SBC::devError('something went wrong... (invalid $comment_type)',$method);
         }
     }
 }

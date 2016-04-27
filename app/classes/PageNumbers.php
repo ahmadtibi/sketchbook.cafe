@@ -5,9 +5,13 @@
 *
 * @author       Jonathan Maltezo (Kameloh)
 * @copyright    (c) 2016, Jonathan Maltezo (Kameloh)
-* @lastupdated  2016-04-17
+* @lastupdated  2016-04-27
 *
 */
+namespace SketchbookCafe\PageNumbers;
+
+use SketchbookCafe\SBC\SBC as SBC;
+
 class PageNumbers {
     public $name = '';
     private $data; // array
@@ -24,11 +28,13 @@ class PageNumbers {
     //          'posts', 'ppage'
     public function __construct($input)
     {
+        $method = 'PageNumbers->__construct()';
+
         // Let's set a name at least
         $this->name = isset($input['name']) ? $input['name'] : '';
         if (empty($this->name))
         {
-            error('Dev error: $name is not set for PageNumbers->construct()');
+            SBC::devError('$name is not set',$method);
         }
 
         // Set Data
@@ -75,12 +81,16 @@ class PageNumbers {
     // Get Page Numbers
     final public function getPageNumbers()
     {
+        $method = 'PageNumbers->getPageNumbers()';
+
         return $this->pagenumbers;
     }
 
     // Offset Replace
     final public function offset_replace($offset,$number,$string)
     {
+        $method = 'PageNumbers->offset_replace()';
+
         $old    = array('{page_link}','{page}');
         $new    = array($number + $offset, $number);
         return str_replace($old,$new,$string);
@@ -89,6 +99,8 @@ class PageNumbers {
     // Generate Page Numbers
     final public function generatePageNumbers()
     {
+        $method = 'PageNumbers->generatePageNumbers()';
+
         // Initialize Vars
         $first          = $this->data['first'];
         $current        = $this->data['current'];

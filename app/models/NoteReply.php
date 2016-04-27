@@ -1,4 +1,13 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\UserTimer\UserTimer as UserTimer;
+use SketchbookCafe\TextareaSettings\TextareaSettings as TextareaSettings;
+use SketchbookCafe\Message\Message as Message;
+use SketchbookCafe\BlockCheck\BlockCheck as BlockCheck;
+use SketchbookCafe\UpdateMailbox\UpdateMailbox as UpdateMailbox;
 
 class NoteReply
 {
@@ -14,21 +23,14 @@ class NoteReply
     // Construct
     public function __construct(&$obj_array)
     {
+        $method = 'NoteReply->__construct()';
+
         // Initialize Objects
         $db     = &$obj_array['db'];
         $User   = &$obj_array['User'];
 
-        // Classes and Functions
-        sbc_class('UserTimer');
-        sbc_class('TextareaSettings');
-        sbc_class('Message');
-        sbc_class('BlockCheck');
-        sbc_class('UpdateMailbox');
-        sbc_function('current_page');
-        sbc_function('check_number');
-
         // Mail ID
-        $mail_id            = check_number($_POST['mail_id'],'$mail_id');
+        $mail_id            = SBC::checkNumber($_POST['mail_id'],'$mail_id');
         $this->mail_id      = $mail_id;
 
         // Textarea Settings
@@ -97,7 +99,7 @@ class NoteReply
         // Calculate Page
         $ppage  = 10;
         $total  = $this->total;
-        $pageno = current_page($ppage,$total);
+        $pageno = SBC::currentPage($ppage,$total);
 
         // Header
         header('Location: https://www.sketchbook.cafe/mailbox/note/'.$mail_id.'/'.$pageno.'/#recent');
@@ -107,12 +109,11 @@ class NoteReply
     // Get Mail Info
     final private function getMailInfo(&$db)
     {
-        // Functions
-        sbc_function('check_number');
+        $method = 'NoteReply->getMailInfo()';
 
         // Initialize Vars
-        $mail_id    = check_number($this->mail_id,'$mail_id');
-        $user_id    = check_number($this->user_id,'$user_id');
+        $mail_id    = SBC::checkNumber($this->mail_id,'$mail_id');
+        $user_id    = SBC::checkNumber($this->user_id,'$user_id');
 
         // Switch
         $db->sql_switch('sketchbookcafe');
@@ -122,22 +123,15 @@ class NoteReply
             FROM mailbox_threads
             WHERE id=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('i',$mail_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (get mail information) for NoteReply->getMailInfo()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Verify
         $mail_id    = isset($row['id']) ? (int) $row['id'] : 0;
         if ($mail_id < 1)
         {
-            error('Could not find mail thread in database');
+            SBC::userError('Could not find mail thread in database');
         }
 
         // Can they reply to this mail?
@@ -145,7 +139,7 @@ class NoteReply
         {
             if ($row['r_user_id'] != $user_id)
             {
-                error('Sorry, you do not have permission to reply to this note');
+                SBC::userError('Sorry, you do not have permission to reply to this note');
             }
         }
 
@@ -167,25 +161,25 @@ class NoteReply
         }
         else
         {
-            error('Dev error: Something went wrong in NoteReply->getMailInfo');
+            SBC::devError('Something went wrong',$method);
         }
 
         // Check if they've already removed the mail from their mailbox
         if ($row['removed_'.$who] != 0)
         {
-            error('Sorry, this note no longer exists in your mailbox');
+            SBC::userError('Sorry, this note no longer exists in your mailbox');
         }
 
         // Check if the other user removed this thread from their mailbox
         if ($row['removed_'.$other] != 0)
         {
-            error('Sorry, the other user has removed this from their mailbox');
+            SBC::userError('Sorry, the other user has removed this from their mailbox');
         }
 
         // Check if it's deleted
         if ($row['isdeleted'] != 0)
         {
-            error('Note no longer exists');
+            SBC::userError('Note no longer exists');
         }
 
         // Set Vars
@@ -196,9 +190,7 @@ class NoteReply
     // Create a Reply
     final private function createReply(&$db,&$messageObject)
     {
-        // Classes and Functions
-        sbc_function('check_number');
-        sbc_function('check_empty');
+        $method = 'NoteReply->createReply()';
 
         // Initialize Vars
         $mail_id    = $this->mail_id;
@@ -221,17 +213,19 @@ class NoteReply
     // Insert into the note's table
     final private function insertIntoTable(&$db)
     {
+        $method = 'NoteReply->insertIntoTable()';
+
         // Initialize Vars
         $user_id    = $this->user_id;
         $mail_id    = $this->mail_id;
         $comment_id = $this->comment_id;
         if ($comment_id < 1)
         {
-            error('Dev error: $comment_id is not set for NoteReply->insertIntoTable()');
+            SBC::devError('$comment_id is not set',$method);
         }
         if ($mail_id < 1)
         {
-            error('Dev error: $mail_id is not set for NoteReply->insertIntoTable()');
+            SBC::devError('$mail_id is not set',$method);
         }
 
         // Switch
@@ -243,11 +237,7 @@ class NoteReply
             SET cid=?';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('i',$comment_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (insert into mail table) for NoteReply->insertIntoTable()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
 
         // Let's count since we're here
         $table_name = 'm'.$mail_id.'x';
@@ -270,16 +260,14 @@ class NoteReply
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('iii',$total,$user_id,$mail_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (update total for mailbox thread) in NoteReply->insertIntoTable()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 
     // Mark Thread as New
     final private function markThreadAsNew(&$db)
     {
+        $method = 'NoteReply->markThread()';
+
         // Initialize Vars
         $r_user_id  = $this->r_user_id;
         $mail_id    = $this->mail_id;
@@ -287,7 +275,7 @@ class NoteReply
         // Check
         if ($r_user_id < 1 || $mail_id < 1)
         {
-            error('Dev error: $r_user_id or $mail_id is not set for NoteRply->markThreadAsNew()');
+            SBC::devError('$r_user_id or $mail_id is not set',$method);
         }
 
         // Switch
@@ -303,10 +291,6 @@ class NoteReply
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('i',$mail_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (mark thread as new) for NoteReply->markThreadAsNew()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 }

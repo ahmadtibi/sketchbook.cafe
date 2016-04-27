@@ -1,4 +1,12 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\Form\Form as Form;
+use SketchbookCafe\TextareaSettings\TextareaSettings as TextareaSettings;
+use SketchbookCafe\PageNumbers\PageNumbers as PageNumbers;
+
 // Note View Page
 class NotePage
 {
@@ -32,12 +40,18 @@ class NotePage
     // Data
     public $data    = [];
 
+    // Objects
+    private $obj_array = [];
+
     // Construct
     public function __construct(&$obj_array)
     {
+        $method = 'NotePage->__construct()';
+
         // Initialize Objects
-        $db     = &$obj_array['db'];
-        $User   = &$obj_array['User'];
+        $db                 = &$obj_array['db'];
+        $User               = &$obj_array['User'];
+        $this->obj_array    = &$obj_array;
 
         // Set
         $this->db   = $db;
@@ -47,6 +61,8 @@ class NotePage
     // Set Page Number
     final public function setPageNumber($number)
     {
+        $method = 'NotePage->setPageNumber';
+
         $this->pageno = isset($number) ? (int) $number : 0;
         if ($this->pageno < 1)
         {
@@ -57,11 +73,13 @@ class NotePage
     // Set Note ID
     final public function setNoteId($mail_id)
     {
+        $method = 'NotePage->setNoteId()';
+
         // Initialize Vars
         $mail_id    = isset($mail_id) ? (int) $mail_id : 0;
         if ($mail_id < 1)
         {
-            error('Dev error: $mail_id is not set for NotePage->setNoteId()');
+            SBC::devError('$mail_id is not set',$method);
         }
 
         // Set vars
@@ -71,10 +89,7 @@ class NotePage
     // Get Note
     final public function getNote()
     {
-        // Classes
-        sbc_class('Form');
-        sbc_class('TextareaSettings');
-        sbc_class('PageNumbers');
+        $method = 'NotePage->getNote()';
 
         // Initialize Objects
         $db     = $this->db;
@@ -84,7 +99,7 @@ class NotePage
         $mail_id    = $this->mail_id;
         if ($mail_id < 1)
         {
-            error('Dev error: $mail_id is not set for NotePage->getNote()');
+            SBC::devError('$mail_id is not set',$method);
         }
 
         // Open Connection
@@ -201,6 +216,8 @@ class NotePage
     // Get Mail Thread
     final private function getMailThread(&$db)
     {
+        $method = 'NotePage->getMailThread()';
+
         // Initialize Vars
         $mail_id    = $this->mail_id;
         $user_id    = $this->user_id;
@@ -213,22 +230,15 @@ class NotePage
             FROM mailbox_threads
             WHERE id=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('i',$mail_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (get mail thread information) for NotePage->getMailThread()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // ID?
         $mail_id    = isset($row['id']) ? (int) $row['id'] : 0;
         if ($mail_id < 1)
         {
-            error('Could not find mail in database');
+            SBC::userError('Could not find mail in database');
         }
 
         // Check if the user can view this mail thread
@@ -237,7 +247,7 @@ class NotePage
             // Other?
             if ($row['r_user_id'] != $user_id)
             {
-                error('Sorry, you do not have permission to view this mail thread');
+                SBC::userError('Sorry, you do not have permission to view this mail thread');
             }
         }
 
@@ -253,19 +263,19 @@ class NotePage
         }
         if (empty($who))
         {
-            error('Dev error: $who is not set for NotePage->getMailThread()');
+            SBC::devError('$who is not set',$method);
         }
 
         // Check if that user removed this thread from their mailbox
         if ($row['removed_'.$who] != 0)
         {
-            error('Mail no longer exists in your mailbox');
+            SBC::userError('Mail no longer exists in your mailbox');
         }
 
         // Check if it's deleted
         if ($row['isdeleted'] == 1)
         {
-            error('Mail no longer exists');
+            SBC::userError('Mail no longer exists');
         }
 
         // Set Data
@@ -279,6 +289,8 @@ class NotePage
     // Mark mail as read in the user's mailbox
     final private function markMailAsRead(&$db)
     {
+        $method = 'NotePage->markMailAsRead()';
+
         // Initialize Vars
         $user_id    = $this->user_id;
         $mail_id    = $this->mail_id;
@@ -286,7 +298,7 @@ class NotePage
         // Check just in case
         if ($user_id < 1 || $mail_id < 1)
         {
-            error('Dev error: $user_id or $mail_id is not set for NotePage->markMailAsRead()');
+            SBC::devError('$user_id or $mail_id is not set',$method);
         }
 
         // Switch
@@ -302,18 +314,17 @@ class NotePage
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('i',$mail_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (mark thread as read) for NotePage->markMailAsRead()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 
     // Get Comments
     final private function getComments(&$db)
     {
-        // Globals (for now)
-        global $Comment,$Member;
+        $method = 'NotePage->getComments()';
+
+        // Initialize Objects
+        $Comment    = $this->obj_array['Comment'];
+        $Member     = $this->obj_array['Member'];
 
         // Initialize Vars
         $offset     = $this->offset;
@@ -326,7 +337,7 @@ class NotePage
         }
         if ($mail_id < 1)
         {
-            error('Dev error: $mail_id is not set for NotePage->getComments()');
+            SBC::devError('$mail_id is not set',$method);
         }
 
         // Switch

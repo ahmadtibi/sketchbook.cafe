@@ -1,5 +1,9 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
 // Ajax Controller
+
+use SketchbookCafe\SBC\SBC as SBC;
 
 class Ajax extends Controller
 {
@@ -18,7 +22,7 @@ class Ajax extends Controller
         $comment_id = isset($comment_id) ? (int) $comment_id : 0;
         if ($comment_id < 1)
         {
-            error('Comment ID is not set');
+            SBC::userError('Comment ID is not set');
         }
 
         // Model
@@ -43,7 +47,7 @@ class Ajax extends Controller
         $comment_id = isset($comment_id) ? (int) $comment_id : 0;
         if ($comment_id < 1)
         {
-            error('Dev error: $comment_id is not set');
+            SBC::userError('$comment_id is not set');
         }
 
         // Model

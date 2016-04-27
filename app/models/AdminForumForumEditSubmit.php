@@ -1,4 +1,10 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\Message\Message as Message;
+use SketchbookCafe\TextareaSettings\TextareaSettings as TextareaSettings;
 
 class AdminForumForumEditSubmit
 {
@@ -15,22 +21,18 @@ class AdminForumForumEditSubmit
     // Construct
     public function __construct(&$obj_array)
     {
-        // Initialize Objects
-        $db     = &$obj_array['db'];
-        $User   = &$obj_array['User'];
+        $method = 'AdminForumForumEditSubmit->__construct()';
 
-        // Classes and Functions
-        sbc_class('Message');
-        sbc_class('TextareaSettings');
-
-        // Initialize Vars
-        $this->ip_address   = $_SERVER['REMOTE_ADDR'];
+        // Initialize
+        $db                 = &$obj_array['db'];
+        $User               = &$obj_array['User'];
+        $this->ip_address   = SBC::getIpAddress();
 
         // Forum ID
         $id = isset($_POST['id']) ? (int) $_POST['id'] : 0;
         if ($id < 1)
         {
-            error('Forum ID is not set for AdminForumForumEditSubmit->construct()');
+            SBC::devError('Forum ID is not set',$method);
         }
         $this->id = $id;
 
@@ -88,13 +90,15 @@ class AdminForumForumEditSubmit
     // Get Forum Information
     final private function getForumInfo(&$db)
     {
+        $method = 'AdminForumForumEditSubmit->getForumInfo()';
+
         // Initialize Vars
         $id = $this->id;
 
         // Check just in case
         if ($id < 1)
         {
-            error('Dev error: $id is not set for AdminForumForumEditSubmit->getForumInfo()');
+            SBC::devError('$id is not set',$method);
         }
 
         // Switch
@@ -105,34 +109,29 @@ class AdminForumForumEditSubmit
             FROM forums
             WHERE id=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('i',$id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (get forum info) for AdminForumForumEditSubmit->getForumInfo()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Check
         $id = isset($row['id']) ? (int) $row['id'] : 0;
         if ($id < 1)
         {
-            error('Could not find forum in database for AdminForumForumEditSubmit->getForumInfo()');
+            SBC::devError('Could not find forum in database',$method);
         }
 
         // Make sure it's a forum
         if ($row['isforum'] != 1)
         {
-            error('ID is not a forum.');
+            SBC::userError('ID is not a forum.');
         }
     }
 
     // Update Forum
     final private function updateForum(&$db)
     {
+        $method = 'AdminForumForumEditSubmit->updateForum()';
+
         // Initialize Vars
         $id                 = $this->id;
         $name               = $this->name;
@@ -143,7 +142,7 @@ class AdminForumForumEditSubmit
         // Just in case
         if ($id < 1)
         {
-            error('Dev error: $id is not set for AdminForumForumEditSubmit->updateForum()');
+            SBC::devError('$id is not set',$method);
         }
 
         // Switch
@@ -159,10 +158,6 @@ class AdminForumForumEditSubmit
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('ssssi',$name,$name_code,$description,$description_code,$id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (update forum) for AdminForumForumEditSubmit->updateForum()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 }

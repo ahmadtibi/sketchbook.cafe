@@ -3,6 +3,9 @@
 // Cannot be less than 1!
 function check_number($value,$name)
 {
+    error('CHECK_NUMBER is no longer used. Use SBC::checkNumber instead');
+
+/*
     // Set value
     $value = isset($value) ? (int) $value : 0;
     if ($value < 1)
@@ -12,4 +15,5 @@ function check_number($value,$name)
 
     // return
     return $value;
+*/
 }

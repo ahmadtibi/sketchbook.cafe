@@ -1,4 +1,11 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-26
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\UserTimer\UserTimer as UserTimer;
+use SketchbookCafe\LoginTimer\LoginTimer as LoginTimer;
+use SketchbookCafe\SBCGetPassword\SBCGetPassword as SBCGetPassword;
 
 class ChangePasswordSubmit
 {
@@ -9,30 +16,27 @@ class ChangePasswordSubmit
     // Construct
     public function __construct(&$obj_array)
     {
+        $method = 'ChangePasswordSubmit->__construct()';
+
         // Initialize Objects
         $db     = &$obj_array['db'];
         $User   = &$obj_array['User'];
 
-        // Classes and Functions
-        sbc_class('UserTimer');
-        sbc_class('LoginTimer');
-        sbc_function('get_password');
-
         // Initialize Vars
-        $this->ip_address   = $_SERVER['REMOTE_ADDR'];
+        $this->ip_address   = SBC::getIpAddress();
         $pass1              = '';
         $pass2              = '';
         $new_password       = '';
         $current_password   = '';
 
         // New Password
-        $pass1              = get_password($_POST['pass1']);
-        $pass2              = get_password($_POST['pass2']);
+        $pass1              = SBCGetPassword::process($_POST['pass1']);
+        $pass2              = SBCGetPassword::process($_POST['pass2']);
 
         // Do they match?
         if ($pass1 != $pass2)
         {
-            error('Passwords do not match');
+            SBC::userError('Passwords do not match');
         }
 
         // New Password
@@ -40,7 +44,7 @@ class ChangePasswordSubmit
         $this->new_password = $new_password;
 
         // Current Password
-        $current_password   = get_password($_POST['current_password']);
+        $current_password   = SBCGetPassword::process($_POST['current_password']);
 
         // Open Connection
         $db->open();
@@ -70,7 +74,7 @@ class ChangePasswordSubmit
             $LoginTimer->failedLogin($db);
 
             // Generate Error
-            error('Invalid password verification.');
+            SBC::userError('Invalid password verification.');
         }
 
         // Create Changed E-mail Log
@@ -93,10 +97,12 @@ class ChangePasswordSubmit
     // Create Log
     final private function createLog(&$db)
     {
+        $method = 'ChangePasswordSubmit->createLog()';
+
         // Initialize Vars
         $user_id    = $this->user_id;
         $ip_address = $this->ip_address;
-        $time       = time();
+        $time       = SBC::getTime();
 
         // Switch
         $db->sql_switch('sketchbookcafe');
@@ -108,16 +114,14 @@ class ChangePasswordSubmit
             date_created=?';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('isi',$user_id,$ip_address,$time);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (insert new log) for ChangePasswordSubmit->createLog()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 
     // Set New Password
     final private function setNewPassword(&$db)
     {
+        $method = 'ChangePasswordSubmit->setNewPassword()';
+
         // Initialize Vars
         $user_id        = $this->user_id;
         $new_password   = $this->new_password;
@@ -125,7 +129,7 @@ class ChangePasswordSubmit
         // Check
         if ($user_id < 1 || empty($new_password))
         {
-            error('Dev error: $user_id or $new_password is not set. $user_id: '.$user_id);
+            SBC::devError('$user_id or $new_password is not set',$method);
         }
 
         // Switch
@@ -138,10 +142,6 @@ class ChangePasswordSubmit
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('si',$new_password,$user_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (update password) for ChangePasswordSubmit->setNewPassword()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 }

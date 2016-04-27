@@ -1,4 +1,11 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\Message\Message as Message;
+use SketchbookCafe\TextareaSettings\TextareaSettings as TextareaSettings;
+use SketchbookCafe\TableForum\TableForum as TableForum;
 
 class AdminForumForumsSubmit
 {
@@ -18,24 +25,21 @@ class AdminForumForumsSubmit
     // Construct
     public function __construct(&$obj_array)
     {
+        $method = 'AdminForumForumsSubmit->__construct()';
+
         // Initialize Objects
         $db     = &$obj_array['db'];
         $User   = &$obj_array['User'];
 
-        // Classes and Functions
-        sbc_class('Message');
-        sbc_class('TextareaSettings');
-        sbc_function('rd');
-
         // Initialize Vars
-        $this->ip_address   = $_SERVER['REMOTE_ADDR'];
-        $this->rd           = rd();
+        $this->ip_address   = SBC::getIpAddress();
+        $this->rd           = SBC::rd();
 
         // Category ID
         $this->category_id  = isset($_POST['category_id']) ? (int) $_POST['category_id'] : 0;
         if ($this->category_id < 1)
         {
-            error('Dev error: $category_id is not set for AdminForumForumsSubmit->construct()');
+            SBC::devError('$category_id is not set',$method);
         }
 
         // Forum Name
@@ -102,13 +106,15 @@ class AdminForumForumsSubmit
     // Check if category exists
     final private function checkCategory(&$db)
     {
+        $method = 'AdminForumForumsSubmit->checkCategory()';
+
         // Initialize Vars
         $category_id    = $this->category_id;
 
         // Check just in case
         if ($category_id < 1)
         {
-            error('Dev error: $category_id is not set for AdminForumForumsSubmit->checkCategory()');
+            SBC::devError('$category_id is not set',$method);
         }
 
         // Switch
@@ -119,41 +125,35 @@ class AdminForumForumsSubmit
             FROM forums
             WHERE id=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('i',$category_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (get category) for AdminForumForumsSubmit->checkCategory()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
-
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Check
         $category_id    = isset($row['id']) ? (int) $row['id'] : 0;
         if ($category_id < 1)
         {
-            error('Could not find category in database');
+            SBC::devError('Could not find category in database',$method);
         }
 
         // Make sure it's a category
         if ($row['iscategory'] != 1)
         {
-            error('Odd.. this is not a category.');
+            SBC::devError('Odd.. this is not a category',$method);
         }
 
         // Make sure it's not deleted
         if ($row['isdeleted'] == 1)
         {
-            error('Category no longer exists');
+            SBC::devError('Category no longer exists',$method);
         }
     }
 
     // Count Forums
     final private function countForums(&$db)
     {
+        $method = 'AdminForumForumsSubmit->countForums()';
+
         // Initialize Vars
         $max_forums     = 10;
         $category_id    = $this->category_id;
@@ -167,16 +167,9 @@ class AdminForumForumsSubmit
             WHERE parent_id=?
             AND isforum=1
             AND isdeleted=0';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('i',$category_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (count forums) for AdminForumForumsSubmit->countForums()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Total
         $total  = isset($row[0]) ? (int) $row[0] : 0;
@@ -184,13 +177,15 @@ class AdminForumForumsSubmit
         // Check Total
         if ($total > $max_forums)
         {
-            error('Maximum forums reached for Category');
+            SBC::devError('Maximum forums reached for Category',$method);
         }
     }
 
     // Insert New Forum
     final private function insertNewForum(&$db)
     {
+        $method = 'AdminForumForumsSubmit->insertNewForum()';
+
         // Initialize Vars
         $time               = time();
         $rd                 = $this->rd;
@@ -205,7 +200,7 @@ class AdminForumForumsSubmit
         // Verify all information
         if ($user_id < 1 || $category_id < 1)
         {
-            error('Dev error: $user_id:'.$user_id.', $category_id:'.$category_id.' for AdminForumForumsSubmit->insertNewForum()');
+            SBC::devError('$user_id:'.$user_id.', $category_id:'.$category_id,$method);
         }
 
         // Switch
@@ -228,11 +223,7 @@ class AdminForumForumsSubmit
             isdeleted=1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('iiissiissss',$rd,$user_id,$category_id,$ip_address,$ip_address,$time,$time,$name,$name_code,$description,$description_code);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (insert new forum) for AdminForumForumsSubmit->insertNewForum()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
 
         // Get Forum ID
         $sql = 'SELECT id
@@ -242,22 +233,15 @@ class AdminForumForumsSubmit
             AND date_created=?
             AND isforum=1
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('iii',$rd,$user_id,$time);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (get forum ID) for AdminForumForumsSubmit->insertNewForum()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Forum ID?
         $forum_id   = isset($row['id']) ? (int) $row['id'] : 0;
         if ($forum_id < 1)
         {
-            error('Dev error: Could not insert new forum for AdminForumForumsSubmit->insertNewForum()');
+            SBC::devError('Could not insert new forum',$method);
         }
         $this->forum_id = $forum_id;
     }
@@ -265,15 +249,14 @@ class AdminForumForumsSubmit
     // Create Forum Tables
     final private function createForumTables(&$db)
     {
+        $method = 'AdminForumForumsSubmit->createForumTables()';
+
         // Initialize Vars
         $forum_id   = $this->forum_id;
         if ($forum_id < 1)
         {
-            error('Dev error: $forum_id is not set for AdminForumForumsSubmit->createForumTables()');
+            SBC::devError('$forum_id is not set',$method);
         }
-
-        // Classes
-        sbc_class('TableForum');
 
         // Forum Table
         $ForumTable = new TableForum($forum_id);
@@ -283,11 +266,13 @@ class AdminForumForumsSubmit
     // Update Forum
     final private function updateForum(&$db)
     {
+        $method = 'AdminForumForumsSubmit->updateForum()';
+
         // Initialize Vars
         $forum_id   = $this->forum_id;
         if ($forum_id < 1)
         {
-            error('Dev error: $forum_id is not set for AdminForumForumsSubmit->updateForum()');
+            SBC::devError('$forum_id is not set',$method);
         }
 
         // Switch
@@ -300,10 +285,6 @@ class AdminForumForumsSubmit
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('i',$forum_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (update forum) for AdminForumForumsSubmit->updateForum()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 }

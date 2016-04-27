@@ -1,4 +1,9 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-26
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\Form\Form as Form;
 
 class ChangeEmailEdit
 {
@@ -8,21 +13,19 @@ class ChangeEmailEdit
     // Construct
     public function __construct(&$obj_array)
     {
+        $method = 'ChangeEmailEdit->__construct()';
+
         // Initialize Objects
         $db     = &$obj_array['db'];
         $User   = &$obj_array['User'];
 
-        // Classes and Functions
-        sbc_class('Form');
-
         // Open Connection
         $db->open();
 
-        // Required User + Process Data
+        // Required User
         $User->setFrontpage();
         $User->required($db);
-        $user_id        = $User->getUserId();
-        $ProcessAllData = new ProcessAllData();
+        $user_id = $User->getUserId();
 
         // Switch
         $db->sql_switch('sketchbookcafe');
@@ -32,16 +35,12 @@ class ChangeEmailEdit
             FROM users
             WHERE id=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('i',$user_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (get user\'s e-mail) for ChangeEmailEdit->construct()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
+
+        // Process All Data
+        $ProcessAllData = new ProcessAllData();
 
         // Close Connection
         $db->close();

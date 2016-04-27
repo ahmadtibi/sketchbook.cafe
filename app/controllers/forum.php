@@ -37,6 +37,7 @@ class Forum extends Controller
         $ThreadObject->setThreadId($thread_id);
         $ThreadObject->setPageNumber($pageno);
         $ThreadObject->process($this->obj_array);
+        $ForumAdmin         = $ThreadObject->ForumAdmin;
         $thread_row         = $ThreadObject->thread_row;
         $category_row       = $ThreadObject->category_row;
         $forum_row          = $ThreadObject->forum_row;
@@ -52,6 +53,7 @@ class Forum extends Controller
         $this->view('sketchbookcafe/header');
         $this->view('forum/threadpage',
         [
+            'ForumAdmin'        => $ForumAdmin,
             'User'              => $User,
             'thread_row'        => $thread_row,
             'category_row'      => $category_row,
@@ -82,7 +84,7 @@ class Forum extends Controller
     }
 
     // Main Page
-    public function index($forum_id = 0)
+    public function index($forum_id = 0, $pageno = 0)
     {
         // Objects
         $User       = $this->obj_array['User'];
@@ -96,15 +98,29 @@ class Forum extends Controller
             error('Forum ID is not set');
         }
 
+        // Page Numbers
+        $pageno = isset ($pageno) ? (int) $pageno : 0;
+        if ($pageno < 1)
+        {
+            $pageno = 0;
+        }
+
         // Model
         $ForumObject    = $this->model('ForumPage');
         $ForumObject->setForumId($forum_id);
+        $ForumObject->setPageNumber($pageno);
         $ForumObject->process($this->obj_array);
         $Form           = $ForumObject->Form;
         $category_row   = $ForumObject->category_row;
         $forum_row      = $ForumObject->forum_row;
         $threads_result = $ForumObject->threads_result;
         $threads_rownum = $ForumObject->threads_rownum;
+        $view_time      = $ForumObject->view_time;
+
+        $pagenumbers    = $ForumObject->pagenumbers;
+        $pages_min      = $ForumObject->pages_min;
+        $pages_max      = $ForumObject->pages_max;
+        $pages_total    = $ForumObject->pages_total;
 
         // View
         $this->view('sketchbookcafe/header');
@@ -118,6 +134,11 @@ class Forum extends Controller
             'threads_rownum'    => $threads_rownum,
             'Member'            => $Member,
             'Comment'           => $Comment,
+            'pagenumbers'       => $pagenumbers,
+            'pages_min'         => $pages_min,
+            'pages_max'         => $pages_max,
+            'pages_total'       => $pages_total,
+            'view_time'         => $view_time,
         ]);
         $this->view('sketchbookcafe/footer');
 

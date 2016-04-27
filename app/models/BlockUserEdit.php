@@ -1,4 +1,9 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\Form\Form as Form;
 
 class BlockUserEdit
 {
@@ -7,15 +12,17 @@ class BlockUserEdit
     public $result = [];
     public $rownum = 0;
 
+    private $obj_array;
+
     // Construct
     public function __construct(&$obj_array)
     {
-        // Initialize Objects
-        $db     = &$obj_array['db'];
-        $User   = &$obj_array['User'];
+        $method = 'BlockUserEdit->__construct()';
 
-        // Classes + Functions
-        sbc_class('Form');
+        // Initialize Objects
+        $db                 = &$obj_array['db'];
+        $User               = &$obj_array['User'];
+        $this->obj_array    = &$obj_array;
 
         // Open Connection
         $db->open();
@@ -68,8 +75,10 @@ class BlockUserEdit
     // Get Blocked Users
     private function getBlockedUsers(&$db)
     {
-        // Globals
-        global $Member;
+        $method = 'BlockUserEdit->getBlockedUsers()';
+
+        // Initialize Objects
+        $Member = &$this->obj_array['Member'];
 
         // Switch
         $db->sql_switch('sketchbookcafe_users');
@@ -78,7 +87,7 @@ class BlockUserEdit
         $user_id    = $this->user_id;
         if ($user_id < 1)
         {
-            error('Dev error: $user_id is not set for BlockUserEdit->getBlockedUsers()');
+            SBC::devError('$user_id is not set',$method);
         }   
         $table_name = 'u'.$user_id.'c';
         $type       = 1; // 1 blocked users

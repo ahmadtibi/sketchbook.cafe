@@ -1124,7 +1124,6 @@ iframe {
     display: table-row;
 }
 .td {
-    padding: 6px;
     display: table-cell;
 }
 .tdInbox {

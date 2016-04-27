@@ -1,5 +1,10 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
 // Count Mail
+namespace SketchbookCafe\CountMail;
+
+use SketchbookCafe\SBC\SBC as SBC;
 
 class CountMail
 {
@@ -8,22 +13,26 @@ class CountMail
     // Construct
     public function __construct($user_id)
     {
+        $method = 'CountMail->__construct()';
+
         // Set User ID
         $this->user_id  = isset($user_id) ? (int) $user_id : 0;
         if ($this->user_id < 1)
         {
-            error('Dev error: $user_id is not set for CountMail->construct()');
+            SBC::devError('$user_id is not set',$method);
         }
     }
 
     // Process Count
     final public function process(&$db)
     {
+        $method = 'CountMail->process()';
+
         // Initialize Vars
         $user_id    = $this->user_id;
         if ($user_id < 1)
         {
-            error('Dev error: $user_id is not set for CountMail->process()');
+            SBC::devError('$user_id is not set',$method);
         }
 
         // Switch
@@ -52,10 +61,6 @@ class CountMail
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('ii',$total,$user_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (update user) for CountMail->process()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 }

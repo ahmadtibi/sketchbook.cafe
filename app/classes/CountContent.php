@@ -1,5 +1,10 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
 // Count Content Class : Counts any type of content in the user's tables
+namespace SketchbookCafe\CountContent;
+
+use SketchbookCafe\SBC\SBC as SBC;
 
 class CountContent
 {
@@ -15,18 +20,20 @@ class CountContent
     // $input:  'user_id', 'setting'
     public function __construct($input)
     {
+        $method = 'CountContent->__construct()';
+
         // User ID
         $user_id = isset($input['user_id']) ? (int) $input['user_id'] : 0;
         if ($user_id < 1)
         {
-            error('Dev error: $user_id is not set for CountContent->construct()');
+            SBC::devError('$user_id is not set',$method);
         }
 
         // Setting
         $setting = isset($input['setting']) ? $input['setting'] : '';
         if (empty($setting))
         {
-            error('Dev error: $setting is not set for CountContent->construct()');
+            SBC::devError('$setting is not set',$method);
         }
 
         // Set Vars
@@ -43,7 +50,7 @@ class CountContent
         }
         if (empty($type))
         {
-            error('Dev error: invalid $setting for CountContent->construct()');
+            SBC::devError('invalid $setting',$method);
         }
 
         // Create Settings
@@ -54,15 +61,19 @@ class CountContent
     // Has Info
     final private function hasInfo()
     {
+        $method = 'CountContent->hasInfo()';
+
         if ($this->hasinfo != 1)
         {
-            error('Dev error: $hasinfo is not set for CountContent->hasInfo()');
+            SBC::devError('$hasinfo is not set',$method);
         }
     }
 
     // Process
     final public function process(&$db)
     {
+        $method = 'CountContent->process()';
+
         // Has Info
         $this->hasinfo();
 
@@ -79,11 +90,13 @@ class CountContent
     // Count Blocked Users
     final private function countBlockedUsers(&$db)
     {
+        $method = 'CountContent->countBlockedUsers()';
+
         // Initialize Vars
         $user_id    = $this->user_id;
         if ($user_id < 1)
         {
-            error('Dev error: $user_id is not set for CountContent->countBlockedUsers()');
+            SBC::devError('$user_id is not set',$method);
         }
 
         // Switch
@@ -97,16 +110,9 @@ class CountContent
         $sql = 'SELECT COUNT(*)
             FROM '.$table_name.'
             WHERE type=?';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('i',$type);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (count from table) for CountContent->countBlockedUsers()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Total
         $total = isset($row[0]) ? (int) $row[0] : 0;
@@ -121,10 +127,6 @@ class CountContent
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('ii',$total,$user_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (update user total) for CountContent->countBlockedUsers()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 }

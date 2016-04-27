@@ -1,4 +1,10 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\Message\Message as Message;
+use SketchbookCafe\TextareaSettings\TextareaSettings as TextareaSettings;
 
 class AdminForumCategoriesSubmit
 {
@@ -17,18 +23,15 @@ class AdminForumCategoriesSubmit
     // Construct
     public function __construct(&$obj_array)
     {
+        $method = 'AdminForumCategoriesSubmit->__construct()';
+
         // Initialize Objects
         $db     = &$obj_array['db'];
         $User   = &$obj_array['User'];
 
-        // Classes and Functions
-        sbc_class('Message');
-        sbc_class('TextareaSettings');
-        sbc_function('rd');
-
         // Initialize Vars
-        $this->ip_address   = $_SERVER['REMOTE_ADDR'];
-        $this->rd           = rd();
+        $this->ip_address   = SBC::getIpAddress();
+        $this->rd           = SBC::rd();
 
         // Category
         $CategoryObject = new Message(array
@@ -85,6 +88,8 @@ class AdminForumCategoriesSubmit
     // Count Categories: Make sure we don't go over a set limit
     final private function countCategories(&$db)
     {
+        $method = 'AdminForumCategoriesSubmit->countCategories()';
+
         // Initialize Vars
         $max_categories = 10;
 
@@ -110,13 +115,15 @@ class AdminForumCategoriesSubmit
         // Check
         if ($total > $max_categories)
         {
-            error('Dev error: max categories reached ('.$max_categories.') for AdminForumCategoriesSubmit->countCategories()');
+            SBC::devError('max categories reached ('.$max_categories.')',$method);
         }
     }
 
     // Insert New Category
     final private function insertCategory(&$db)
     {
+        $method = 'AdminForumCategoriesSubmit->insertCategory()';
+
         // Initialize Vars
         $time               = time();
         $ip_address         = $this->ip_address;
@@ -130,7 +137,7 @@ class AdminForumCategoriesSubmit
         // Check just in case
         if ($user_id < 1)
         {
-            error('Dev error: $user_id is not set for AdminForumCategories->insertCategory()');
+            SBC::devError('$user_id is not set',$method);
         }
 
         // Switch
@@ -152,11 +159,7 @@ class AdminForumCategoriesSubmit
             isdeleted=1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('iissiissss',$rd,$user_id,$ip_address,$ip_address,$time,$time,$name,$name_code,$description,$description_code);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (insert new forum category) for AdminForumCategoriesSubmit->insertCategory()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
 
         // Check if it was successful
         $sql = 'SELECT id
@@ -165,22 +168,15 @@ class AdminForumCategoriesSubmit
             AND user_id=?
             AND date_created=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('iii',$rd,$user_id,$time);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (get forum category) for AdminForumCategoriesSubmit->insertCategory()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Category ID
         $id = isset($row['id']) ? (int) $row['id'] : 0;
         if ($id < 1)
         {
-            error('Dev error: could not insert new forum category into database for AdminForumCategoriesSubmit->insertCategory()');
+            SBC::devError('could not insert new forum category into database',$method);
         }
         $this->id = $id;
 
@@ -191,10 +187,6 @@ class AdminForumCategoriesSubmit
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('i',$id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (update category) for AdminForumCategoriesSubmit->insertCategory()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 }

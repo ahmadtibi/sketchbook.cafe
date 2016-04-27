@@ -3,6 +3,9 @@
 // If empty, return an error!
 function check_empty($value,$name)
 {
+    error('CHECK_EMPTY is no longer used. Please use SBC::checkEmpty() instead');
+
+/*
     // Set value
     $value = isset($value) ? $value : '';
     if (empty($value))
@@ -12,4 +15,6 @@ function check_empty($value,$name)
 
     // Return
     return $value;
+
+*/
 }

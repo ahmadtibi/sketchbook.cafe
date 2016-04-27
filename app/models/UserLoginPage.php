@@ -1,4 +1,10 @@
 <?php
+// @author          Jonathan Maltezo
+// @lastUpdated     2016-04-26
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\Form\Form as Form;
+
 class UserLoginpage
 {
     public $form = [];
@@ -6,8 +12,7 @@ class UserLoginpage
     // Construct
     public function __construct(&$obj_array)
     {
-        // Classes
-        sbc_class('Form');
+        $method = 'UserLoginPage->__construct()';
 
         // New Form
         $Form = new Form(array(

@@ -1,4 +1,11 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\UserTimer\UserTimer as UserTimer;
+use SketchbookCafe\CountContent\CountContent as CountContent;
+use SketchbookCafe\SBCGetUsername\SBCGetUsername as SBCGetUsername;
 
 class BlockUserSubmit
 {
@@ -12,21 +19,16 @@ class BlockUserSubmit
     // Construct
     public function __construct(&$obj_array)
     {
+        $method = 'BlockUserSubmit->__construct()';
+
         // Initialize Objects
         $db     = &$obj_array['db'];
         $User   = &$obj_array['User'];
 
-        // Classes + Functions
-        sbc_class('UserTimer');
-        sbc_class('CountContent');
-        sbc_function('get_username');
-
         // Initialize Vars
-        $this->time         = time();
-
-        // Get Username
+        $this->time         = SBC::getTime();
         $r_username         = '';
-        $r_username         = get_username($_POST['username']);
+        $r_username         = SBCGetUsername::process($_POST['username']);
         $this->r_username   = $r_username;
 
         // Open Connection
@@ -76,11 +78,13 @@ class BlockUserSubmit
     // Check Total Blocked Users
     final private function checkTotal(&$db)
     {
+        $method = 'BlockUserSubmit->checkTotal()';
+
         // Initialize Vars
         $user_id    = $this->user_id;
         if ($user_id < 1)
         {
-            error('Dev error: $user_id is not set for BlockUserSubmit->checkTotal()');
+            SBC::devError('$user_id is not set',$method);
         }
 
         // Switch
@@ -91,22 +95,15 @@ class BlockUserSubmit
             FROM users
             WHERE id=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('i',$user_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (get blocked max) for BlockUserSubmit->checkTotal()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Blocked Max
         $blocked_max = isset($row['blocked_max']) ? (int) $row['blocked_max'] : 0;
         if ($blocked_max < 1)
         {
-            error('Dev error: $blocked_max is not set for BlockuserSubmit->checkTotal()');
+            SBC::devError('$blocked_max is not set',$method);
         }
 
         // Switch
@@ -120,16 +117,9 @@ class BlockUserSubmit
         $sql = 'SELECT COUNT(*)
             FROM '.$table_name.'
             WHERE type=?';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('i',$type);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (count from table) for BlockUserSubmit->checkTotal()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Total
         $total = isset($row[0]) ? (int) $row[0] : 0;
@@ -137,20 +127,22 @@ class BlockUserSubmit
         // Max Check
         if ($total >= $blocked_max)
         {
-            error('Sorry, you may only block up to '.$blocked_max.' users at a time');
+            SBC::userError('Sorry, you may only block up to '.$blocked_max.' users at a time');
         }
     }
 
     // Block User
     final private function blockUser(&$db)
     {
+        $method = 'BlockUserSubmit->blockUser()';
+
         // Initialize Vars
         $time       = $this->time;
         $user_id    = $this->user_id;
         $r_user_id  = $this->r_user_id;
         if ($user_id < 1 || $r_user_id < 1 || $user_id == $r_user_id)
         {
-            error('Dev error: Invalid $user_id or $r_user_id ($user_id:'.$user_id.', $r_user_id:'.$r_user_id.') in BlockUserSubmit->blockuser()');
+            SBC::devError('Invalid $user_id or $r_user_id ($user_id:'.$user_id.', $r_user_id:'.$r_user_id.')',$method);
         }
 
         // Switch
@@ -167,16 +159,9 @@ class BlockUserSubmit
             WHERE type=?
             AND cid=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('ii',$type,$cid);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (check owner table) for BlockUserSubmit->blockUser()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Current ID?
         $current_id = isset($row['id']) ? (int) $row['id'] : 0;
@@ -188,28 +173,26 @@ class BlockUserSubmit
                 cid=?';
             $stmt = $db->prepare($sql);
             $stmt->bind_param('ii',$type,$cid);
-            if (!$stmt->execute())
-            {
-                error('Could not execute statement (add new user) for BlockUserSubmit->blockUser()');
-            }
-            $stmt->close();
+            SBC::statementExecute($stmt,$db,$sql,$method);
         }
     }
 
-    // Get User Informatoin
+    // Get User Information
     final private function getUserInformation(&$db)
     {
+        $method = 'BlockUserSubmit->getUserInformation()';
+
         // Initialize Vars
         $r_username = $this->r_username;
         $r_user_id  = 0;
         $user_id    = $this->user_id;
         if (empty($r_username))
         {
-            error('Dev error: $r_username is not set for BlockUserSubmit->getUserInformation()');
+            SBC::devError('$r_username is not set',$method);
         }
         if ($user_id < 1)
         {
-            error('Dev error: $user_id is not set for BlockUserSubmit->getUserInformation()');
+            SBC::devError('$user_id is not set',$method);
         }
 
         // Switch
@@ -220,28 +203,21 @@ class BlockUserSubmit
             FROM users
             WHERE username=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('s',$r_username);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (get user information) for BlockUserSubmit->getUserInformation()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Set
         $r_user_id = isset($row['id']) ? (int) $row['id'] : 0;
         if ($r_user_id < 1)
         {
-            error('Could not find user in database');
+            SBC::userError('Could not find user in database');
         }
 
         // Make sure user can't block themselves!
         if ($r_user_id == $user_id)
         {
-            error('Sorry, you cannot block yourself');
+            SBC::userError('Sorry, you cannot block yourself');
         }
 
         // Set vars

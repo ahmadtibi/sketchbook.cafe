@@ -1,4 +1,10 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
+namespace SketchbookCafe\TableForumThread;
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\TableCreator\TableCreator as TableCreator;
 
 class TableForumThread
 {
@@ -8,11 +14,13 @@ class TableForumThread
     // Construct
     public function __construct($thread_id)
     {
+        $method = 'TableForumThread->__construct()';
+
         // Set Thread ID
         $this->thread_id = isset($thread_id) ? (int) $thread_id : 0;
         if ($this->thread_id < 1)
         {
-            error('Dev error: $thread_id is not set for TableForumThread->construct()');
+            SBC::devError('$thread_id is not set',$method);
         }
 
         // Set Has Info
@@ -22,20 +30,21 @@ class TableForumThread
     // Has Info
     final private function hasInfo()
     {
+        $method = 'TableForumThread->hasInfo()';
+
         if ($this->hasinfo != 1)
         {
-            error('Dev error: $hasinfo is not set for TableForumThread->hasInfo()');
+            SBC::devError('$hasinfo is not set',$method);
         }
     }
 
     // Check Tables
     final public function checkTables(&$db)
     {
+        $method = 'TableForumThread->checkTables()';
+
         // Has Info
         $this->hasinfo();
-
-        // Class
-        sbc_class('TableCreator');
 
         // Comment Table
         $tablename  = 't'.$this->thread_id.'d';
@@ -54,6 +63,5 @@ class TableForumThread
         unset($database);
         unset($columns);
         unset($TableCreator);
-
     }
 }

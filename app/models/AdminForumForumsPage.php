@@ -1,4 +1,10 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\Form\Form as Form;
+use SketchbookCafe\TextareaSettings\TextareaSettings as TextareaSettings;
 
 class AdminForumForumsPage
 {
@@ -11,13 +17,11 @@ class AdminForumForumsPage
     // Construct
     public function __construct(&$obj_array)
     {
+        $method = 'AdminForumForumsPage->__construct()';
+
         // Initialize Objects
         $db     = &$obj_array['db'];
         $User   = &$obj_array['User'];
-
-        // Classes
-        sbc_class('Form');
-        sbc_class('TextareaSettings');
 
         // Open Connection
         $db->open();
@@ -93,6 +97,8 @@ class AdminForumForumsPage
     // Get Categories
     private function getCategories(&$db)
     {
+        $method = 'AdminForumForumsPage->getCategories()';
+
         // Switch
         $db->sql_switch('sketchbookcafe');
 
@@ -114,6 +120,8 @@ class AdminForumForumsPage
     // Get Forums
     private function getForums(&$db)
     {
+        $method = 'AdminForumForumsPage->getForums()';
+
         // Switch
         $db->sql_switch('sketchbookcafe');
 

@@ -1,4 +1,9 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\SBCGetPassword\SBCGetPassword as SBCGetPassword;
 
 class AdminSetupSubmit
 {
@@ -12,23 +17,22 @@ class AdminSetupSubmit
     // Construct
     public function __construct(&$obj_array)
     {
+        $method = 'AdminSetupSubmit->__construct()';
+
         // Initialize Objects
         $db     = &$obj_array['db'];
         $User   = &$obj_array['User'];
 
-        // Classes and Functions
-        sbc_function('get_password');
-
         // Initialize Vars
-        $this->ip_address   = $_SERVER['REMOTE_ADDR'];
+        $this->ip_address   = SBC::getIpAddress();
         $pass1              = '';
         $pass2              = '';
         $pass3              = '';
 
         // Get passwords
-        $pass1              = get_password($_POST['pass1']);
-        $pass2              = get_password($_POST['pass2']);
-        $pass3              = get_password($_POST['pass3']);
+        $pass1              = SBCGetPassword::process($_POST['pass1']);
+        $pass2              = SBCGetPassword::process($_POST['pass2']);
+        $pass3              = SBCGetPassword::process($_POST['pass3']);
 
         // New passwords
         $this->password1    = password_hash($pass1,PASSWORD_DEFAULT);
@@ -44,7 +48,7 @@ class AdminSetupSubmit
         $this->user_id  = $user_id;
         if (!$User->isAdmin())
         {
-            error('Sorry, only administrators may access this page');
+            SBC::userError('Sorry, only administrators may access this page');
         }
 
         // Check if this administrator needs a password
@@ -64,6 +68,8 @@ class AdminSetupSubmit
     // Create New Password
     private function createNewPassword(&$db)
     {
+        $method = 'AdminSetupSubmit->createNewPassword()';
+
         // Is Ready?
         $this->isReady();
 
@@ -86,32 +92,32 @@ class AdminSetupSubmit
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('sssi',$password1,$password2,$password3,$user_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (update admin password) for AdminSetupSubmit->createNewPassword()');
-        }
-        $stmt->close();
+        SBC::statementFetchRow($stmt,$db,$sql,$method);
    }
 
     // Is ready
     private function isReady()
     {
+        $method = 'AdminSetupSubmit->isReady()';
+
         if ($this->isready != 1 || $this->user_id < 1 || empty($this->password1) || empty($this->password2) || empty($this->password3))
         {
-            error('Dev error: $isready is not set for AdminSetupSubmit->isReady()');
+            SBC::devError('$isready is not set',$method);
         }
     }
 
     // Check Passwords
     private function checkPasswords(&$db)
     {
+        $method = 'AdminSetupSubmit->checkPasswords()';
+
         // Initialize Vars
         $user_id = $this->user_id;
 
         // Doubly Check
         if ($user_id < 1)
         {
-            error('Dev error: $user_id is not set for AdminSetupSubmit->checkPasswords()');
+            SBC::devError('$user_id is not set',$method);
         }
 
         // Switch
@@ -122,28 +128,21 @@ class AdminSetupSubmit
             FROM admins
             WHERE user_id=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('i',$user_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (get admin information) for AdminSetupSubmit->checkPasswords()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Admin ID?
         $admin_id = isset($row['id']) ? (int) $row['id'] : 0;
         if ($admin_id < 1)
         {
-            error('Dev error: Could not find administrator in database for AdminSetupSubmit->checkPasswords()');
+            SBC::devError('Could not find administrator in database',$method);
         }
 
         // Does the admin already have a password set up?
         if ($row['haspass'] > 0)
         {
-            error('Admin already has a password setup.');
+            SBC::userError('Admin already has a password setup.');
         }
 
         // Set as ready

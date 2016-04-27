@@ -1,5 +1,10 @@
 <?php
-// Member class - contains all members visible on the page
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated      2016-04-26
+namespace SketchbookCafe\Member;
+
+use SketchbookCafe\SBC\SBC as SBC;
+
 class Member
 {
     // SQL Stuff
@@ -13,17 +18,16 @@ class Member
     // Construct
     public function __construct()
     {
-
+        $method = 'Member->__construct()';
     }
 
     // Get Users
     final public function getUsers(&$db)
     {
-        // Functions
-        sbc_function('id_clean');
+        $method = 'Member->getUsers()';
 
         // Create list
-        $id_list = id_clean($this->id_list);
+        $id_list = SBC::idClean($this->id_list);
 
         // Make sure ID list is not empty
         if (!empty($id_list))
@@ -68,18 +72,24 @@ class Member
     // Display Posts
     final public function displayPosts($id)
     {
+        $method = 'Member->displayPosts()';
+
         return $this->member[$id]['total_posts'];
     }
 
     // Display Title
     final public function displayTitle($id)
     {
+        $method = 'Member->displayTitle()';
+
         return $this->member[$id]['title'];
     }
 
     // Data Not Empty
     final public function notEmpty($id,$data)
     {
+        $method = 'Member->notEmpty()';
+
         if (!empty($this->member[$id][$data]))
         {
             return true;
@@ -93,12 +103,16 @@ class Member
     // Display Forum Signature
     final public function displayForumSignature($id)
     {
+        $method = 'Member->displayForumSignature()';
+
         return $this->member[$id]['forumsignature'];
     }
 
     // Add String
     final public function addString($input)
     {
+        $method = 'Member->addString()';
+
         if (!empty($input))
         {
             // Add
@@ -109,6 +123,8 @@ class Member
     // Add Rows: adds user ids from an sql result
     final public function idAddRows($result,$column)
     {
+        $method = 'Member->idAddRows()';
+
         // Do we have a result?
         if (!empty($result))
         {
@@ -134,6 +150,8 @@ class Member
     // Add One ID
     final public function idAddOne($id)
     {
+        $method = 'Member->idAddOne()';
+
         if ($id > 0)
         {
             $this->id_list .= $id.' ';

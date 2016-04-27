@@ -1,5 +1,9 @@
 <?php
 // User timer based off user's ID instead of IP address
+// Last Updated     2016-04-26
+namespace SketchbookCafe\UserTimer;
+
+use SketchbookCafe\SBC\SBC as SBC;
 
 class UserTimer
 {
@@ -11,28 +15,40 @@ class UserTimer
     // $input:  'user_id',
     public function __construct($input)
     {
+        $method = 'UserTimer->__construct()';
+
         // Initialize Vars
         $this->user_id = isset($input['user_id']) ? (int) $input['user_id'] : 0;
         if ($this->user_id < 1)
         {
-            error('Dev error: $user_id is not set for UserTimer->construct()');
+            SBC::devError('$user_id is not set',$method);
         }
     }
 
     // Set Column
     final public function setColumn($value)
     {
+        $method = 'UserTimer->setColumn()';
+
         // Initialize Vars
         $cooldown   = 0;
         $value      = isset($value) ? $value : '';
         if (empty($value))
         {
-            error('Dev error: $value is not set for UserTimer->setColumn()');
+            SBC::devError('$value is not set',$method);
         }
 
         // Switch
         switch ($value)
         {
+            case 'forum_reply':         $column = 'forum_reply';
+                                        $cooldown = 5; // 5 second flood
+                                        break;
+
+            case 'edit_comment':        $column = 'edit_comment';
+                                        $cooldown = 5; // 5 seconds for editing comments
+                                        break;
+
             case 'new_forum_thread':    $column = 'new_forum_thread';
                                         $cooldown = 30; // 30 second flood limit? might lower this
                                         break;
@@ -69,7 +85,7 @@ class UserTimer
         // Cooldown Check
         if ($cooldown < 1)
         {
-            error('Dev error: $cooldown is not set for UserTimer->setColumn()');
+            SBC::devError('$cooldown is not set',$method);
         }
 
         // Set Cooldown
@@ -79,7 +95,7 @@ class UserTimer
         $this->column = $column;
         if (empty($this->column))
         {
-            error('Could not set column for UserTimer->setColumn()');
+            SBC::devError('Could not set column',$method);
         }
 
         // Has Info
@@ -89,15 +105,19 @@ class UserTimer
     // Has info?
     final private function hasInfo()
     {
+        $method = 'UserTimer->hasInfo()';
+
         if ($this->hasinfo != 1)
         {
-            error('Dev error: $hasinfo is not set for UserTimer->hasInfo()');
+            SBC::devError('$hasinfo is not set',$method);
         }
     }
 
     // Check User ID
     final private function checkUserId(&$db)
     {
+        $method = 'UserTimer->checkUserId()';
+
         // Has info?
         $this->hasInfo();
 
@@ -112,16 +132,9 @@ class UserTimer
             FROM user_timer
             WHERE id=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('i',$user_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (get user id) for UserTimer->checkUserId()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Do we have an ID?
         $id = isset($row['id']) ? $row['id'] : 0;
@@ -132,17 +145,15 @@ class UserTimer
                 SET id=?';
             $stmt = $db->prepare($sql);
             $stmt->bind_param('i',$user_id);
-            if (!$stmt->execute())
-            {
-                error('Could not execute statement (insert new id) for UserTimer->checkUserId()');
-            }
-            $stmt->close();
+            SBC::statementExecute($stmt,$db,$sql,$method);
         }
     }
 
     // Check Timer
     final public function checkTimer(&$db)
     {
+        $method = 'UserTimer->checkTimer()';
+
         // Has info?
         $this->hasInfo();
 
@@ -150,7 +161,7 @@ class UserTimer
         $cooldown       = $this->cooldown;
         $column         = $this->column;
         $column_time    = 0;
-        $time           = time();
+        $time           = SBC::getTime();
         $user_id        = $this->user_id;
 
         // Check User ID
@@ -159,7 +170,7 @@ class UserTimer
         // Double Check Vars
         if (empty($column) || $user_id < 1 || $time < 1 || $cooldown < 1)
         {
-            error('Dev error: checkTimer error: $cooldown: '.$cooldown.', $column: '.$column.', $time: '.$time.', $user_id: '.$user_id);
+            SBC::devError('$cooldown: '.$cooldown.', $column: '.$column.', $time: '.$time.', $user_id: '.$user_id, $method);
         }
 
         // Switch
@@ -170,16 +181,9 @@ class UserTimer
             FROM user_timer
             WHERE id=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('i',$user_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (get user timer) for UserTimer->checkTimer()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Set vars
         $column_time    = $row[$column];
@@ -188,13 +192,15 @@ class UserTimer
         $time_left      = $time - $column_time;
         if ($time_left < $cooldown)
         {
-            error('You must wait at least '.$cooldown.' second(s) before repeating this action.');
+            SBC::userError('You must wait at least '.$cooldown.' second(s) before repeating this action.');
         }
     }
 
     // Update Timer
     final public function update(&$db)
     {
+        $method = 'UserTimer->update()';
+
         // Initialize Vars
         $user_id    = $this->user_id;
         $column     = $this->column;
@@ -203,7 +209,7 @@ class UserTimer
         // Check column
         if (empty($column))
         {
-            error('Dev error: $column is empty for UserTimer->update()');
+            SBC::devError('$column is empty',$method);
         }
 
         // Switch
@@ -216,10 +222,6 @@ class UserTimer
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('ii',$time,$user_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (update user timer) for UserTimer->update()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 }

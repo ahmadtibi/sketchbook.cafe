@@ -1,10 +1,16 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
 // Forum Organizer: managages statistics and updates forum infos
+namespace SketchbookCafe\ForumOrganizer;
+
+use SketchbookCafe\SBC\SBC as SBC;
 
 class ForumOrganizer
 {
     private $db;
     private $thread_user_id = 0;
+    private $thread_date_updated = 0;
 
     // Construct
     public function __construct(&$db)
@@ -15,16 +21,15 @@ class ForumOrganizer
     // Verify Forum
     final private function verifyForum($forum_id)
     {
+        $method = 'ForumOrganizer->verifyForum()';
+
         // Database
         $db = &$this->db;
-
-        // Initialize Vars
-        $statement_method = 'ForumOrganizer->verifyForum()';
 
         // Check
         if ($forum_id < 1)
         {
-            error('Dev error: $forum_id is not set for ForumOrganizer->verifyForum()');
+            SBC::devError('$forum_id is not set',$method);
         }
 
         // Switch
@@ -35,83 +40,68 @@ class ForumOrganizer
             FROM forums
             WHERE id=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('i',$forum_id);
-        if (!$stmt->execute())
-        {
-            statement_error('get forum information',$statement_method);
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Verify
         $forum_id   = isset($row['id']) ? (int) $row['id'] : 0;
         if ($forum_id < 1)
         {
-            error('Dev error: could not find forum for ForumOrganizer->verifyForum()');
+            SBC::devError('could not find forum',$method);
         }
     }
 
     // Verify Thread
     final private function verifyThread($thread_id)
     {
+        $method = 'ForumOrganizer->verifyThread()';
+
         // Database
         $db = &$this->db;
-
-        // Initialize Vars
-        $statement_method = 'ForumOrganizer->verifyThread()';
 
         // Check Thread ID
         if ($thread_id < 1)
         {
-            error('Dev error: $thread_id is not set for ForumOrganizer->verifyThread');
+            SBC::devError('$thread_id is not set',$method);
         }
 
         // Switch
         $db->sql_switch('sketchbookcafe');
 
         // Check if the thread exists
-        $sql = 'SELECT id, user_id
+        $sql = 'SELECT id, user_id, date_updated
             FROM forum_threads
             WHERE id=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('i',$thread_id);
-        if (!$stmt->execute())
-        {
-            statement_error('check if thread exists',$statement_method);
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Verify
         $thread_id  = isset($row['id']) ? (int) $row['id'] : 0;
         if ($thread_id < 1)
         {
-            error('Dev error: thread does not exist for ForumOrganizer->verifyThread');
+            SBC::devError('thread does not exist',$method);
         }
 
-        // Set Thread User ID
-        $this->thread_user_id = (int) $row['user_id'];
+        // Set Thread Vars
+        $this->thread_user_id       = (int) $row['user_id'];
+        $this->thread_date_updated  = (int) $row['date_updated'];
     }
 
     // Thread: Count Total Replies
     final public function threadTotalReplies($thread_id)
     {
+        $method = 'ForumOrganizer->threadTotalReplies()';
+
         // Initialize Objects
         $db = &$this->db;
-
-        // Initiailize Vars
-        $statement_method = 'ForumOrganizer->threadTotalReplies()';
 
         // Make sure thread ID is set
         if ($thread_id < 1)
         {
-            error('Dev error: $thread_id is not set for ForumOrganizer->threadTotalReplies');
+            SBC::devError('$thread_id is not set',$method);
         }
 
         // Verify Thread
@@ -147,24 +137,21 @@ class ForumOrganizer
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('ii',$total,$thread_id);
-        if (!$stmt->execute())
-        {
-            statement_error('update total replies',$statement_method);
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 
     // Forum: Adds 1 for total posts
     final public function forumTotalPostsAddOne($forum_id)
     {
+        $method = 'ForumOrganizer->forumTotalPostsAddOne()';
+
         // Initiialize Objects and Vars
-        $db                 = &$this->db;
-        $statement_method   = 'ForumOrganizer->forumTotalPostsAddOne()';
+        $db     = &$this->db;
 
         // Verify
         if ($forum_id < 1)
         {
-            error('Dev error: $forum_id is not set for ForumOrganizer->forumTotalPostsAddOne()');
+            SBC::devError('$forum_id is not set',$method);
         }
 
         // Switch
@@ -177,27 +164,22 @@ class ForumOrganizer
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('i',$forum_id);
-        if (!$stmt->execute())
-        {
-            statement_error('update forum',$statement_method);
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 
     // Thread: Update Info
     final public function threadUpdateInfo($thread_id)
     {
-        // Initialize Object
-        $db = &$this->db;
+        $method = 'ForumOrganizer->threadUpdateInfo()';
 
-        // Initialize Vars
-        $statement_method   = 'ForumOrganizer->threadUpdateInfo()';
+        // Initialize
+        $db                 = &$this->db;
         $comment_user_id    = 0;
 
         // Make sure thread id is set
         if ($thread_id < 1)
         {
-            error('Dev error: $thread_id is not set for ForumOrganizer->threadUpdateInfo');
+            SBC::devError('$thread_id is not set',$method);
         }
 
         // Verify Thread
@@ -237,16 +219,9 @@ class ForumOrganizer
                 FROM sbc_comments
                 WHERE id=?
                 LIMIT 1';
-            $stmt = $db->prepare($sql);
+            $stmt           = $db->prepare($sql);
             $stmt->bind_param('i',$comment_id);
-            if (!$stmt->execute())
-            {
-                statement_error('get comment info',$statement_method);
-            }
-            $result         = $stmt->get_result();
-            $comment_row    = $db->sql_fetchrow($result);
-            $db->sql_freeresult($result);
-            $stmt->close();
+            $comment_row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
             // Comment Info
             $comment_id = isset($comment_row['id']) ? (int) $comment_row['id'] : 0;
@@ -265,28 +240,23 @@ class ForumOrganizer
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('iii',$comment_user_id,$comment_id,$thread_id);
-        if (!$stmt->execute())
-        {
-            statement_error('update thread info',$statement_method);
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 
     // Update Forum Information
     final public function forumUpdateInfo($forum_id)
     {
-        // Initialize Object
-        $db = &$this->db;
+        $method = 'ForumOrganizer->forumUpdateInfo()';
 
-        // Initialize Vars
-        $statement_method   = 'ForumOrganizer->forumUpdateInfo()';
+        // Initialize
+        $db                 = &$this->db;
         $last_user_id       = 0;
         $last_thread_id     = 0;
 
         // Forum ID
         if ($forum_id < 1)
         {
-            error('Dev error: $forum_id is not set for ForumOrganizer->forumUpdateInfo()');
+            SBC::devError('$forum_id is not set',$method);
         }
 
         // Verify Forum
@@ -327,16 +297,9 @@ class ForumOrganizer
                 FROM forum_threads
                 WHERE id=?
                 LIMIT 1';
-            $stmt = $db->prepare($sql);
+            $stmt   = $db->prepare($sql);
             $stmt->bind_param('i',$thread_id);
-            if (!$stmt->execute())
-            {
-                statement_error('get thread info',$statement_method);
-            }
-            $result = $stmt->get_result();
-            $row    = $db->sql_fetchrow($result);
-            $db->sql_freeresult($result);
-            $stmt->close();
+            $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
             // Verify
             $thread_id  = isset($row['id']) ? (int) $row['id'] : 0;
@@ -356,26 +319,65 @@ class ForumOrganizer
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('iii',$last_user_id,$last_thread_id,$forum_id);
-        if (!$stmt->execute())
+        SBC::statementExecute($stmt,$db,$sql,$method);
+    }
+
+    // Forum: Count Total Threads
+    final public function forumCountTotalThreads($forum_id)
+    {
+        $method = 'ForumOrganizer->forumCountTotalThreads()';
+
+        // Initialize
+        $db = &$this->db;
+
+        // Verify Forum
+        $this->verifyForum($forum_id);
+
+        // Switch
+        $db->sql_switch('sketchbookcafe_forums');
+
+        // Table
+        $table_name = 'forum'.$forum_id.'x';
+
+        // Count Threads
+        $sql = 'SELECT COUNT(*) 
+            FROM '.$table_name;
+        $result = $db->sql_query($sql);
+        $row    = $db->sql_fetchrow($result);
+        $db->sql_freeresult($result);
+
+        // Total
+        $total = isset($row[0]) ? (int) $row[0] : 0;
+        if ($total < 1)
         {
-            statement_error('update forum info',$statement_method);
+            $total = 0;
         }
-        $stmt->close();
+
+        // Switch
+        $db->sql_switch('sketchbookcafe');
+
+        // Update Forum Stats
+        $sql = 'UPDATE forums
+            SET total_threads=?
+            WHERE id=?
+            LIMIT 1';
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param('ii',$total,$forum_id);
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 
     // Add One Post to Category
     final public function categoryTotalPostsAddOne($category_id)
     {
-        // Initialize Object
-        $db = &$this->db;
+        $method = 'ForumOrganizer->categoryTotalPostsAddOne()';
 
-        // Initialize Vars
-        $statement_method   = 'ForumOrganizer->categoryTotalPostsAddOne()';
+        // Initialize
+        $db = &$this->db;
 
         // Check
         if ($category_id < 1)
         {
-            error('Dev error: $category_id is not set for ForumOrganizer->categoryTotalPostsAddOne');
+            SBC::devError('$category_id is not set',$method);
         }
 
         // Switch
@@ -388,24 +390,21 @@ class ForumOrganizer
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('i',$category_id);
-        if (!$stmt->execute())
-        {
-            statement_error('update category',$statement_method);
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 
     // Thread: Count Unique Comments
     final public function threadUniqueComments($thread_id)
     {
-        // Initialize Objects and Vars
-        $db                 = &$this->db;
-        $statement_method   = 'ForumOrganizer->threadUniqueComments()';
+        $method = 'ForumOrganizer->threadUniqueComments()';
+
+        // Initialize
+        $db = &$this->db;
 
         // Make sure thread ID is set
         if ($thread_id < 1)
         {
-            error('Dev error: $thread_id is not set for '.$statement_method);
+            SBC::devError('$thread_id is not set',$method);
         }
 
         // Verify Thread
@@ -415,7 +414,7 @@ class ForumOrganizer
         $thread_user_id     = $this->thread_user_id;
         if ($thread_user_id < 1)
         {
-            error('Dev error: $thread_user_id is not set for '.$statement_method);
+            SBC::devError('$thread_user_id is not set',$method);
         }
 
         // Switch
@@ -446,10 +445,162 @@ class ForumOrganizer
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('ii',$total,$thread_id);
+        SBC::statementExecute($stmt,$db,$sql,$method);
+    }
+
+    // Thread: Get Total Comments
+    final public function threadGetTotalComments($thread_id)
+    {
+        $method = 'ForumOrganizer->threadGetTotalComments()';
+
+        // Initialize
+        $db = &$this->db;
+
+        // Make sure thread ID is set
+        if ($thread_id < 1)
+        {
+            SBC::devError('$thread_id is not set',$method);
+        }
+
+        // Switch
+        $db->sql_switch('sketchbookcafe');
+
+        // Get Total Comments
+        $sql = 'SELECT total_comments
+            FROM forum_threads
+            WHERE id=?
+            LIMIT 1';
+        $stmt   = $db->prepare($sql);
+        $stmt->bind_param('i',$thread_id);
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
+
+        // Total
+        $total = isset($row['total_comments']) ? (int) $row['total_comments'] : 0;
+        if ($total < 1)
+        {
+            $total = 0;
+        }
+
+        // Return
+        return $total;
+    }
+
+    // User: Viewed Thread
+    final public function userViewedThread($thread_id,$user_id)
+    {
+        $method = 'ForumOrganizer->userViewedThread()';
+
+        // Initialize
+        $db     = &$this->db;
+        $time   = SBC::getTime();
+
+        // User?
+        if ($user_id < 1)
+        {
+            SBC::devError('$user_id is not set',$method);
+        }
+
+        // Verify Thread
+        $this->verifyThread($thread_id);
+
+        // Set Vars after Verify
+        $date_updated   = $this->thread_date_updated;
+
+        // Switch
+        $db->sql_switch('sketchbookcafe_users');
+
+        // Table
+        $table_name = 'u'.$user_id.'vt';
+
+        // Check if the thread already exists in the user's table
+        $sql = 'SELECT id
+            FROM '.$table_name.'
+            WHERE cid=?
+            LIMIT 1';
+        $stmt   = $db->prepare($sql);
+        $stmt->bind_param('i',$thread_id);
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
+
+        // Check
+        $id = isset($row['id']) ? (int) $row['id'] : 0;
+
+        // Empty?
+        if ($id < 1)
+        {
+            // Add
+            $sql = 'INSERT INTO '.$table_name.'
+                SET cid=?,
+                lda=?,
+                pda=?';
+            $stmt = $db->prepare($sql);
+            $stmt->bind_param('iii',$thread_id,$date_updated,$time);
+            SBC::statementExecute($stmt,$db,$sql,$method);
+        }
+        else
+        {
+            // Update (use key instead of thread_id)
+            $sql = 'UPDATE '.$table_name.'
+                SET lda=?,
+                pda=?
+                WHERE id=?
+                LIMIT 1';
+            $stmt = $db->prepare($sql);
+            $stmt->bind_param('iii',$date_updated,$time,$id);
+            SBC::statementExecute($stmt,$db,$sql,$method);
+        }
+    }
+
+    // Forum: Update Admin Array
+    final public function forumAdminUpdateArray($forum_id)
+    {
+        $method = 'ForumOrganizer->forumAdminUpdateArray()';
+
+        // Initialize Vars and Objects
+        $db = &$this->db;
+
+        // Verify Forum
+        $this->verifyForum($forum_id);
+
+        // Switch
+        $db->sql_switch('sketchbookcafe');
+
+        // Get Administrators
+        $sql = 'SELECT user_id
+            FROM forum_admins
+            WHERE forum_id=?';
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param('i',$forum_id);
         if (!$stmt->execute())
         {
-            statement_error('update thread',$statement_method);
+            SBC::devError('cannot get admins',$method);
         }
+        $result = $stmt->get_result();
+        $rownum = $db->sql_numrows($result);
         $stmt->close();
+
+        // Results?
+        $array_admins = '';
+        if ($rownum > 0)
+        {
+            // Loop
+            while ($trow = mysqli_fetch_assoc($result))
+            {
+                if ($trow['user_id'] > 0)
+                {
+                    // Add to List
+                    $array_admins .= $trow['user_id'].' ';
+                }
+            }
+            $db->sql_freeresult($result);
+        }
+
+        // Update Forum
+        $sql = 'UPDATE forums
+            SET array_admins=?
+            WHERE id=?
+            LIMIT 1';
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param('si',$array_admins,$forum_id);
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 }

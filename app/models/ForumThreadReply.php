@@ -1,4 +1,11 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\TextareaSettings\TextareaSettings as TextareaSettings;
+use SketchbookCafe\ForumOrganizer\ForumOrganizer as ForumOrganizer;
+use SketchbookCafe\StatsOrganizer\StatsOrganizer as StatsOrganizer;
 
 class ForumThreadReply
 {
@@ -23,11 +30,11 @@ class ForumThreadReply
         $User   = &$obj_array['User'];
 
         // Classes and Functions
-        sbc_function('rd');
         sbc_class('TextareaSettings');
         sbc_class('ForumOrganizer');
         sbc_class('StatsOrganizer');
         sbc_class('Message');
+        sbc_class('UserTimer');
 
         // Initialize Vars
         $this->time         = time();
@@ -56,6 +63,14 @@ class ForumThreadReply
         $User->required($db);
         $this->user_id = $User->getUserId();
 
+        // User Timer
+        $UserTimer = new UserTimer(array
+        (
+            'user_id'   => $this->user_id,
+        ));
+        $UserTimer->setColumn('forum_reply');
+        $UserTimer->checkTimer($db);
+
         // Get Thread Information
         $this->getThreadInfo($db);
 
@@ -68,6 +83,9 @@ class ForumThreadReply
         // Insert into the thread's table
         $this->insertIntoTable($db);
 
+        // Update Thread Timer
+        $this->updateThread($db);
+
         // Forum Organizer
         $ForumOrganizer = new ForumOrganizer($db);
 
@@ -79,6 +97,9 @@ class ForumThreadReply
 
         // Update Last Info for Forum Thread
         $ForumOrganizer->threadUpdateInfo($this->thread_id);
+
+        // Get Total Comments
+        $total_comments = $ForumOrganizer->threadGetTotalComments($this->thread_id);
 
         // Add Total Posts for Forum
         $ForumOrganizer->forumTotalPostsAddOne($this->forum_id);
@@ -95,11 +116,23 @@ class ForumThreadReply
         // Add Total Posts for User
         $StatsOrganizer->userForumPostAdd($this->user_id);
 
+        // Update User Timer
+        $UserTimer->update($db);
+
         // Close Connection
         $db->close();
 
+        // Calculate Page
+        $ppage  = 10;
+        $total_comments -= 1; // subtract one since the forumorganizer adds +1 for the forum thread's post
+        if ($total_comments < 1)
+        {
+            $total_comments = 0;
+        }
+        $pageno = current_page($ppage,$total_comments);
+
         // Header
-        header('Location: https://www.sketchbook.cafe/forum/thread/'.$this->thread_id.'/');
+        header('Location: https://www.sketchbook.cafe/forum/thread/'.$this->thread_id.'/'.$pageno.'/#recent');
         exit;
     }
 
@@ -288,6 +321,57 @@ class ForumThreadReply
         if (!$stmt->execute())
         {
             statement_error('insert comment',$statement_method);
+        }
+        $stmt->close();
+    }
+
+    // Update Thread's Timer
+    final private function updateThread(&$db)
+    {
+        // Initiailize Vars
+        $time       = time();
+        $thread_id  = $this->thread_id;
+        $forum_id   = $this->forum_id;
+        $method     = 'ForumThreadReply->updateThread()';
+        if ($thread_id < 1)
+        {
+            error('Dev error: $thread_id('.$thread_id.') or $forum_id('.$forum_id.') is not set for '.$method);
+        }
+
+        // Switch
+        $db->sql_switch('sketchbookcafe');
+
+        // Update Thread's Date Updated
+        $sql = 'UPDATE forum_threads
+            SET date_updated=?,
+            date_bumped=?
+            WHERE id=?
+            LIMIT 1';
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param('iii',$time,$time,$thread_id);
+        if (!$stmt->execute())
+        {
+            statement_error('update thread timer',$method);
+        }
+        $stmt->close();
+
+        // Switch
+        $db->sql_switch('sketchbookcafe_forums');
+
+        // Forum Table
+        $table_name = 'forum'.$forum_id.'x';
+
+        // Update Forum
+        $sql = 'UPDATE '.$table_name.'
+            SET date_updated=?,
+            date_bumped=?
+            WHERE thread_id=?
+            LIMIT 1';
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param('iii',$time,$time,$thread_id);
+        if (!$stmt->execute())
+        {
+            statement_error('update forum table',$method);
         }
         $stmt->close();
     }

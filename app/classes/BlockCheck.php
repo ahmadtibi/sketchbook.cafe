@@ -1,5 +1,8 @@
 <?php
 // Block Check
+// Last Updated     2016-04-26
+namespace SketchbookCafe\BlockCheck;
+use SketchbookCafe\SBC\SBC as SBC;
 
 class BlockCheck
 {
@@ -11,6 +14,8 @@ class BlockCheck
     // $input:  'user_id', 'r_user_id'
     public function __construct($input)
     {
+        $method = 'BlockCheck->__construct()';
+
         // Initialize Vars
         $this->user_id      = isset($input['user_id']) ? (int) $input['user_id'] : 0;
         $this->r_user_id    = isset($input['r_user_id']) ? (int) $input['r_user_id'] : 0;
@@ -18,7 +23,7 @@ class BlockCheck
         // Check
         if ($this->user_id < 1 || $this->r_user_id < 1)
         {
-            error('Dev error: $user_id or $r_user_id is not set for BlockCheck->construct()');
+            SBC::devError('$user_id or $r_user_id is not set',$method);
         }
 
         // Has Info
@@ -28,15 +33,20 @@ class BlockCheck
     // Has Info?
     final private function hasInfo()
     {
+        $method = 'BlockCheck->hasInfo()';
+
+        // Check if info is set
         if ($this->hasinfo != 1)
         {
-            error('Dev error: $hasinfo is not set for BlockCheck->hasInfo()');
+            SBC::devError('$hasinfo is not set',$method);
         }
     }
 
     // Check
     final public function check(&$db)
     {
+        $method = 'BlockCheck->check()';
+
         // Has Info?
         $this->hasInfo();
 
@@ -60,21 +70,14 @@ class BlockCheck
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('ii',$type,$cid);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (check other in owner table) for BlockCheck->check()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $row  = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Did we find anything?
         $find_id    = isset($row['id']) ? (int) $row['id'] : 0;
         if ($find_id > 0)
         {
             // Generate Error
-            error('Sorry, you cannot interact with this user (block list)');
+            SBC::userError('Sorry, you cannot interact with this user (block list)');
         }
 
         // Check if owner is in the user's table
@@ -88,23 +91,16 @@ class BlockCheck
             WHERE type=?
             AND cid=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('ii',$type,$cid);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (check other in owner table) for BlockCheck->check()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Did we find anything?
         $find_id2    = isset($row['id']) ? (int) $row['id'] : 0;
         if ($find_id2 > 0)
         {
             // Generate Error
-            error('Sorry, you cannot interact with this user (block list)');
+            SBC::userError('Sorry, you cannot interact with this user (block list)');
         }
     }
 }

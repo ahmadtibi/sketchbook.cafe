@@ -1,4 +1,9 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\CountContent\CountContent as CountContent;
 
 class UnblockUser
 {
@@ -13,11 +18,13 @@ class UnblockUser
     // Set Other User Id
     final public function setUserId($id)
     {
+        $method = 'UnblockUser->setUserId()';
+
         // Initialize Vars
         $r_user_id = isset($id) ? (int) $id : 0;
         if ($r_user_id < 1)
         {
-            error('Dev error: $r_user_id is not set for UnblockUser->setUserId()');
+            SBC::devError('$r_user_id is not set',$method);
         }
 
         // Set Vars
@@ -27,18 +34,17 @@ class UnblockUser
     // Unblock user
     final public function unblockUser(&$obj_array)
     {
+        $method = 'UnblockUser->unblockUser()';
+
         // Initialize Objects
         $db     = &$obj_array['db'];
         $User   = &$obj_array['User'];
-
-        // Classes
-        sbc_class('CountContent');
 
         // Initialize Vars
         $r_user_id = $this->r_user_id;
         if ($r_user_id < 1)
         {
-            error('Dev error: $r_user_id is not set for UnblockUser->unblockUser()');
+            SBC::devError('$r_user_id is not set',$method);
         }
 
         // Open Connection
@@ -52,7 +58,7 @@ class UnblockUser
         // Verify Info
         if ($user_id < 1)
         {
-            error('Dev error: $user_id is not set for UnblockUser->unblockUser()');
+            SBC::devError('$user_id is not set',$method);
         }
 
         // Switch
@@ -70,11 +76,7 @@ class UnblockUser
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('ii',$type,$cid);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (delete from user table) in UnblockUser->unblockUser()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
 
         // Count Content
         $CountContent = new CountContent(array

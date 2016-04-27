@@ -1,4 +1,13 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\UserTimer\UserTimer as UserTimer;
+use SketchbookCafe\Message\Message as Message;
+use SketchbookCafe\TextareaSettings\TextareaSettings as TextareaSettings;
+use SketchbookCafe\ForumOrganizer\ForumOrganizer as ForumOrganizer;
+use SketchbookCafe\TableForumThread\TableForumThread as TableForumThread;
 
 class ForumNewThread
 {
@@ -19,27 +28,22 @@ class ForumNewThread
     // Construct
     public function __construct(&$obj_array)
     {
+        $method = 'ForumNewThread->__construct()';
+
         // Initialize Objects
         $db     = &$obj_array['db'];
         $User   = &$obj_array['User'];
 
-        // Classes and Functions
-        sbc_class('UserTimer');
-        sbc_class('Message');
-        sbc_class('TextareaSettings');
-        sbc_class('ForumOrganizer');
-        sbc_function('rd');
-
         // Initialize Vars
-        $this->ip_address   = $_SERVER['REMOTE_ADDR'];
-        $this->time         = time();
-        $this->rd           = rd();
+        $this->ip_address   = SBC::getIpAddress();
+        $this->time         = SBC::getTime();
+        $this->rd           = SBC::rd();
 
         // Forum ID
         $this->forum_id = isset($_POST['forum_id']) ? (int) $_POST['forum_id'] : 0;
         if ($this->forum_id < 1)
         {
-            error('Dev error: $forum_id is not set for ForumNewThread->construct()');
+            SBC::devError('$forum_id is not set',$method);
         }
 
         // Thread Title
@@ -106,7 +110,8 @@ class ForumNewThread
         // Count Unique Comments
         $ForumOrganizer->threadUniqueComments($this->thread_id);
 
-        // Count Total Threads for Forums (fix this)
+        // Count Forum Threads
+        $ForumOrganizer->forumCountTotalThreads($this->forum_id);
 
         // Count User Threads (fix this)
 
@@ -128,11 +133,13 @@ class ForumNewThread
     // Check Forum
     final private function checkForum(&$db)
     {
+        $method = 'ForumNewThread->checkForum()';
+
         // Initialize Vars
         $forum_id = $this->forum_id;
         if ($forum_id < 1)
         {
-            error('Dev error: $forum_id is not set for ForumNewThread->checkForum()');
+            SBC::devError('$forum_id is not set',$method);
         }
 
         // Switch
@@ -143,54 +150,45 @@ class ForumNewThread
             FROM forums
             WHERE id=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('i',$forum_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (get forum information) for ForumNewThread->checkForum()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Check
         $forum_id   = isset($row['id']) ? (int) $row['id'] : 0;
         if ($forum_id < 1)
         {
-            error('Could not find forum in database');
+            SBC::userError('Could not find forum in database');
         }
 
         // Is it a forum?
         if ($row['isforum'] != 1)
         {
-            error('Sorry, you cannot make a new thread in a category');
+            SBC::userError('Sorry, you cannot make a new thread in a category');
         }
 
         // Is it deleted?
         if ($row['isdeleted'] == 1)
         {
-            error('Forum no longer exists');
+            SBC::userError('Forum no longer exists');
         }
     }
 
     // Create Thread
     final private function createThread(&$db,&$messageObject)
     {
-        // Classes and Functions
-        sbc_function('check_number');
-        sbc_function('check_empty');
+        $method = 'ForumNewThread->createThread()';
 
         // Initialize Vars
-        $forum_id   = check_number($this->forum_id,'forum_id');
-        $rd         = check_number($this->rd,'rd');
-        $user_id    = check_number($this->user_id,'user_id');
-        $time       = check_number($this->time,'time');
-        $ip_address = check_empty($this->ip_address,'ip_address');
+        $forum_id   = SBC::checkNumber($this->forum_id,'forum_id');
+        $rd         = SBC::checkNumber($this->rd,'rd');
+        $user_id    = SBC::checkNumber($this->user_id,'user_id');
+        $time       = SBC::checkNumber($this->time,'time');
+        $ip_address = SBC::checkEmpty($this->ip_address,'ip_address');
 
         // String Vars
-        $title      = check_empty($this->title,'title');
-        $title_code = check_empty($this->title_code,'title_code');
+        $title      = SBC::checkEmpty($this->title,'title');
+        $title_code = SBC::checkEmpty($this->title_code,'title_code');
 
         // Create New Message
         $messageObject->setUserId($user_id);
@@ -220,11 +218,7 @@ class ForumNewThread
             isdeleted=1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('iiissiiiissii',$rd,$forum_id,$user_id,$ip_address,$ip_address,$time,$time,$time,$comment_id,$title,$title_code,$user_id,$comment_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (insert new forum thread) for ForumNewThread->createThread()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
 
         // Get Thread ID
         $sql = 'SELECT id
@@ -234,22 +228,15 @@ class ForumNewThread
             AND user_id=?
             AND date_created=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('iiii',$rd,$forum_id,$user_id,$time);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (get thread id) for ForumNewThread->createThread()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Thread ID
         $thread_id = isset($row['id']) ? (int) $row['id'] : 0;
         if ($thread_id < 1)
         {
-            error('Dev error: could not insert new thread for ForumNewThread->createThread()');
+            SBC::devError('could not insert new thread',$method);
         }
         $this->thread_id = $thread_id;
 
@@ -261,15 +248,14 @@ class ForumNewThread
     // Create Thread Table
     private function createThreadTable(&$db)
     {
+        $method = 'ForumNewThread->createThreadTable()';
+
         // Initialize Vars
         $thread_id  = $this->thread_id;
         if ($thread_id < 1)
         {
-            error('Dev error: $thread_id is not set for ForumNewThread->createThreadTable()');
+            SBC::devError('$thread_id is not set',$method);
         }
-
-        // Classes and Functions
-        sbc_class('TableForumThread');
 
         // Generate Tables
         $TableForumThread = new TableForumThread($thread_id);
@@ -279,11 +265,13 @@ class ForumNewThread
     // Update Thread
     private function updateThread(&$db)
     {
+        $method = 'ForumNewThread->updateThread()';
+
         // Initialize Vars
         $thread_id  = $this->thread_id;
         if ($thread_id < 1)
         {
-            error('Dev error: $thread_id is not set for ForumNewThread->updateThread()');
+            SBC::devError('$thread_id is not set',$method);
         }
 
         // Switch
@@ -296,25 +284,20 @@ class ForumNewThread
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('i',$thread_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (update thread) for ForumNewThread->updateThread()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 
     // Insert into the forum's table
     private function insertThread(&$db)
     {
-        // Functions
-        sbc_function('check_number');
+        $method = 'ForumNewThread->insertThread()';
 
         // Initialize Vars
-        $comment_id = check_number($this->comment_id,'comment_id');
-        $user_id    = check_number($this->user_id,'user_id');
-        $thread_id  = check_number($this->thread_id,'thread_id');
-        $forum_id   = check_number($this->forum_id,'forum_id');
-        $time       = check_number($this->time,'time');
+        $comment_id = SBC::checkNumber($this->comment_id,'comment_id');
+        $user_id    = SBC::checkNumber($this->user_id,'user_id');
+        $thread_id  = SBC::checkNumber($this->thread_id,'thread_id');
+        $forum_id   = SBC::checkNumber($this->forum_id,'forum_id');
+        $time       = SBC::checkNumber($this->time,'time');
 
         // Switch
         $db->sql_switch('sketchbookcafe_forums');
@@ -333,10 +316,6 @@ class ForumNewThread
             last_comment_id=?';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('iiiiiii',$thread_id,$time,$time,$time,$user_id,$user_id,$comment_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (insert thread into forum) for ForumNewThread->insertThread()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 }

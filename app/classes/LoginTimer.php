@@ -1,5 +1,8 @@
 <?php
 // Login Timer : Allows a certain number of tries before a cooldown occurs
+namespace SketchbookCafe\LoginTimer;
+
+use SketchbookCafe\SBC\SBC as SBC;
 
 class LoginTimer
 {
@@ -13,12 +16,15 @@ class LoginTimer
     // Construct
     public function __construct()
     {
-        $this->ip_address   = $_SERVER['REMOTE_ADDR'];
+        $method = 'LoginTimer->__construct()';
+
+        // Set Vars
+        $this->ip_address   = SBC::getIpAddress();
 
         // Just in case something goes wrong
         if (empty($this->ip_address))
         {
-            error('Dev error: $ip_address is not set for LoginTimer->construct()');
+            SBC::devError('$ip_address is not set',$method);
         }
 
         // Has Info
@@ -28,15 +34,19 @@ class LoginTimer
     // Has Info
     final public function hasinfo()
     {
+        $method = 'LoginTimer->hasinfo()';
+
         if ($this->hasinfo != 1)
         {
-            error('Dev error: $hasinfo is not set for LoginTimer->hasinfo()');
+            SBC::devError('$hasinfo is not set',$method);
         }
     }
 
     // Failed Login Attempt
     final public function failedLogin(&$db)
     {
+        $method = 'LoginTimer->failedLogin()';
+
         // Has info?
         $this->hasinfo();
 
@@ -49,7 +59,7 @@ class LoginTimer
         $id             = $this->id;
         if ($id < 1)
         {
-            error('Dev error: $id is not set for LoginTimer->failedLogin()');
+            SBC::devError('$id is not set',$method);
         }
 
         // Switch
@@ -63,11 +73,7 @@ class LoginTimer
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('ii',$time,$id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (update login tries) or LoginTimer->failedLogin()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
 
         // Calculate number of tries
         $tries_left = $max_tries - ($login_tries + 1); // add since it's an attempt
@@ -75,15 +81,15 @@ class LoginTimer
         // Give an error if the user has 0 tries left
         if ($tries_left < 1)
         {
-            error('Sorry, you have to wait at least give minutes to relogin due to 5 or more failed login attempts.');
+            SBC::userError('Sorry, you have to wait at least give minutes to relogin due to 5 or more failed login attempts.');
         }
-
-        // Dev note: end with an error
     }
 
     // Check
     final public function check(&$db)
     {
+        $method = 'LoginTimer->check()';
+
         // Has Info?
         $this->hasinfo();
 
@@ -105,16 +111,9 @@ class LoginTimer
             FROM login_timer
             WHERE ip_address=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('s',$ip_address);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement for LoginTimer->check()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $stmt->close();
-        $db->sql_freeresult($result);
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // ID?
         $id             = $row['id'];
@@ -131,32 +130,22 @@ class LoginTimer
                 date_updated=?';
             $stmt = $db->prepare($sql);
             $stmt->bind_param('sii',$ip_address,$time,$time);
-            if (!$stmt->execute())
-            {
-                error('Could not execute statement (insert new IP) in LoginTimer->check()');
-            }
-            $stmt->close();
+            SBC::statementExecute($stmt,$db,$sql,$method);
 
             // Get id of IP
             $sql = 'SELECT id 
                 FROM login_timer
                 WHERE ip_address=?
                 LIMIT 1';
-            $stmt = $db->prepare($sql);
+            $stmt   = $db->prepare($sql);
             $stmt->bind_param('s',$ip_address);
-            if (!$stmt->execute())
-            {
-                error('Could not execute statement (get new IP) in LoginTimer->check()');
-            }
-            $result = $stmt->get_result();
-            $row    = $db->sql_fetchrow($result);
-            $stmt->close();
+            $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
             // Set ID again
             $id = isset($row['id']) ? (int) $row['id'] : 0;
             if ($id < 1)
             {
-                error('Dev error: could not get new IP address in LoginTimer->check()');
+                SBC::devError('could not get new IP address',$method);
             }
         }
 
@@ -172,11 +161,7 @@ class LoginTimer
                 LIMIT 1';
             $stmt = $db->prepare($sql);
             $stmt->bind_param('ii',$time,$id);
-            if (!$stmt->execute())
-            {
-                error('Could not execute statement (reset login timer) for LoginTimer->check()');
-            }
-            $stmt->close();
+            SBC::statementExecute($stmt,$db,$sql,$method);
 
             // Reset Tries
             $login_tries = 0;
@@ -185,7 +170,7 @@ class LoginTimer
         // Check number of tries
         if ($login_tries >= $max_tries)
         {
-            error('Sorry, you must wait at least five minutes to relogin due to 5 or more failed login attemps');
+            SBC::userError('Sorry, you must wait at least five minutes to relogin due to 5 or more failed login attempts');
         }
 
         // Set Vars

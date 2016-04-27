@@ -2,17 +2,23 @@
 $(document).ready(function() {
     // Forum Thread Button
     $('#fpNewThreadButton').click(function() {
-        $('#fpNewThreadDiv').toggle(400);
+       //  $('#fpNewThreadDiv').toggle('drop', {direction: 'right'}, 150);
+        $("#fpNewThreadDiv").slideToggle(500, function() {
+        });
     });
 
     // Cancel
     $('#deletethreadcancel').click(function() {
-        $('#deletethread').toggle(400);
+        //$('#deletethread').toggle(400);
+        $("#deletethread").slideToggle(800, function() {
+        });
     });
 
     // Mailbox Delete
     $('#deletethreadlink').click(function() {
-        $('#deletethread').toggle(400);
+        //$('#deletethread').toggle(400);
+        $("#deletethread").slideToggle(300, function() {
+        });
     });
 
     // Header Menu

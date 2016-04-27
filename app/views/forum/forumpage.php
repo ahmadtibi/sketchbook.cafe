@@ -1,4 +1,5 @@
 <?php
+// Initialize Objects and Vars
 $User           = &$data['User'];
 $Form           = &$data['Form'];
 $category_row   = &$data['category_row'];
@@ -7,6 +8,18 @@ $threads_result = &$data['threads_result'];
 $threads_rownum = &$data['threads_rownum'];
 $Member         = &$data['Member'];
 $Comment        = &$data['Comment'];
+
+// Page Numbers
+$pagenumbers    = &$data['pagenumbers'];
+$pages_min      = &$data['pages_min'];
+$pages_max      = &$data['pages_max'];
+$pages_total    = &$data['pages_total'];
+
+// Thread Timers
+$view_time      = &$data['view_time'];
+
+// Generated
+$user_id        = $User->getUserId();
 ?>
 <style type="text/css">
 .fpWrap {
@@ -34,10 +47,10 @@ $Comment        = &$data['Comment'];
 }
 .fpTdMiddle {
     text-align: center;
-    width: 100px;
+    width: 50px;
 }
 .fpTdRight {
-    width: 285px;
+    width: 215px;
     text-align: right;
 }
 .fpTitle {
@@ -159,6 +172,19 @@ echo $Form->field['message'];
 }
 ?>
 
+<div class="pageNumbersWrap">
+    <div class="pageNumbersLeft">
+        Viewing <?php echo $pages_min;?>-<?php echo $pages_max;?> threads (<?php echo $pages_total;?> total). 
+    </div>
+    <div class="pageNumbersRight">
+
+<?php
+echo $pagenumbers;
+?>
+
+    </div>
+</div>
+
 <div class="fpWrap">
     <div class="table fpTable">
 
@@ -235,6 +261,21 @@ echo $Form->field['message'];
     color: #828282;
     text-decoration: underline;
 }
+.fpPageNumbers {
+    padding-left: 12px;
+    font-size: 13px;
+}
+.fpAvatar {
+    padding-left: 2px;
+    padding-right: 2px;
+    max-width: 20px;
+    max-height: 20px;
+
+    vertical-align: middle;
+
+    -moz-border-radius: 2px 2px 2px 2px;
+    border-radius: 2px 2px 2px 2px;
+}
 </style>
 
 
@@ -245,15 +286,36 @@ if ($threads_rownum > 0)
     // Loop
     while ($trow = mysqli_fetch_assoc($threads_result))
     {
+        // Initialize Vars
+        $isupdated  = '';
+
+        // User?
+        if ($user_id > 0)
+        {
+            if (isset($view_time[$trow['id']]))
+            {
+                // Date Updated greater than Date Viewed?
+                if ($view_time[$trow['id']]['date_updated'] > $view_time[$trow['id']]['date_viewed'])
+                {
+                    $isupdated = ' fb ';
+                }
+            }
+        }
 ?>
         <div class="tr">
             <div class="fpTd fpTdMain">
                 <div class="fpTdTitle">
-                    <a href="https://www.sketchbook.cafe/forum/thread/<?php echo $trow['id'];?>"><?php echo $trow['title'];?></a>
+                    <a href="https://www.sketchbook.cafe/forum/thread/<?php echo $trow['id'];?>" class="<?php echo $isupdated;?>"><?php echo $trow['title'];?></a>
+                    <span class="fpPageNumbers">
+                        <script>sbc_numbered_links('https://www.sketchbook.cafe/forum/thread/<?php echo $trow['id'];?>/',10,<?php echo $trow['total_comments']-1;?>,'sbc_pagenumber');</script>
+                    </span>
                 </div>
                 <div class="fpTdTitleUser">
-                    by <script>sbc_username(<?php echo $trow['user_id'];?>,' ');</script> 
-                    on <?php echo $User->mytz($trow['date_created'],'F jS, Y - g:iA');?>
+                    <script>sbc_avatar(<?php echo $trow['user_id'];?>,'fpAvatar');</script>
+                    <span>
+                        <script>sbc_username(<?php echo $trow['user_id'];?>,' ');</script> 
+                        on <?php echo $User->mytz($trow['date_created'],'F jS, Y - g:iA');?>
+                    </span>
                 </div>
             </div>
             <div class="fpTd fpTdMain fpPosts">
@@ -265,8 +327,10 @@ if ($threads_rownum > 0)
             <div class="fpTd fpTdMain fpFreshness">
                 <script>sbc_dateago(<?php echo time();?>, <?php echo $trow['date_updated'];?>);</script>
                 by 
-                <script>sbc_username(<?php echo $trow['last_user_id'];?>,' ');</script>
-
+                <script>sbc_avatar(<?php echo $trow['last_user_id'];?>,'fpAvatar');</script>
+                <span style="">
+                    <script>sbc_username(<?php echo $trow['last_user_id'];?>,' ');</script>
+                </span>
             </div>
         </div>
 
@@ -278,4 +342,17 @@ if ($threads_rownum > 0)
 
     </div>
 
+</div>
+
+<div class="pageNumbersWrap">
+    <div class="pageNumbersLeft">
+        &nbsp;
+    </div>
+    <div class="pageNumbersRight">
+
+<?php
+echo $pagenumbers;
+?>
+
+    </div>
 </div>

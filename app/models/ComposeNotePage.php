@@ -1,4 +1,11 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\Form\Form as Form;
+use SketchbookCafe\TextareaSettings\TextareaSettings as TextareaSettings;
+
 // Compose Note Page
 class ComposeNotePage
 {
@@ -11,16 +18,14 @@ class ComposeNotePage
         $db     = &$obj_array['db'];
         $User   = &$obj_array['User'];
 
-        // Classes + Functions
-        sbc_class('Form');
-        sbc_class('TextareaSettings');
-
         // Open Connection
         $db->open();
 
         // User Required
         $User->setFrontpage();
         $User->required($db);
+
+        // Process All Data
         $ProcessAllData = new ProcessAllData();
 
         // Close Connection

@@ -5,10 +5,15 @@
 *
 * @author       Jonathan Maltezo (Kameloh)
 * @copyright    (c) 2016, Jonathan Maltezo (Kameloh)
-* @lastupdated  2016-04-19
+* @lastupdated  2016-04-27
 *
 */
 // Main user class
+namespace SketchbookCafe\User;
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\LoginTimer\LoginTimer as LoginTimer;
+
 class User
 {
     private $id = 0;
@@ -46,17 +51,16 @@ class User
     // Construct
     public function __construct()
     {
-        // Functions
-        sbc_function('get_session_code');
+        $method = 'User->__construct()';
 
         // Get Cookies
         $id             = isset($_COOKIE['id']) ? (int) $_COOKIE['id'] : 0;
         $rd             = isset($_COOKIE['rd']) ? (int) $_COOKIE['rd'] : 0;
         $session_id     = isset($_COOKIE['session_id']) ? (int) $_COOKIE['session_id'] : 0;
-        $session_code   = isset($_COOKIE['session_code']) ? get_session_code($_COOKIE['session_code']) : '';
+        $session_code   = isset($_COOKIE['session_code']) ? SBC::getSessionCode($_COOKIE['session_code']) : '';
 
         // Other Vars
-        $ip_address     = $_SERVER['REMOTE_ADDR'];
+        $ip_address     = SBC::getIpAddress();
 
         // Checks
         if ($id < 1)
@@ -83,12 +87,14 @@ class User
     // Get User ID
     final public function getUserId()
     {
+        $method = 'User->getUserId()';
         return $this->id;
     }
 
     // Logged In
     final public function loggedIn()
     {
+        $method = 'User->loggedIn()';
         if ($this->id > 0)
         {
             return true;
@@ -102,12 +108,14 @@ class User
     // Log out!
     final public function logout(&$db)
     {
+        $method = 'User->logout()';
+
         // Open Connection
         $db->open();
 
         // Initialize Vars
-        $ip_address     = $_SERVER['REMOTE_ADDR'];
-        $time           = time();
+        $ip_address     = SBC::getIpAddress();
+        $time           = SBC::getTime();
         $id             = $this->id;
         $rd             = $this->rd;
         $session_id     = $this->session_id;
@@ -144,15 +152,9 @@ class User
                 FROM users
                 WHERE id=?
                 LIMIT 1';
-            $stmt = $db->prepare($sql);
+            $stmt   = $db->prepare($sql);
             $stmt->bind_param('i',$id);
-            if (!$stmt->execute())
-            {
-                error('Could not execute statement for user->logout()');
-            }
-            $result = $stmt->get_result();
-            $row    = $db->sql_fetchrow($result);
-            $stmt->close();
+            $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
             // Initialize
             $replace    = 0;
@@ -184,15 +186,9 @@ class User
                     FROM login_sessions
                     WHERE id=?
                     LIMIT 1';
-                $stmt = $db->prepare($sql);
+                $stmt   = $db->prepare($sql);
                 $stmt->bind_param('i',$session_id);
-                if (!$stmt->execute())
-                {
-                    error('Could not execute statement (get session information) for User->logout()');
-                }
-                $result = $stmt->get_result();
-                $row    = $db->sql_fetchrow($result);
-                $stmt->close();
+                $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
                 // Validate
                 $temp_id = isset($row['id']) ? $row['id'] : 0;
@@ -228,11 +224,7 @@ class User
                                 LIMIT 1';
                             $stmt = $db->prepare($sql);
                             $stmt->bind_param('i',$session_id);
-                            if (!$stmt->execute())
-                            {
-                                error('Could not execute statement (delete login session) in User->logout()');
-                            }
-                            $stmt->close();
+                            SBC::statementExecute($stmt,$db,$sql,$method);
 
                             // Update User
                             $sql = 'UPDATE users
@@ -241,11 +233,7 @@ class User
                                 LIMIT 1';
                             $stmt = $db->prepare($sql);
                             $stmt->bind_param('i',$id);
-                            if (!$stmt->execute())
-                            {
-                                error('Could not execute statement (update user) in User->logout()');
-                            }
-                            $stmt->close();
+                            SBC::statementExecute($stmt,$db,$sql,$method);
 
                             // Administrator Cookies. Remove them since this session is valid.
                             if ($isadmin == 1)
@@ -257,11 +245,7 @@ class User
                                     LIMIT 1';
                                 $stmt = $db->prepare($sql);
                                 $stmt->bind_param('i',$id);
-                                if (!$stmt->execute())
-                                {
-                                    error('Could not execute statement (update admin) for User->logout()');
-                                }
-                                $stmt->close();
+                                SBC::statementExecute($stmt,$db,$sql,$method);
                             }
                         }
                     }
@@ -280,12 +264,16 @@ class User
     // Date Time Zone
     final private function dtzone()
     {
-        $this->dtzone = new DateTimeZone($this->timezone_my);
+        $method = 'User->dtzone()';
+
+        $this->dtzone = new \DateTimeZone($this->timezone_my);
     }
 
     // Authenticate
     final private function auth(&$db)
     {
+        $method = 'User->auth()';
+
         // Set Vars
         $id                 = $this->id;
         $ip_address         = $this->ip_address;
@@ -295,7 +283,7 @@ class User
         // Authentication Type
         if ($this->auth_type < 1 || $this->auth_type > 2)
         {
-            error('Dev error: $auth_type is not correctly set for User->auth() : '.$this->auth_type);
+            SBC::devError('$auth_type is not correctly set',$method);
         }
 
         // Switch
@@ -319,21 +307,14 @@ class User
                 FROM login_sessions
                 WHERE id=?
                 LIMIT 1';
-            $stmt = $db->prepare($sql);
+            $stmt   = $db->prepare($sql);
             $stmt->bind_param('i',$session_id);
-            if (!$stmt->execute())
-            {
-                error('Could not execute statement (get session info) for User->auth()');
-            }
-            $result = $stmt->get_result();
-            $row    = $db->sql_fetchrow($result);
-            $db->sql_freeresult($result);
-            $stmt->close();
+            $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
             // Check if Session Exists || IDs Match || Sessions Match
             if ($row['id'] < 1 || $row['user_id'] != $this->id || $row['session_code'] != $session_code)
             {
-                error($error_message);
+                SBC::userError($error_message);
             }
 
             // IP Lock
@@ -342,7 +323,7 @@ class User
                 // Check
                 if ($row['ip_address'] != $ip_address)
                 {
-                    error($error_message);
+                    SBC::userError($error_message);
                 }
             }
         }
@@ -353,16 +334,9 @@ class User
             FROM users
             WHERE id=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('i',$id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (get user information) for User->Auth()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Do we have a user?
         if ($row['id'] > 0)
@@ -388,7 +362,7 @@ class User
             // We have to do something...
             if ($this->auth_type == 2)
             {
-                error('Odd.. cannot find user in database.');
+                SBC::userError('Odd.. cannot find user in database.');
             }
         }
     }
@@ -396,9 +370,11 @@ class User
     // Check Mail
     final private function checkMail(&$db)
     {
+        $method = 'User->checkMail()';
+
         // Initialize Vars
         $user_id            = $this->id;
-        $time               = time();
+        $time               = SBC::getTime();
         $mailbox_update     = isset($this->data['mailbox_update']) ? $this->data['mailbox_update'] : 0;
         $mailbox_lastupdate = isset($this->data['mailbox_lastupdate']) ? $this->data['mailbox_lastupdate'] : 0;
 
@@ -451,11 +427,7 @@ class User
                 LIMIT 1';
             $stmt = $db->prepare($sql);
             $stmt->bind_param('iii',$total,$time,$user_id);
-            if (!$stmt->execute())
-            {
-                error('Could not execute statement (update mail total) for User->checkMail()');
-            }
-            $stmt->close();
+            SBC::statementExecute($stmt,$db,$sql,$method);
 
             // Update Vars
             $this->mail_total   = $total;
@@ -465,10 +437,12 @@ class User
     // Required User
     final public function required(&$db)
     {
+        $method = 'User->required()';
+
         // User ID
         if ($this->id < 1)
         {
-            error('You must be logged in to view this page');
+            SBC::userError('You must be logged in to view this page');
         }
 
         // Set Auth Type (1 optional, 2 required);
@@ -484,6 +458,8 @@ class User
     // Optional User
     final public function optional(&$db)
     {
+        $method = 'User->optional()';
+
         // If user ID is set or not
         if ($this->id < 1)
         {
@@ -506,6 +482,8 @@ class User
     // Is Admin?
     final public function isAdmin()
     {
+        $method = 'User->isAdmin()';
+
         if ($this->isadmin == 1)
         {
             return true;
@@ -519,23 +497,26 @@ class User
     // Get Column
     final public function getColumn($input)
     {
+        $method = 'User->getColumn()';
         return $this->data[$input];
     }
 
     // Password Match Check
     final public function checkPasswordMatch(&$db,$password)
     {
+        $method = 'User->checkPasswordMatch()';
+
         // Double check!
         if (empty($password))
         {
-            error('Dev error: $password is not set for User->checkPasswordMatch()');
+            SBC::devError('$password is not set',$method);
         }
 
         // Set vars
         $user_id = $this->id;
         if ($user_id < 1)
         {
-            error('Dev error: $user_id is not set for User->checkPasswordMatch()');
+            SBC::devError('$user_id is not set',$method);
         }
 
         // Switch
@@ -546,16 +527,9 @@ class User
             FROM users
             WHERE id=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('i',$user_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (get user info for password) in User->checkPasswordMatch()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Verify Passwords
         if (!password_verify($password,$row['password']))
@@ -571,13 +545,15 @@ class User
     // Admin Only
     final public function admin(&$db)
     {
+        $method = 'User->admin()';
+
         // Required Users
         $this->required($db);
 
         // Is admin?
         if ($this->isadmin != 1)
         {
-            error('Sorry, only administrators may access this area.');
+            SBC::userError('Sorry, only administrators may access this area.');
         }
 
         // Authenticate Admin
@@ -590,9 +566,7 @@ class User
     // Admin Check Admin
     final public function adminCheckAuth(&$db)
     {
-        // Classes + Functions
-        sbc_function('get_session_code');
-        sbc_class('LoginTimer');
+        $method = 'User->adminCheckAuth()';
 
         // Login Timer
         $LoginTimer = new LoginTimer();
@@ -608,19 +582,19 @@ class User
         // Make sure User ID is set
         if ($user_id < 1)
         {
-            error('Dev error: $user_id is not set for User->adminCheckAuth()');
+            SBC::devError('$user_id is not set',$method);
         }
 
         // Make sure they're an admin
         if ($this->isadmin != 1)
         {
-            error('Sorry, only administrators my access this area.');
+            SBC::userError('Sorry, only administrators my access this area.');
         }
 
         // Get Administrator Cookies
-        $admin_session1 = isset($_COOKIE['admin_session1']) ? get_session_code($_COOKIE['admin_session1']) : '';
-        $admin_session2 = isset($_COOKIE['admin_session2']) ? get_session_code($_COOKIE['admin_session2']) : '';
-        $admin_session3 = isset($_COOKIE['admin_session3']) ? get_session_code($_COOKIE['admin_session3']) : '';
+        $admin_session1 = isset($_COOKIE['admin_session1']) ? SBC::getSessionCode($_COOKIE['admin_session1']) : '';
+        $admin_session2 = isset($_COOKIE['admin_session2']) ? SBC::getSessionCode($_COOKIE['admin_session2']) : '';
+        $admin_session3 = isset($_COOKIE['admin_session3']) ? SBC::getSessionCode($_COOKIE['admin_session3']) : '';
 
         // Has Cookies
         $has_cookies = 0;
@@ -634,39 +608,33 @@ class User
 
         // Get Admin Info
         $sql = 'SELECT id, haspass, ip_address, session_active, admin_session1, admin_session2, admin_session3,
-            manage_forum_categories, manage_forum_forums
+            manage_forum_categories, manage_forum_forums, fix_user_table, fix_forum_table, manage_forum,
+            manage_forum_admins
             FROM admins
             WHERE user_id=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('i',$user_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (get admin info) for User->adminCheckAuth()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Admin in database?
         $admin_found = isset($row['id']) ? (int) $row['id'] : 0;
         if ($admin_found < 1)
         {
-            error('Dev error: could not find administrator in database');
+            SBC::devError('could not find administrator in database',$method);
         }
 
         // Does the administrator have an admin password set up?
         $haspass = isset($row['haspass']) ? (int) $row['haspass'] : 0;
         if ($haspass != 1)
         {
-            error('Admin notice: Administrator Password not set. <a href="https://www.sketchbook.cafe/settings/adminsetup/">Click here</a> to setup.');
+            SBC::userError('Admin notice: Administrator Password not set. <a href="https://www.sketchbook.cafe/settings/adminsetup/">Click here</a> to setup.');
         }
 
         // Is there an active session?
         if ($row['session_active'] != 1 || $has_cookies != 1)
         {
-            error('Please login here: <a href="https://www.sketchbook.cafe/adminlogin/">Login Page</a>');
+            SBC::userError('Please login here: <a href="https://www.sketchbook.cafe/adminlogin/">Login Page</a>');
         }
 
         // Verify IP Address and Sessions
@@ -679,34 +647,41 @@ class User
             $LoginTimer->failedLogin($db);
 
             // Generate Error
-            error($error_invalid);
+            SBC::userError($error_invalid);
         }
 
         // Set Admin Flags
         $this->admin_flag['manage_forum_categories']    = $row['manage_forum_categories'];
         $this->admin_flag['manage_forum_forums']        = $row['manage_forum_forums'];
+        $this->admin_flag['fix_user_table']             = $row['fix_user_table'];
+        $this->admin_flag['manage_forum']               = $row['manage_forum'];
+        $this->admin_flag['fix_forum_table']            = $row['fix_forum_table'];
+        $this->admin_flag['manage_forum_admins']        = $row['manage_forum_admins'];
     }
 
     // Require Admin Flag
     final public function requireAdminFlag($flag)
     {
+        $method = 'User->requireAdminFlag()';
+
         // Make sure a flag is set
         $flag   = isset($flag) ? $flag : '';
         if (empty($flag))
         {
-            error('Dev error: $flag is not set for User->requireAdminFlag()');
+            SBC::devError('$flag is not set',$method);
         }
 
         // Flag must be set
         if ($this->admin_flag[$flag] != 1)
         {
-            error('Sorry, you do not have the necessary flags to access this area');
+            SBC::userError('Sorry, you do not have the necessary flags to access this area');
         }
     }
 
     // Has Admin Flag
     final public function hasAdminFlag($flag)
     {
+        $method = 'User->hasAdminFlag()';
         if (isset($this->admin_flag[$flag]))
         {
             if ($this->admin_flag[$flag] == 1)
@@ -727,9 +702,11 @@ class User
     // My Timzone (mytz) - for displaying time
     final public function mytz($time,$format)
     {
+        $method = 'User->mytz()';
+
         // Set dates
         $u_time     = date('r',$time);
-        $d_time     = new DateTime($u_time);
+        $d_time     = new \DateTime($u_time);
         $d_time->setTimeZone($this->dtzone);
         $n_time     = $d_time->format($format);
 
@@ -740,8 +717,10 @@ class User
     // Force an update for mailbox
     final public function forceMailboxUpdate(&$db)
     {
+        $method = 'User->forceMailboxUpdate()';
+
         // Initialize Vars
-        $time       = time();
+        $time       = SBC::getTime();
         $user_id    = $this->id;
         if ($user_id < 1)
         {
@@ -758,11 +737,7 @@ class User
             LIMIT 1';
         $stmt   = $db->prepare($sql);
         $stmt->bind_param('ii',$time,$user_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (update mailbox timer) for User->forceMailboxUpdate()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 
     // Set Frontpage

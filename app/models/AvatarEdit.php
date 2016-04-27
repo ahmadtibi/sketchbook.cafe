@@ -1,4 +1,7 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
+use SketchbookCafe\Form\Form as Form;
 
 class AvatarEdit
 {
@@ -9,9 +12,6 @@ class AvatarEdit
         // Initialize Objects
         $db     = &$obj_array['db'];
         $User   = &$obj_array['User'];
-
-        // Classes and Functions
-        sbc_class('Form');
 
         // New Form
         $Form = new Form(array
@@ -36,13 +36,14 @@ class AvatarEdit
             'css'       => '',
         ));
 
-
         // Open Connection
         $db->open();
 
-        // Required User + Process Data
+        // Required User
         $User->setFrontpage();
         $User->required($db);
+
+        // Process Data
         $ProcessAllData = new ProcessAllData();
 
         // Close Connection

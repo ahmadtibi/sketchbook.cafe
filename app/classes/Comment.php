@@ -1,5 +1,10 @@
 <?php
-// Comment Class
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-26
+namespace SketchbookCafe\Comment;
+
+use SketchbookCafe\SBC\SBC as SBC;
+
 class Comment
 {
     // SQL Stuff
@@ -13,21 +18,21 @@ class Comment
     // Construct
     public function __construct()
     {
+        $method = 'Comment->__construct()';
     }
 
     final public function getComments(&$db)
     {
+        $method = 'Comment->getComments()';
+
         // Global (for now);
         global $Member;
 
-        // Functions
-        sbc_function('id_clean');
+        // Create list
+        $id_list = SBC::idClean($this->id_list);
 
         // Create list
-        $id_list = id_clean($this->id_list);
-
-        // Create list
-        $id_list = id_clean($this->id_list);
+        $id_list = SBC::idClean($this->id_list);
 
         // Make sure ID list is not empty
         if (!empty($id_list))
@@ -45,7 +50,7 @@ class Comment
             $db->sql_switch('sketchbookcafe');
 
             // Get Comments
-            $sql = 'SELECT id, user_id, date_created, message, ismail, isprivate, isdeleted
+            $sql = 'SELECT id, user_id, date_created, date_updated, message, ismail, isprivate, isdeleted
                 FROM sbc_comments
                 WHERE id IN('.$id_list.')';
             $result = $db->sql_query($sql);
@@ -63,6 +68,7 @@ class Comment
                     'id'            => $trow['id'],
                     'user_id'       => $trow['user_id'],
                     'date_created'  => $trow['date_created'],
+                    'date_updated'  => $trow['date_updated'],
                     'message'       => $trow['message'],
                     'ismail'        => $trow['ismail'],
                     'isprivate'     => $trow['isprivate'],
@@ -79,6 +85,8 @@ class Comment
     // Get Date
     final public function getDate($id)
     {
+        $method = 'Comment->getDate()';
+
         // Make sure ID is set
         $id = isset($id) ? (int) $id : 0;
         if ($id < 1)
@@ -100,6 +108,8 @@ class Comment
     // Display Comment
     final public function displayComment($id)
     {
+        $method = 'Comment->displayComment()';
+
         // Make sure ID is set
         $id = isset($id) ? (int) $id : 0;
         if ($id < 1)
@@ -127,6 +137,8 @@ class Comment
 
     final public function addString($input)
     {
+        $method = 'Comment->addString()';
+
         if (!empty($input))
         {
             // Add
@@ -137,6 +149,8 @@ class Comment
     // Add Rows: adds user ids from an sql result
     final public function idAddRows($result,$column)
     {
+        $method = 'Comment->idAddRows()';
+
         // Do we have a result?
         if (!empty($result))
         {
@@ -162,6 +176,8 @@ class Comment
     // Add Single
     final public function idAddOne($id)
     {
+        $method = 'Comment->idAddOne()';
+
         if ($id > 0)
         {
             $this->id_list .= $id.' ';

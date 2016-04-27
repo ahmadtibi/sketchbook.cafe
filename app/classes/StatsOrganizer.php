@@ -1,4 +1,6 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
 // Stats Organizer
 
 class StatsOrganizer

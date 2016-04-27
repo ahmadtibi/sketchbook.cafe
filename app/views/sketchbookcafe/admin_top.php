@@ -68,11 +68,68 @@ $current_page   = &$data['current_page'];
 <div class="adminWrap">
     <div class="adminLeft">
 
+
+        <div class="adminCategory">
+            <div class="adminItemTitle">
+                User Management
+            </div>
+<?php
+// Forum Categories
+if ($User->hasAdminFlag('fix_user_table'))
+{
+?>
+            <a href="https://www.sketchbook.cafe/admin/fix_user_table/">
+                <div class="adminItem <?php if ($current_page == 'fix_user_table') { echo ' adminItemSelected ' ;}?>">
+                    Fix User Table
+                </div>
+            </a>
+<?php
+}
+?>
+        </div>
+
         <div class="adminCategory">
             <div class="adminItemTitle">
                 Forums
             </div>
+
 <?php
+// Fix Forum Tables
+if ($User->hasAdminFlag('fix_forum_table'))
+{
+?>
+            <a href="https://www.sketchbook.cafe/admin/fix_forum_table/">
+                <div class="adminItem <?php if ($current_page == 'fix_forum_table') { echo ' adminItemSelected ' ;}?>">
+                    Fix Forum Tables
+                </div>
+            </a>
+<?php
+}
+
+// Forum Admins
+if ($User->hasAdminFlag('manage_forum_admins'))
+{
+?>
+            <a href="https://www.sketchbook.cafe/admin/manage_forum_admins/">
+                <div class="adminItem <?php if ($current_page == 'manage_forum_admins') { echo ' adminItemSelected ' ;}?>">
+                    Forum Admins
+                </div>
+            </a>
+<?php
+}
+
+// Manage Forum
+if ($User->hasAdminFlag('manage_forum'))
+{
+?>
+            <a href="https://www.sketchbook.cafe/admin/manage_forum/">
+                <div class="adminItem <?php if ($current_page == 'manage_forum') { echo ' adminItemSelected ' ;}?>">
+                    Manage Forum
+                </div>
+            </a>
+<?php
+}
+
 // Forum Categories
 if ($User->hasAdminFlag('manage_forum_categories'))
 {
@@ -97,8 +154,6 @@ if ($User->hasAdminFlag('manage_forum_forums'))
 <?php
 }
 ?>
-
-
         </div>
 
 

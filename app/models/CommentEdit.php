@@ -1,8 +1,16 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
 // Comment Edit : forums, mailbox, user profiles
 // Types:   1 - Note Post and Replies
 //          2 - Forum Thread Post
 //          3 - Forum Reply Post
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\TextareaSettings\TextareaSettings as TextareaSettings;
+use SketchbookCafe\Message\Message as Message;
+use SketchbookCafe\UserTimer\UserTimer as UserTimer;
+use SketchbookCafe\Form\Form as Form;
 
 class CommentEdit
 {
@@ -30,36 +38,38 @@ class CommentEdit
     // Set Comment ID
     final public function setCommentId($comment_id)
     {
+        $method = 'CommentEdit->setCommentId()';
+
         $this->comment_id = isset($comment_id) ? (int) $comment_id : 0;
         if ($this->comment_id < 1)
         {
-            error('Dev error: $comment_id is not set for CommentEdit->setCommentId()');
+            SBC::devError('$comment_id is not set',$method);
         }
     }
 
     // Has Info
     final private function hasInfo()
     {
+        $method = 'CommentEdit->hasInfo()';
+
         if ($this->comment_id < 1 || $this->user_id < 1)
         {
-            error('Dev error: $user_id('.$this->user_id.'), $comment_id('.$this->comment_id.') is not set for CommentEdit->hasInfo()');
+            SBC::devError('$user_id('.$this->user_id.'), $comment_id('.$this->comment_id.') is not set',$method);
         }
     }
 
     // Check Comment
     final public function checkComment()
     {
+        $method = 'CommentEdit->checkComment()';
+
         // Initiailize Objects
         $db     = &$this->obj_array['db'];
         $User   = &$this->obj_array['User'];
 
-        // Classes and Functions
-        sbc_class('TextareaSettings');
-        sbc_class('Message');
-
         // Initialize Vars
-        $this->time         = time();
-        $this->ip_address   = $_SERVER['REMOTE_ADDR'];
+        $this->time         = SBC::getTime();
+        $this->ip_address   = SBC::getIpAddress();
 
         // Open Connection
         $db->open();
@@ -67,6 +77,14 @@ class CommentEdit
         // User Required
         $User->required($db);
         $this->user_id = $User->getUserId();
+
+        // User Timer
+        $UserTimer = new UserTimer(array
+        (
+            'user_id'   => $this->user_id,
+        ));
+        $UserTimer->setColumn('edit_comment');
+        $UserTimer->checkTimer($db);
 
         // Get Comment Information
         $this->getCommentInfo($db);
@@ -82,6 +100,12 @@ class CommentEdit
         // Update Message
         $this->updateComment($db,$messageObject);
 
+        // Create Comment Log
+        $this->logOldComment($db,$messageObject);
+
+        // Update User Timer
+        $UserTimer->update($db);
+
         // Close Connection
         $db->close();
     }
@@ -89,6 +113,8 @@ class CommentEdit
     // Get Comment
     final public function getComment()
     {
+        $method = 'CommentEdit->getComment()';
+
         // Initiailize Vars and Objects
         $db     = &$this->obj_array['db'];
         $User   = &$this->obj_array['User'];
@@ -96,12 +122,8 @@ class CommentEdit
         // Check
         if ($this->comment_id < 1)
         {
-            error('Dev error: $comment_id is not set for CommentEdit->getComment()');
+            SBC::devError('$comment_id is not set',$method);
         }
-
-        // Classes and Functions
-        sbc_class('Form');
-        sbc_class('TextareaSettings');
 
         // Open Connection
         $db->open();
@@ -149,13 +171,14 @@ class CommentEdit
     // Get Comment Information
     final private function getCommentInfo(&$db)
     {
+        $method = 'CommentEdit->getCommentInfo()';
+
         // Check Info?
         $this->hasInfo();
 
         // Initiailize Vars
         $comment_id = $this->comment_id;
         $user_id    = $this->user_id;
-        $method     = 'CommentEdit->getCommentInfo()';
 
         // Switch
         $db->sql_switch('sketchbookcafe');
@@ -165,34 +188,27 @@ class CommentEdit
             FROM sbc_comments
             WHERE id=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt           = $db->prepare($sql);
         $stmt->bind_param('i',$comment_id);
-        if (!$stmt->execute())
-        {
-            statement_error('get comment info',$method);
-        }
-        $result         = $stmt->get_result();
-        $comment_row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $comment_row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Comment ID?
         $comment_id = isset($comment_row['id']) ? (int) $comment_row['id'] : 0;
         if ($comment_id < 1)
         {
-            error('Could not find comment in database');
+            SBC::userError('Could not find comment in database');
         }
 
         // Do they own the comment?
         if ($comment_row['user_id'] != $user_id)
         {
-            error('Sorry, you may only edit comments that belong to you');
+            SBC::userError('Sorry, you may only edit comments that belong to you');
         }
 
         // Deleted?
         if ($comment_row['isdeleted'] == 1)
         {
-            error('Comment no longer exists');
+            SBC::userError('Comment no longer exists');
         }
 
         // Set
@@ -204,7 +220,7 @@ class CommentEdit
         $type   = $comment_row['type'];
         if ($type < 1)
         {
-            error('Dev error: $type is not set for CommentEdit->getCommentInfo()');
+            SBC::devError('$type is not set',$method);
         }
 
         // Mailbox
@@ -231,12 +247,14 @@ class CommentEdit
     // Mailbox Permissions
     final private function checkMailboxPermissions()
     {
-        error('Sorry, you cannot edit mail posts');
+        SBC::userError('Sorry, you cannot edit mail posts');
     }
 
     // Forum Permissions
     final private function checkForumPermissions()
     {
+        $method = 'CommentEdit->checkForumPermissions()';
+
         // Has Info
         $this->hasInfo();
 
@@ -245,12 +263,11 @@ class CommentEdit
         $comment_id = $this->comment_id;
         $user_id    = $this->user_id;
         $thread_id  = $this->parent_id;
-        $method     = 'CommentEdit->checkForumPermissions()';
 
         // Check
         if ($thread_id < 1)
         {
-            error('Dev error: $thread_id is not set for '.$method);
+            SBC::devError('$thread_id is not set',$method);
         }
 
         // Switch
@@ -261,41 +278,34 @@ class CommentEdit
             FROM forum_threads
             WHERE id=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt       = $db->prepare($sql);
         $stmt->bind_param('i',$thread_id);
-        if (!$stmt->execute())
-        {
-            statement_error('get thread info',$method);
-        }
-        $result     = $stmt->get_result();
-        $thread_row = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $thread_row = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Thread ID
         $thread_id  = isset($thread_row['id']) ? (int) $thread_row['id'] : 0;
         if ($thread_id < 1)
         {
-            error('Dev error: could not find thread for '.$method);
+            SBC::devError('could not find thread',$method);
         }
 
         // Thread Locked?
         if ($thread_row['is_locked'] == 1)
         {
-            error('Thread is locked');
+            SBC::userError('Thread is locked');
         }
 
         // Deleted?
         if ($thread_row['isdeleted'] == 1)
         {
-            error('Thread no longer exists');
+            SBC::userError('Thread no longer exists');
         }
 
         // Forum ID
         $forum_id   = $thread_row['forum_id'];
         if ($forum_id < 1)
         {
-            error('Thread does not belong to a forum');
+            SBC::userError('Thread does not belong to a forum');
         }
 
         // Check Forum Info
@@ -303,34 +313,29 @@ class CommentEdit
             FROM forums
             WHERE id=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt       = $db->prepare($sql);
         $stmt->bind_param('i',$forum_id);
-        if (!$stmt->execute())
-        {
-            statement_error('get forum info',$method);
-        }
-        $result     = $stmt->get_result();
-        $forum_row  = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $forum_row  = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Check
         $forum_id   = isset($forum_row['id']) ? (int) $forum_row['id'] : 0;
         if ($forum_id < 1)
         {
-            error('Thread does not have a forum set');
+            SBC::userError('Thread does not have a forum set');
         }
 
         // Deleted?
         if ($forum_row['isdeleted'] == 1)
         {
-            error('Forum no longer exists');
+            SBC::userError('Forum no longer exists');
         }
     }
 
     // Update Comment
     final private function updateComment(&$db,&$messageObject)
     {
+        $method = 'CommentEdit->updateComment()';
+
         // Has Info
         $this->hasInfo();
 
@@ -340,7 +345,6 @@ class CommentEdit
         $ip_address     = $this->ip_address;
         $message        = $messageObject->getMessage();
         $message_code   = $messageObject->getMessageCode();
-        $method         = 'CommentEdit->updateComment()';
 
         // Switch
         $db->sql_switch('sketchbookcafe');
@@ -355,13 +359,38 @@ class CommentEdit
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('isssi',$time,$ip_address,$message,$message_code,$comment_id);
-        if (!$stmt->execute())
-        {
-            statement_error('update comment',$method);
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
 
         // Set Message
         $this->message = $message;
+    }
+
+    // Log Old Comment
+    final private function logOldComment(&$db,&$messageObject)
+    {
+        $method = 'CommentEdit->logOldComment()';
+
+        // Initialize Vars
+        $user_id            = $this->user_id;
+        $ip_address         = $this->ip_address;
+        $time               = $this->time;
+        $comment_id         = $this->comment_id;
+        $old_message        = $messageObject->getMessage();
+        $old_message_code   = $messageObject->getMessageCode();
+
+        // Switch
+        $db->sql_switch('sketchbookcafe');
+
+        // Insert into log
+        $sql = 'INSERT INTO log_comment_edit
+            SET user_id=?,
+            comment_id=?,
+            ip_created=?,
+            date_created=?,
+            old_message=?,
+            old_message_code=?';
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param('iisiss',$user_id,$comment_id,$ip_address,$time,$old_message,$old_message_code);
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 }

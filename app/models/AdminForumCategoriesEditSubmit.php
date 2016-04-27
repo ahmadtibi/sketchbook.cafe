@@ -1,4 +1,10 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\Message\Message as Message;
+use SketchbookCafe\TextareaSettings\TextareaSettings as TextareaSettings;
 
 class AdminForumCategoriesEditSubmit
 {
@@ -15,22 +21,20 @@ class AdminForumCategoriesEditSubmit
     // Construct
     public function __construct(&$obj_array)
     {
+        $method = 'AdminForumCategoriesEditSubmit->__construct()';
+
         // Initialize Objects
         $db     = &$obj_array['db'];
         $User   = &$obj_array['User'];
 
-        // Classes and Functions
-        sbc_class('Message');
-        sbc_class('TextareaSettings');
-
         // Initialize Vars
-        $this->ip_address   = $_SERVER['REMOTE_ADDR'];
+        $this->ip_address   = SBC::getIpAddress();
 
         // Category ID
         $id = isset($_POST['id']) ? (int) $_POST['id'] : 0;
         if ($id < 1)
         {
-            error('Category ID is not set for AdminForumCategoriesEditSubmit->construct()');
+            SBC::devError('Category ID is not set',$method);
         }
         $this->id = $id;
 
@@ -88,13 +92,15 @@ class AdminForumCategoriesEditSubmit
     // Get Category Information
     final private function getCategoryInfo(&$db)
     {
+        $method = 'AdminForumCategoriesEditSubmit->getCategoryInfo()';
+
         // Initialize Vars
         $id = $this->id;
 
         // Check just in case
         if ($id < 1)
         {
-            error('Dev error: $id is not set for AdminForumCategoriesEditSubmit->getCategoryInfo()');
+            SBC::devError('$id is not set',$method);
         }
 
         // Switch
@@ -105,34 +111,29 @@ class AdminForumCategoriesEditSubmit
             FROM forums
             WHERE id=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('i',$id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (get category info) for AdminForumCategoriesEditSubmit->getCategoryInfo()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Check
         $id = isset($row['id']) ? (int) $row['id'] : 0;
         if ($id < 1)
         {
-            error('Could not find category in database for AdminForumCategoriesEditSubmit->getCategoryInfo()');
+            SBC::devError('Could not find category in database',$method);
         }
 
         // Make sure it's a category
         if ($row['iscategory'] != 1)
         {
-            error('ID is not a category.');
+            SBC::devError('ID is not a category',$method);
         }
     }
 
     // Update Category
     final private function updateCategory(&$db)
     {
+        $method = 'AdminForumCategoriesEditSubmit->updateCategory()';
+
         // Initialize Vars
         $id                 = $this->id;
         $name               = $this->category;
@@ -143,7 +144,7 @@ class AdminForumCategoriesEditSubmit
         // Just in case
         if ($id < 1)
         {
-            error('Dev error: $id is not set for AdminForumCategoriesEditSubmit->updateCategory()');
+            SBC::devError('$id is not set',$method);
         }
 
         // Switch
@@ -159,10 +160,6 @@ class AdminForumCategoriesEditSubmit
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('ssssi',$name,$name_code,$description,$description_code,$id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (update category) for AdminForumCategoriesEditSubmit->updateCategory()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 }

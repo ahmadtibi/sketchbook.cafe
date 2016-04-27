@@ -1,5 +1,11 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
 // Creates and manages the main forum table
+namespace SketchbookCafe\TableForum;
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\TableCreator\TableCreator as TableCreator;
 
 class TableForum
 {
@@ -9,11 +15,13 @@ class TableForum
     // Construct
     public function __construct($forum_id)
     {
+        $method = 'TableForum->__construct()';
+
         // Set
         $this->forum_id = isset($forum_id) ? (int) $forum_id : 0;
         if ($this->forum_id < 1)
         {
-            error('Dev error: $forum_id is not set for TableForum->construct()');
+            SBC::devError('$forum_id is not set',$method);
         }
 
         // Set Has Info
@@ -23,20 +31,21 @@ class TableForum
     // Has Info
     final private function hasInfo()
     {
+        $method = 'TableForum->hasInfo()';
+
         if ($this->hasinfo != 1)
         {
-            error('Dev error: $hasinfo is not set for TableForum->hasInfo()');
+            SBC::devError('$hasinfo is not set',$method);
         }
     }
 
     // Check Tables
     final public function checkTables(&$db)
     {
+        $method = 'TableForum->checkTables()';
+
         // Has Info
         $this->hasInfo();
-
-        // Class
-        sbc_class('TableCreator');
 
         // Tables
         $tablename  = 'forum'.$this->forum_id.'x';

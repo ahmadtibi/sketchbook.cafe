@@ -1,18 +1,22 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-26
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\UserTimer\UserTimer as UserTimer;
+use SketchbookCafe\TextareaSettings\TextareaSettings as TextareaSettings;
+use SketchbookCafe\Message\Message as Message;
 
 class ProfileInfoSubmit
 {
     // Construct
     public function __construct(&$obj_array)
     {
+        $method = 'ProfileInfoSubmit->__construct()';
+
         // Set Objects
         $db     = &$obj_array['db'];
         $User   = &$obj_array['User'];
-
-        // Classes
-        sbc_class('UserTimer');
-        sbc_class('Message');
-        sbc_class('TextareaSettings');
 
         // New Message
         $titleObject = new Message(array
@@ -67,11 +71,7 @@ class ProfileInfoSubmit
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('ssssi',$title,$title_code,$forumsignature,$forumsignature_code,$user_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (update user information) for ProfileInfoSubmit->construct()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
 
         // User Timer
         $UserTimer->update($db);

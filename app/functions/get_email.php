@@ -2,6 +2,9 @@
 // Get E-mail
 function get_email($email)
 {
+    error('GET_EMAIL is no longer used. please use SBCGetEmail instead');
+
+/*
     // Trim
     $email = isset($email) ? trim($email) : '';
     if (empty($email))
@@ -35,4 +38,5 @@ function get_email($email)
 
     // Return
     return $email;
+*/
 }

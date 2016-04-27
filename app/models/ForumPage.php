@@ -1,7 +1,17 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\Form\Form as Form;
+use SketchbookCafe\TextareaSettings\TextareaSettings as TextareaSettings;
+use SketchbookCafe\PageNumbers\PageNumbers as PageNumbers;
 
 class ForumPage
 {
+    private $user_id = 0;
+    public $view_time = [];
+
     public $Form = '';
     private $forum_id = 0;
     public $forum_row = [];
@@ -11,25 +21,53 @@ class ForumPage
 
     private $obj_array = [];
 
+    // Page Numbers
+    private $pageno = 0;
+    private $ppage = 20;
+    private $pages = 0;
+    private $offset = 0;
+    public $total = 0;
+    public $pagenumbers = '';
+    public $pages_min = 0;
+    public $pages_max = 0;
+    public $pages_total = 0;
+
     // Construct
     public function __construct()
     {
+        $method = 'ForumPage->__construct()';
+    }
 
+    // Set Page Number
+    final public function setPageNumber($pageno)
+    {
+        $method = 'ForumPage->setPageNumber()';
+
+        // Set
+        $this->pageno = isset($pageno) ? (int) $pageno : 0;
+        if ($this->pageno < 1)
+        {
+            $this->pageno = 0;
+        }
     }
 
     // Set Forum ID
     final public function setForumId($forum_id)
     {
+        $method = 'ForumPage->setForumId()';
+
         $this->forum_id = isset($forum_id) ? (int) $forum_id : 0;
         if ($this->forum_id < 1)
         {
-            error('Dev error: $forum_id is not set for ForumPage->setForumId()');
+            SBC::devError('$forum_id is not set',$method);
         }
     }
 
     // Process
     final public function process(&$obj_array)
     {
+        $method = 'ForumPage->process()';
+
         // Set
         $this->obj_array    = &$obj_array;
 
@@ -41,12 +79,8 @@ class ForumPage
         $forum_id   = $this->forum_id;
         if ($forum_id < 1)
         {
-            error('Dev error: $forum_id is not set for ForumPage->process()');
+            SBC::devError('$forum_id is not set',$method);
         }
-
-        // Classes and Functions
-        sbc_class('Form');
-        sbc_class('TextareaSettings');
 
         // Open Connection
         $db->open();
@@ -54,18 +88,59 @@ class ForumPage
         // Admin Required + Process Data
         $User->setFrontpage();
         $User->optional($db);
+        $this->user_id = $User->getUserId();
 
         // Get Forum Information
         $this->getForumInfo($db);
 
+        // Page Numbers
+        $ppage          = 20;
+        $pageno         = $this->pageno;
+        $total          = $this->total;
+        $pages_link     = 'https://www.sketchbook.cafe/forum/'.$forum_id.'/{page_link}/';
+
+        // Page Nmbers (SQL)
+        $offset         = $pageno * $ppage;
+        $this->offset   = $offset;
+        $this->ppage    = $ppage;
+        $this->pages    = ceil($total / $ppage);
+
         // Get Threads
         $this->getThreads($db);
+
+        // Users Only
+        if ($this->user_id > 0)
+        {
+            // Get Thread Timers
+            $this->getThreadTimers($db);
+        }
 
         // Process all data
         $ProcessAllData = new ProcessAllData();
 
         // Close Connection
         $db->close();
+
+        // Page numbers
+        $PageNumbersObject  = new PageNumbers(array
+        (
+            'name'          => 'pagenumbers',
+            'first'         => 0, // current page
+            'current'       => $pageno, // page number
+            'posts'         => $total, // count(*) value
+            'ppage'         => $ppage, // max number of posts per page
+            'display'       => 4, // numbers of pages to display as links per side
+            'link'          => $pages_link, 
+            'css_overlay'   => '',
+            'css_inactive'  => 'pageNumbersItem pageNumbersItemUnselected',
+            'css_active'    => 'pageNumbersItem pageNumbersItemSelected',
+        ));
+        $this->pagenumbers  = $PageNumbersObject->getPageNumbers();
+
+        // More Pagenumbers
+        $this->pages_min    = $PageNumbersObject->pages_min;
+        $this->pages_max    = $PageNumbersObject->pages_max;
+        $this->pages_total  = $PageNumbersObject->pages_total;
 
         // Form
         $Form   = new Form(array
@@ -108,56 +183,51 @@ class ForumPage
     // Get Forum Information
     final private function getForumInfo(&$db)
     {
+        $method = 'ForumPage->getForumInfo()';
+
         // Initialize Vars
         $forum_id   = $this->forum_id;
         if ($forum_id < 1)
         {
-            error('Dev error: $forum_id is not set for ForumPage->getForumInfo()');
+            SBC::devError('$forum_id is not set',$method);
         }
 
         // Switch
         $db->sql_switch('sketchbookcafe');
 
         // Get Forum Information
-        $sql = 'SELECT id, parent_id, name, description, isforum, isdeleted
+        $sql = 'SELECT id, parent_id, name, description, total_threads, isforum, isdeleted
             FROM forums
             WHERE id=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt       = $db->prepare($sql);
         $stmt->bind_param('i',$forum_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (get forum information) for ForumPage->process()');
-        }
-        $result     = $stmt->get_result();
-        $forum_row  = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $forum_row  = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Check
         $forum_id = isset($forum_row['id']) ? (int) $forum_row['id'] : 0;
         if ($forum_id < 1)
         {
-            error('Forum not found');
+            SBC::userError('Forum not found');
         }
 
         // Make sure it's a forum and not a category
         if ($forum_row['isforum'] != 1)
         {
-            error('Invalid forum');
+            SBC::userError('Invalid forum');
         }
 
         // Check if deleted
         if ($forum_row['isdeleted'] == 1)
         {
-            error('Forum no longer exists');
+            SBC::userError('Forum no longer exists');
         }
 
         // Get Parent Category
         $parent_id = $forum_row['parent_id'];
         if ($parent_id < 1)
         {
-            error('Dev error: $parent_id is not set for Forum('.$forum_id.') in ForumPage->process()');
+            SBC::devError('$parent_id is not set for Forum('.$forum_id.')',$method);
         }
 
         // Parent
@@ -165,18 +235,12 @@ class ForumPage
             FROM forums
             WHERE id=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt           = $db->prepare($sql);
         $stmt->bind_param('i',$parent_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (get parent information) for ForumPage->process()');
-        }
-        $result         = $stmt->get_result();
-        $category_row   = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $category_row   = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Set
+        $this->total        = $forum_row['total_threads'];
         $this->forum_row    = $forum_row;
         $this->category_row = $category_row;
     }
@@ -184,12 +248,21 @@ class ForumPage
     // Get Forum Threads
     final private function getThreads(&$db)
     {
+        $method = 'ForumPage->getThreads()';
+
         // Initialize Objects and Vars
         $Member     = &$this->obj_array['Member'];
         $forum_id   = $this->forum_id;
+        $offset     = $this->offset;
+        $ppage      = $this->ppage;
+        $pageno     = $this->pageno;
+        if ($pageno < 1)
+        {
+            $pageno = 0;
+        }
         if ($forum_id < 1)
         {
-            error('Dev error: $forum_id is not set for ForumPage->getThreads()');
+            SBC::devError('$forum_id is not set',$method);
         }
 
         // Switch
@@ -203,7 +276,7 @@ class ForumPage
             FROM '.$table_name.'
             ORDER BY date_bumped
             DESC
-            LIMIT 20';
+            LIMIT '.$offset.', '.$ppage;
         $result = $db->sql_query($sql);
         $rownum = $db->sql_numrows($result);
 
@@ -252,5 +325,66 @@ class ForumPage
         // Set
         $this->threads_result   = $threads_result;
         $this->threads_rownum   = $threads_rownum;
+    }
+
+    // Get Thread Timers
+    private function getThreadTimers(&$db)
+    {
+        $method = 'ForumPage->getThreadTimers()';
+
+        // Initialize Vars
+        $user_id    = $this->user_id;
+        if ($user_id < 1)
+        {
+            return null;
+        }
+
+        // Threads?
+        $id_list = '';
+        if ($this->threads_rownum > 0)
+        {
+            // Loop
+            while ($trow = mysqli_fetch_assoc($this->threads_result))
+            {
+                if ($trow['id'] > 0)
+                {
+                    $this->view_time[$trow['id']]['date_updated']   = $trow['date_updated'];
+                    $this->view_time[$trow['id']]['date_viewed']    = 0; // initialize
+                    $id_list .= $trow['id'].' ';
+                }
+            }
+            mysqli_data_seek($this->threads_result,0);
+        }
+
+        // Clean
+        $id_list = str_replace(' ',',',trim($id_list));
+
+        // Get IDs
+        if (!empty($id_list))
+        {
+            // Switch
+            $db->sql_switch('sketchbookcafe_users');
+
+            // Table
+            $table_name = 'u'.$user_id.'vt';
+
+            // Get Threads
+            $sql = 'SELECT cid, pda
+                FROM '.$table_name.'
+                WHERE cid IN('.$id_list.')';
+            $vt_result  = $db->sql_query($sql);
+            $vt_rownum  = $db->sql_numrows($vt_result);
+
+            // Results?
+            if ($vt_rownum > 0)
+            {
+                // Loop
+                while ($trow = mysqli_fetch_assoc($vt_result))
+                {
+                    $this->view_time[$trow['cid']]['date_viewed'] = $trow['pda'];
+                }
+                mysqli_data_seek($vt_result,0);
+            }
+        }
     }
 }

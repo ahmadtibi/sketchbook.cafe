@@ -5,9 +5,12 @@
 *
 * @author       Jonathan Maltezo (Kameloh)
 * @copyright    (c) 2016, Jonathan Maltezo (Kameloh)
-* @lastupdated  2016-04-10
+* @lastupdated  2016-04-27
 *
 */
+namespace SketchbookCafe\TableCreator;
+
+use SketchbookCafe\SBC\SBC as SBC;
 
 class TableCreator
 {
@@ -19,6 +22,8 @@ class TableCreator
     // Construct
     public function __construct($tablename,$database,$columns)
     {
+        $method = 'TableCreator->__construct()';
+
         // Initalize
         $ref    = '';
         $cinfo  = '';
@@ -26,15 +31,15 @@ class TableCreator
         // Check Values
         if (empty($tablename))
         {
-            error('Dev error: $tablename is not set for TableCreator->construct()');
+            SBC::devError('$tablename is not set',$method);
         }
         if (empty($database))
         {
-            error('Dev error: $database is not set for TableCreator->construct()');
+            SBC::devError('$database is not set',$method);
         }
         if (empty($columns))
         {
-            error('Dev error: $columns is not set for TableCreator->construct()');
+            SBC::devError('$columns is not set',$method);
         }
 
         // Set values
@@ -61,15 +66,19 @@ class TableCreator
     // Has Info
     final public function hasInfo()
     {
+        $method = 'TableCreator->hasInfo()';
+
         if ($this->hasinfo != 1)
         {
-            error('Dev error: $hasinfo is not set for TableCreator->hasInfo()');
+            SBC::devError('$hasinfo is not set',$method);
         }
     }
 
     // List Columns
     final public function listColumns()
     {
+        $method = 'TableCreator->listColumns()';
+
         // Has info?
         $this->hasInfo();
 
@@ -100,24 +109,26 @@ class TableCreator
     // type 1:  columns
     private function validateVar($value,$type)
     {
+        $method = 'TableCreator->validateVar()';
+
         // Quick clean
         $value  = isset($value) ? trim(addslashes($value)) : '';
         $type   = isset($type) ? (int) $type : 0;
         if ($type < 0 || $type > 1)
         {
-            error('Dev error: invalid $type for TableCreator->validateVar()');
+            SBC::devError('invalid $type',$method);
         }
 
         // Not empty
         if (empty($value))
         {
-            error('Dev error: $value is not set for TableCreator->validateVar()');
+            SBC::devError('$value is not set',$method);
         }
 
         // Length check
         if (isset($value{255}))
         {
-            error('Dev error: value ('.$value.') is too long for TableCreator->validateVar()');
+            SBC::devError('value ('.$value.') is too long',$method);
         }
 
         // Check for valid characters only
@@ -127,7 +138,7 @@ class TableCreator
             // Database and Table Name Only
             if (preg_match('/[^A-Za-z0-9_]/',$value))
             {
-                error('Dev error: invalid value('.$value.') for TableCreator->validateVar() (illegal characters)');
+                SBC::devError('invalid value('.$value.')',$method);
             }
         }
         else if ($type == 1)
@@ -135,7 +146,7 @@ class TableCreator
             // Columns
             if (preg_match('/[^A-Za-z0-9_-]\s\(\)/',$value))
             {
-                error('Dev error: invalid value('.$value.') for TableCreator->validateVar() (illegal characters)');
+                SBC::devError('invalid value('.$value.')',$method);
             }
         }
 
@@ -146,6 +157,8 @@ class TableCreator
     // Create Table
     final public function createTable(&$db)
     {
+        $method = 'TableCreator->CreateTable()';
+
         // Has Info?
         $this->hasinfo();
 

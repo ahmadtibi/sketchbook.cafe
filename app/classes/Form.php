@@ -5,9 +5,13 @@
 * 
 * @author       Jonathan Maltezo (Kameloh)
 * @copyright    (c) 2016, Jonathan Maltezo (Kameloh)
-* @lastUpdated  2016-04-17
+* @lastUpdated  2016-04-27
 *
 */
+namespace SketchbookCafe\Form;
+
+use SketchbookCafe\SBC\SBC as SBC;
+
 class Form
 {
     // Form Data
@@ -26,6 +30,8 @@ class Form
     // Construct
     public function __construct($input)
     {
+        $method = 'Form->__construct()';
+
         // Initialize Vars
         $this->data['test']     = 1;
         $this->field['test']    = 1;
@@ -33,7 +39,7 @@ class Form
         // Name
         if (empty($input['name']))
         {
-            error('Dev error: $name is not set for Form->construct()');
+            SBC::devError('$name is not set',$method);
         }
 
         // Set Values
@@ -68,6 +74,8 @@ class Form
     // Set Javascript
     final public function setJavascript($javascript)
     {
+        $method = 'Form->setJavascript()';
+
         // Set?
         $javascript = isset($javascript) ? $javascript : '';
         if (!empty($javascript))
@@ -83,10 +91,12 @@ class Form
     // Start Form
     final public function start()
     {
+        $method = 'Form->start()';
+
         // Make sure this form has base information
         if ($this->hasinfo != 1)
         {
-            error('Dev error: $hasinfo is not set for Form->start()');
+            SBC::devError('$hasinfo is not set',$method);
         }
 
         // Value
@@ -100,6 +110,8 @@ class Form
     // End Form
     final public function end()
     {
+        $method = 'Form->end()';
+
         // Value
         $value = '</form>';
         $value .= "\n";
@@ -113,6 +125,8 @@ class Form
     // $input:  'name', 'imagefile', 'post_url', 'css'
     final public function upload($input)
     {
+        $method = 'Form->upload()';
+
         // Initialize Vars
         $name       = isset($input['name']) ? $input['name'] : '';
         $imagefile  = isset($input['imagefile']) ? $input['imagefile'] : '';
@@ -123,7 +137,7 @@ class Form
         // Make sure inputs are correct
         if (empty($name) || empty($imagefile) || empty($post_url))
         {
-            error('Dev error: a required variable is empty: name:'.$name.', imagefile:'.$imagefile.', post_url:'.$post_url);
+            SBC::devError('a required variable is empty: name:'.$name.', imagefile:'.$imagefile.', post_url:'.$post_url,$method);
         }
 
         // Extra
@@ -147,6 +161,8 @@ class Form
     // $input:  'name'
     final public function file($input)
     {
+        $method = 'Form->file()';
+
         // Initialize Form
         $name   = isset($input['name']) ? $input['name'] : '';
         $id     = $name;
@@ -154,7 +170,7 @@ class Form
         // Check
         if (empty($name))
         {
-            error('Dev error: $name is not set for Form->file()');
+            SBC::devError('$name is not set',$method);
         }
 
         // onClick
@@ -171,11 +187,13 @@ class Form
     // $input:  'name', 'css'
     final public function dropdown($input,$list,$current_value)
     {
+        $method = 'Form->dropdown()';
+
         // Select Name
         $name = isset($input['name']) ? $input['name'] : '';
         if (empty($name))
         {
-            error('Dev error: $name is not set for Form->dropdown()');
+            SBC::devError('$name is not set',$method);
         }
 
         // CSS
@@ -227,6 +245,8 @@ class Form
     // $input:  'name', 'css', 'value'
     final public function submit($input)
     {
+        $method = 'Form->submit()';
+
         // Vars
         $name   = isset($input['name']) ? $input['name'] : 'submit';
         $css    = isset($input['css']) ? $input['css'] : '';
@@ -264,11 +284,13 @@ class Form
     // $input:  'name', 'value'
     final public function hidden($input)
     {
+        $method = 'Form->hidden()';
+
         // Name
         $name = isset($input['name']) ? $input['name'] : '';
         if (empty($name))
         {
-            error('Dev error: $name is not set for Form->hidden()');
+            SBC::devError('$name is not set',$method);
         }
 
         // Value
@@ -290,6 +312,8 @@ class Form
     //          'auto_complete_disable', 'placeholder'
     final public function input($input)
     {
+        $method = 'Form->input()';
+
         // CSS
         $css    = isset($input['css']) ? $input['css'] : '';
         $css    = 'input ' . $css;
@@ -298,21 +322,21 @@ class Form
         $name   = isset($input['name']) ? $input['name'] : '';
         if (empty($name))
         {
-            error('Dev error: $name is not set for Form->input()');
+            SBC::devError('$name is not set',$method);
         }
 
         // Type
         $type   = isset($input['type']) ? $input['type'] : '';
         if (empty($type))
         {
-            error('Dev error: $type is not set for Form->input()');
+            SBC::devError('$type is not set',$method);
         }
 
         // Max
         $max    = isset($input['max']) ? $input['max'] : 0;
         if ($max < 1 || $max > 65535)
         {
-            error('Dev error: $max is not set for Form->input()');
+            SBC::devError('$max is not set',$method);
         }
 
         // Value
@@ -348,11 +372,13 @@ class Form
     // $input   'name', 'value', 'checked', 'css'
     final public function checkbox($input)
     {
+        $method = 'Form->checkbox()';
+
         // Name
         $name = isset($input['name']) ? $input['name'] : '';
         if (empty($name))
         {
-            error('Dev error: $name is not set for $Form->checkbox()');
+            SBC::devError('$name is not set',$method);
         }
 
         // CSS
@@ -387,6 +413,8 @@ class Form
     //          'setting_name'
     final public function textarea($input)
     {
+        $method = 'Form->textarea()';
+
         // Name
         $name = isset($input['name']) ? $input['name'] : '';
         if (empty($name))
@@ -411,7 +439,7 @@ class Form
         $max    = isset($input['max']) ? (int) $input['max'] : 0;
         if ($max < 1 || $max > 30000)
         {
-            error('Dev error: $max is not set for Form->textarea()');
+            SBC::devError('$max is not set',$method);
         }
 
         // Vars

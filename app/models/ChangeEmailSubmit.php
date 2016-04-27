@@ -1,4 +1,12 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-26
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\LoginTimer\LoginTimer as LoginTimer;
+use SketchbookCafe\UserTimer\UserTimer as UserTimer;
+use SketchbookCafe\SBCGetPassword\SBCGetPassword as SBCGetPassword;
+use SketchbookCafe\SBCGetEmail\SBCGetEmail as SBCGetEmail;
 
 class ChangeEmailSubmit
 {
@@ -11,25 +19,21 @@ class ChangeEmailSubmit
     // Construct
     public function __construct(&$obj_array)
     {
+        $method = 'ChangeEmailSubmit->__construct()';
+
         // Initialize Objects
         $db     = &$obj_array['db'];
         $User   = &$obj_array['User'];
 
-        // Classes and Functions
-        sbc_class('UserTimer');
-        sbc_class('LoginTimer');
-        sbc_function('get_email');
-        sbc_function('get_password');
-
         // Initialize and Set Vars
-        $this->ip_address   = $_SERVER['REMOTE_ADDR'];
-        $this->time         = time();
+        $this->ip_address   = SBC::getIpAddress();
+        $this->time         = SBC::getTime();
 
         // E-mails
         $email1 = '';
         $email2 = '';
-        $email1 = get_email($_POST['email1']);
-        $email2 = get_email($_POST['email2']);
+        $email1 = SBCGetEmail::process($_POST['email1']);
+        $email2 = SBCGetEmail::process($_POST['email2']);
 
         // E-mails match?
         if ($email1 != $email2)
@@ -43,7 +47,7 @@ class ChangeEmailSubmit
 
         // Password
         $password = '';
-        $password = get_password($_POST['password']);
+        $password = SBCGetPassword::process($_POST['password']);
 
         // Open Connection
         $db->open();
@@ -73,7 +77,7 @@ class ChangeEmailSubmit
             $LoginTimer->failedLogin($db);
 
             // Generate Error
-            error('Invalid password verification.');
+            SBC::userError('Invalid password verification.');
         }
 
         // Get Old E-mail
@@ -100,6 +104,8 @@ class ChangeEmailSubmit
     // Set New E-mail Address
     private function setNewEmail(&$db)
     {
+        $method = 'ChangeEmailSubmit->setNewEmail()';
+
         // Set vars
         $user_id    = $this->user_id;
         $new_email  = $this->new_email;
@@ -114,16 +120,14 @@ class ChangeEmailSubmit
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('si',$new_email,$user_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (update user e-mail) for ChangeEmailSubmit->setNewEmail()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 
     // Create E-mail Log
     private function createLog(&$db)
     {
+        $method = 'ChangeEmailSubmit->createLog()';
+
         // Set vars
         $user_id    = $this->user_id;
         $time       = $this->time;
@@ -143,16 +147,14 @@ class ChangeEmailSubmit
             new_email=?';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('isiss',$user_id,$ip_address,$time,$old_email,$new_email);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (create new email log) for ChangeEmailSubmit->createLog()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 
     // Get Old E-mail
     private function getOldEmail(&$db)
     {
+        $method = 'ChangeEmailSubmit->getOldEmail()';
+
         // Switch
         $db->sql_switch('sketchbookcafe');
 
@@ -168,16 +170,9 @@ class ChangeEmailSubmit
             FROM users
             WHERE id=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('i',$user_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (get old e-mail) for ChangeEmailSubmit->construct()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Set Old E-mail
         $old_email = isset($row['email']) ? $row['email'] : '';

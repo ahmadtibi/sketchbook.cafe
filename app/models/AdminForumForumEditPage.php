@@ -1,4 +1,10 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\Form\Form as Form;
+use SketchbookCafe\TextareaSettings\TextareaSettings as TextareaSettings;
 
 class AdminForumForumEditPage
 {
@@ -10,34 +16,35 @@ class AdminForumForumEditPage
     // Construct
     public function __construct()
     {
+        $method = 'AdminForumForumEditPage->__construct()';
     }
 
     // Set ID
     final public function setId($id)
     {
+        $method = 'AdminForumForumEditPage->setId()';
+
         // Set ID
         $this->id = isset($id) ? (int) $id : 0;
         if ($this->id < 1)
         {
-            error('Dev error: $id is not set for AdminForumForumEditPage->setId()');
+            SBC::devError('$id is not set',$method);
         }
     }
 
     // Process
     final public function process(&$obj_array)
     {
+        $method = 'AdminForumForumEditPage->process()';
+
         // Initialize Objects
         $db     = &$obj_array['db'];
         $User   = &$obj_array['User'];
         $id     = $this->id;
         if ($id < 1)
         {
-            error('Dev error: $id is not set for AdminForumForumEditPage->process()');
+            SBC::devError('$id is not set',$method);
         }
-
-        // Functions and Classes
-        sbc_class('Form');
-        sbc_class('TextareaSettings');
 
         // Open Connection
         $db->open();
@@ -98,6 +105,8 @@ class AdminForumForumEditPage
     // Get Forum Information
     final private function getForumInfo(&$db)
     {
+        $method = 'AdminForumForumEditPage->getForumInfo()';
+
         // Initialize Vars
         $id = $this->id;
 
@@ -109,27 +118,19 @@ class AdminForumForumEditPage
             FROM forums
             WHERE id=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('i',$id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (get category info) for AdminForumForumEditPage->getForumInfo()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Check
         $id = isset($row['id']) ? (int) $row['id'] : 0;
         if ($id < 1)
         {
-            error('Could not find forum ('.$id.') in database');
+            SBC::devError('Could not find forum ('.$id.') in database',$method);
         }
 
         // Set Vars
         $this->name_code        = $row['name_code'];
         $this->description_code = $row['description_code'];
     }
-
 }

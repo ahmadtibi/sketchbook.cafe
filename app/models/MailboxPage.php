@@ -1,5 +1,11 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
 // Mailbox Page
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\PageNumbers\PageNumbers as PageNumbers;
+
 class MailboxPage
 {
     public $user_id = 0;
@@ -23,12 +29,14 @@ class MailboxPage
     // Construct
     public function __construct()
     {
-
+        $method = 'MailboxPage->__construct()';
     }
 
     // Set Page Number
     final public function setPageNumber($pageno)
     {
+        $method = 'MailboxPage->setPageNumber()';
+
         $pageno = isset($pageno) ? (int) $pageno : 0;
         if ($pageno < 1)
         {
@@ -40,13 +48,12 @@ class MailboxPage
     // Process Page
     final public function processPage(&$obj_array)
     {
+        $method = 'MailboxPage->processPage()';
+
         // Initialize Objects
         $db     = &$obj_array['db'];
         $User   = &$obj_array['User'];
         $Member = &$obj_array['Member'];
-
-        // Classes
-        sbc_class('PageNumbers');
 
         // Open Connection
         $db->open();
@@ -111,6 +118,8 @@ class MailboxPage
     // Count Mail
     final private function countMail(&$db)
     {
+        $method = 'MailboxPage->countMail()';
+
         // Initialize Vars
         $mail_total_all = 0;
         $user_id        = $this->user_id;
@@ -118,7 +127,7 @@ class MailboxPage
         // Check
         if ($user_id < 1)
         {
-            error('Dev error: $user_id is not set for MailboxPage->countMail()');
+            SBC::devError('$user_id is not set',$method);
         }
 
         // Switch
@@ -146,6 +155,8 @@ class MailboxPage
     // Get User's Mailbox
     final private function getMail(&$db,&$Member)
     {
+        $method = 'MailboxPage->getMail()';
+
         // Initialize Objects and Vars
         $Member     = &$Member;
         $user_id    = $this->user_id;
@@ -160,10 +171,8 @@ class MailboxPage
         // Just in case
         if ($user_id < 1)
         {
-            error('Dev error: $user_id is not set for MailboxPage->getMail()');
+            SBC::devError('$user_id is not set',$method);
         }
-
-
 
         // Switch
         $db->sql_switch('sketchbookcafe_users');

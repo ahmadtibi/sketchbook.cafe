@@ -1,4 +1,10 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\ImageFile\ImageFile as ImageFile;
+use SketchbookCafe\UserTimer\UserTimer as UserTimer;
 
 class AvatarUpload
 {
@@ -8,18 +14,15 @@ class AvatarUpload
     // Construct
     public function __construct(&$obj_array)
     {
+        $method = 'AvatarUpload->__construct()';
+
         // Set Objects
         $db     = &$obj_array['db'];
         $User   = &$obj_array['User'];
 
-        // Functions + Classes
-        sbc_class('ImageFile');
-        sbc_class('UserTimer');
-        sbc_function('rd');
-
         // Initialize Vars
-        $this->rd           = rd();
-        $this->ip_address   = $_SERVER['REMOTE_ADDR'];
+        $this->rd           = SBC::rd();
+        $this->ip_address   = SBC::getIpAddress();
 
         // Image File
         $ImageFile = new ImageFile(array
@@ -42,7 +45,7 @@ class AvatarUpload
         // Check?
         if (!$ImageFile->hasFile())
         {
-            error('Dev error: there is no file for ImageFile->hasfile()');
+            SBC::devError('there is no file',$method);
         }
 
         // Open Connection
@@ -76,6 +79,8 @@ class AvatarUpload
     // Create Avatar
     private function createAvatar(&$db,&$User,&$ImageFile)
     {
+        $method = 'AvatarUpload->createAvatar()';
+
         // Get File Information
         $avatarInfo = $ImageFile->getInfo();
 
@@ -84,7 +89,7 @@ class AvatarUpload
         $old_avatar_id  = $User->avatar_id;
 
         // Set SQL Vars
-        $time           = time();
+        $time           = SBC::getTime();
         $ip_address     = $this->ip_address;
         $rd             = $this->rd;
         $image_rd       = $avatarInfo['rd'];
@@ -108,11 +113,7 @@ class AvatarUpload
             isdeleted=1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('isisisi',$rd,$image_rd_code,$user_id,$ip_address,$time,$image_filetype,$image_filesize);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (insert new avatar) for AvatarUpload->createAvatar()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
 
         // Get New Avatar ID
         $sql = 'SELECT id
@@ -121,22 +122,15 @@ class AvatarUpload
             AND user_id=?
             AND date_created=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('iii',$rd,$user_id,$time);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (find new avatar) for AvatarUpload->createAvatar()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Avatar ID?
         $avatar_id  = isset($row['id']) ? (int) $row['id'] : 0;
         if ($avatar_id < 1)
         {
-            error('Dev error: Could not insert new avatar in AvatarUpload->createAvatar()');
+            SBC::devError('Could not insert new avatar',$method);
         }
 
         // Create Filenames
@@ -155,11 +149,7 @@ class AvatarUpload
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('si',$avatar_url,$avatar_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (update avatar info) for AvatarUpload->createAvatar()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
 
         // Update user
         $sql = 'UPDATE users
@@ -169,11 +159,7 @@ class AvatarUpload
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('isi',$avatar_id,$avatar_url,$user_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (update user) for AvatarUpload->createAvatar()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
 
         // Do we have an old avatar?
         if ($old_avatar_id > 0)
@@ -185,10 +171,7 @@ class AvatarUpload
                 LIMIT 1';
             $stmt = $db->prepare($sql);
             $stmt->bind_param('i',$old_avatar_id);
-            if (!$stmt->execute())
-            {
-                error('Could not execute statement (update old avatar) for AvatarUpload->createAvatar()');
-            }
+            SBC::statementExecute($stmt,$db,$sql,$method);
 
             // Delete Old Avatar File
             $this->deleteFile($db,$old_avatar_id);
@@ -198,10 +181,12 @@ class AvatarUpload
     // Delete File
     final private function deleteFile(&$db,$old_avatar_id)
     {
+        $method = 'AvatarUpload->deleteFile()';
+
         // Double check!
         if ($old_avatar_id < 1)
         {
-            error('Dev error: $old_avatar_id is not set for AvatarUpload->deleteFile()');
+            SBC::devError('$old_avatar_id is not set',$method);
         }
 
         // Switch
@@ -214,14 +199,7 @@ class AvatarUpload
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('i',$old_avatar_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (verify avatar info) for AvatarUpload->deleteFile()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Do we have an ID?
         $avatar_id  = isset($row['id']) ? (int) $row['id'] : 0;
@@ -247,10 +225,6 @@ class AvatarUpload
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('i',$old_avatar_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (delete from database) for AvatarUpload->deleteFile()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 }

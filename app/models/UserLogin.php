@@ -1,5 +1,13 @@
 <?php
 // User Login Stuff
+// Last Updated:    2016-04-26
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\LoginTimer\LoginTimer as LoginTimer;
+use SketchbookCafe\UserSession\UserSession as UserSession;
+use SketchbookCafe\IpTimer\IpTimer as IpTimer;
+use SketchbookCafe\SBCGetUsername\SBCGetUsername as SBCGetUsername;
+use SketchbookCafe\SBCGetPassword\SBCGetPassword as SBCGetPassword;
+
 class UserLogin
 {
     private $username = '';
@@ -12,28 +20,22 @@ class UserLogin
     // Construct
     public function __construct(&$obj_array)
     {
+        $method = 'UserLogin->__construct()';
+
         // Initialize Objects
         $db     = &$obj_array['db'];
 
-        // Functions + Classes
-        sbc_function('get_username');
-        sbc_function('get_password');
-        sbc_function('rd');
-        sbc_class('UserSession');
-        sbc_class('LoginTimer');
-        sbc_class('IpTimer');
-
         // Initialize Vars
-        $this->ip_address   = $_SERVER['REMOTE_ADDR'];
-        $this->time         = time();
-        $this->rd           = rd();
+        $this->ip_address   = SBC::getIpAddress();
+        $this->time         = SBC::getTime();
+        $this->rd           = SBC::rd();
         $password_temp      = '';
         $session_id1        = 0;
         $session_id2        = 0;
 
         // Set vars
-        $this->username     = get_username($_POST['username']);
-        $password           = get_password($_POST['password']);
+        $this->username     = SBCGetUsername::process($_POST['username']);
+        $password           = SBCGetPassword::process($_POST['password']);
         $username           = $this->username;
 
         // IP Lock
@@ -59,20 +61,13 @@ class UserLogin
         $db->sql_switch('sketchbookcafe');
 
         // Get user information
-        $sql = 'SELECT id, password
+        $sql    = 'SELECT id, password
             FROM users
             WHERE username=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('s',$username);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement for UserLogin->construct()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $row = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // User ID
         $user_id = isset($row['id']) ? (int) $row['id'] : 0;

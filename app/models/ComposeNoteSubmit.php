@@ -1,4 +1,15 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\BlockCheck\BlockCheck as BlockCheck;
+use SketchbookCafe\UserTimer\UserTimer as UserTimer;
+use SketchbookCafe\Message\Message as Message;
+use SketchbookCafe\TextareaSettings\TextareaSettings as TextareaSettings;
+use SketchbookCafe\UpdateMailbox\UpdateMailbox as UpdateMailbox;
+use SketchbookCafe\SBCGetUsername\SBCGetUsername as SBCGetUsername;
+use SketchbookCafe\TableMailbox\TableMailbox as TableMailbox;
 
 class ComposeNoteSubmit
 {
@@ -14,25 +25,18 @@ class ComposeNoteSubmit
     // Construct
     public function __construct(&$obj_array)
     {
+        $method = 'ComposeNoteSubmit->__construct()';
+
         // Initialize Objects
         $db     = &$obj_array['db'];
         $User   = &$obj_array['User'];
 
-        // Classes and Functions
-        sbc_class('UserTimer');
-        sbc_class('Message');
-        sbc_class('TextareaSettings');
-        sbc_class('BlockCheck');
-        sbc_class('UpdateMailbox');
-        sbc_function('get_username');
-        sbc_function('rd');
-
         // Random Digit
-        $this->rd = rd();
+        $this->rd = SBC::rd();
 
         // Username
         $username           = '';
-        $username           = get_username($_POST['username']);
+        $username           = SBCGetUsername::process($_POST['username']);
         $this->r_username   = $username;
 
         // Note Title
@@ -117,21 +121,18 @@ class ComposeNoteSubmit
     // Create Thread
     final private function createThread(&$db,&$messageObject)
     {
-        // Classes + Functions
-        sbc_class('TableMailbox');
-        sbc_function('check_number');
-        sbc_function('check_empty');
+        $method = 'ComposeNoteSubmit->createThread()';
 
         // Initialize Vars
-        $rd             = check_number($this->rd,'rd');
-        $user_id        = check_number($this->user_id,'user_id');
-        $r_user_id      = check_number($this->r_user_id,'r_user_id');
-        $time           = time();
-        $ip_address     = $_SERVER['REMOTE_ADDR'];
+        $rd             = SBC::checkNumber($this->rd,'rd');
+        $user_id        = SBC::checkNumber($this->user_id,'user_id');
+        $r_user_id      = SBC::checkNumber($this->r_user_id,'r_user_id');
+        $time           = SBC::getTime();
+        $ip_address     = SBC::getIpAddress();
 
         // String Vars
-        $title          = check_empty($this->title,'title');
-        $title_code     = check_empty($this->title_code,'title_code');
+        $title          = SBC::checkEmpty($this->title,'title');
+        $title_code     = SBC::checkEmpty($this->title_code,'title_code');
 
         // Create New Message
         $messageObject->setUserId($user_id);
@@ -158,11 +159,7 @@ class ComposeNoteSubmit
             isdeleted=1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('iiissiissii',$rd,$user_id,$r_user_id,$ip_address,$ip_address,$time,$time,$title,$title_code,$comment_id,$user_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (insert new mail thread) for ComposeNoteSubmit->createThread()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
 
         // Get Mail Thread ID
         $sql = 'SELECT id
@@ -172,22 +169,15 @@ class ComposeNoteSubmit
             AND r_user_id=?
             AND date_created=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('iiii',$rd,$user_id,$r_user_id,$time);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (get mail thread id) for ComposeNoteSubmit->createThread()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Mail ID
         $mail_id    = isset($row['id']) ? (int) $row['id'] : 0;
         if ($mail_id < 1)
         {
-            error('Dev error: could not get new mail id for ComposeNoteSubmit->createThread()');
+            SBC::devError('could not get new mail id',$method);
         }
         $this->mail_id  = $mail_id;
 
@@ -198,11 +188,7 @@ class ComposeNoteSubmit
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('i',$mail_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (update isdeleted) for ComposeNoteSubmit->createThread()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
 
         // Update Comment's Parent ID
         $messageObject->setParentId($comment_id);
@@ -216,13 +202,15 @@ class ComposeNoteSubmit
     // Get Other User Information
     final private function getOtherUser(&$db)
     {
+        $method = 'ComposeNoteSubmit->getOtherUser()';
+
         // Initialize Vars
         $user_id    = $this->user_id;
         $r_user_id  = 0;
         $r_username = $this->r_username;
         if (empty($r_username))
         {
-            error('Dev error: $r_username is not set for ComposeNoteSubmit->getOtherUser()');
+            SBC::devError('$r_username is not set',$method);
         }
 
         // Switch
@@ -233,28 +221,21 @@ class ComposeNoteSubmit
             FROM users
             WHERE username=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('s',$r_username);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (get user information) for ComposeNoteSubmit->getOtherUser()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Check if the user exists
         $r_user_id = isset($row['id']) ? (int) $row['id'] : 0;
         if ($r_user_id < 1)
         {
-            error('Could not find user in database');
+            SBC::userError('Could not find user in database');
         }
 
         // Make sure we can't send messages to ourselves
         if ($r_user_id == $user_id)
         {
-            error('Sorry, you cannot send mail to yourself');
+            SBC::userError('Sorry, you cannot send mail to yourself');
         }
 
         // Set vars
@@ -264,13 +245,12 @@ class ComposeNoteSubmit
     // Update Users
     final private function updateUsers(&$db)
     {
-        // Functions
-        sbc_function('check_number');
+        $method = 'ComposeNoteSubmit->updateUsers()';
 
         // Initialize Vars
-        $user_id    = check_number($this->user_id,'$user_id');
-        $r_user_id  = check_number($this->r_user_id,'$r_user_id');
-        $mail_id    = check_number($this->mail_id,'$mail_id');
+        $user_id    = SBC::checkNumber($this->user_id,'$user_id');
+        $r_user_id  = SBC::checkNumber($this->r_user_id,'$r_user_id');
+        $mail_id    = SBC::checkNumber($this->mail_id,'$mail_id');
         $time       = time();
 
         // Switch
@@ -284,11 +264,7 @@ class ComposeNoteSubmit
             replied=1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('ii',$mail_id,$time);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (insert into owners mail table) for ComposeNoteSubmit->updateUsers()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
 
         // Insert into other user's mailbox table
         $table_name = 'u'.$r_user_id.'m';
@@ -298,13 +274,7 @@ class ComposeNoteSubmit
             isnew=1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('ii',$mail_id,$time);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (insert into other users mail table) for ComposeNoteSubmit->updateUsers()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
 
-        // Switch
-        $db->sql_switch('sketchbookcafe');
     }
 }

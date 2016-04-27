@@ -1,4 +1,14 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\SBCGetUsername\SBCGetUsername as SBCGetUsername;
+use SketchbookCafe\SBCGetPassword\SBCGetPassword as SBCGetPassword;
+use SketchbookCafe\SBCGetEmail\SBCGetEmail as SBCGetEmail;
+use SketchbookCafe\IpTimer\IpTimer as IpTimer;
+use SketchbookCafe\TableUser\TableUser as TableUser;
+use SketchbookCafe\UserSession\UserSession as UserSession;
 
 class UserRegistration
 {
@@ -24,44 +34,37 @@ class UserRegistration
     // Construct
     public function __construct(&$obj_array)
     {
+        $method = 'UserRegistration->__construct()';
+
         // Initialize Objects
         $db     = &$obj_array['db'];
-
-        // Functions + Classes
-        sbc_function('get_username');
-        sbc_function('get_email');
-        sbc_function('get_password');
-        sbc_function('rd');
-        sbc_class('IpTimer');
-        sbc_class('UserSession');
-        sbc_class('TableUser');
 
         // Recaptcha Settings
         require '../app/recaptcha_settings.php';
 
         // Address
-        $this->ip_address = $_SERVER['REMOTE_ADDR'];
+        $this->ip_address = SBC::getIpAddress();
 
         // Random Digit and Time
-        $this->rd = rd();
-        $this->time = time();
+        $this->rd   = SBC::rd();
+        $this->time = SBC::getTime();
 
         // Initialize Variables
         $pass1          = '';
         $pass2          = '';
 
         // Username
-        $this->username = get_username($_POST['username']);
+        $this->username = SBCGetUsername::process($_POST['username']);
 
         // E-mail
-        $this->email = get_email($_POST['email']);
+        $this->email    = SBCGetEmail::process($_POST['email']);
 
         // Passwords
-        $pass1 = get_password($_POST['pass1']);
-        $pass2 = get_password($_POST['pass2']);
+        $pass1          = SBCGetPassword::process($_POST['pass1']);
+        $pass2          = SBCGetPassword::process($_POST['pass2']);
         if ($pass1 != $pass2)
         {
-            error('Passwords do not match');
+            SBC::userError('Passwords do not match');
         }
 
         // Create a hashed password instead
@@ -71,7 +74,7 @@ class UserRegistration
         $this->termsofservice = isset($_POST['termsofservice']) ? (int) $_POST['termsofservice'] : 0;
         if ($this->termsofservice != 1)
         {
-            error('You must read and agree to the Terms of Service and Privacy Policy to register on this site.');
+            SBC::userError('You must read and agree to the Terms of Service and Privacy Policy to register on this site.');
         }
 
         // Recaptcha
@@ -80,7 +83,7 @@ class UserRegistration
         unset($recaptcha_settings);
         $resp = $recaptcha->verify($gRecaptchaResponse, $this->ip_address);
         if (!$resp->isSuccess()) {
-            error('Invalid Recaptcha. Please try again.');
+            SBC::userError('Invalid Recaptcha. Please try again.');
         }
 
         // Double check information
@@ -128,22 +131,26 @@ class UserRegistration
     // Check Info - double check if everything is valid
     private function checkInfo()
     {
+        $method = 'UserRegistration->checkInfo()';
+
         // Double check
         if (empty($this->username) || empty($this->password))
         {
-            error('Odd... something is missing...');
+            SBC::devError('Odd... something is missing...',$method);
         }
 
         // Other vars
         if (empty($this->ip_address) || $this->rd < 1 || $this->time < 1)
         {
-            error('Something is missing...: ' . $this->ip_address . ' / ' . $this->rd . ' / ' . $this->time);
+            SBC::devError('Something is missing...: ' . $this->ip_address . ' / ' . $this->rd . ' / ' . $this->time, $method);
         }
     }
 
     // Check if the user exists
     private function checkUsernameExists(&$db)
     {
+        $method = 'UserRegistration->checkUsernameExists()';
+
         // Correct DB
         $db->sql_switch('sketchbookcafe');
 
@@ -155,20 +162,14 @@ class UserRegistration
             FROM users
             WHERE username=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('s',$username);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Check
         if ($row['id'] > 0)
         {
-            error('A user already exists with this username');
+            SBC::userError('A user already exists with this username');
         }
 
         // Set as free
@@ -178,10 +179,12 @@ class UserRegistration
     // Create a New User
     private function createNewUser(&$db)
     {
+        $method = 'UserRegistration->createNewUser()';
+
         // Double check!
         if ($this->username_free != 1)
         {
-            error('Something went wrong! Username is not free...');
+            SBC::devError('Something went wrong! Username is not free...',$method);
         }
 
         // Set Variables
@@ -203,32 +206,22 @@ class UserRegistration
             ip_lastlogin=?';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('sssiiss',$username,$email,$password,$time,$time,$ip_address,$ip_address);
-        if (!$stmt->execute())
-        {
-            error('Could not insert new user into database');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
 
         // Get User ID
         $sql = 'SELECT id
             FROM users
             WHERE username=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('s',$username);
-        if (!$stmt->execute())
-        {
-            error('Could not get ID from new user...');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // User ID?
         $this->user_id = $row['id'];
         if ($this->user_id < 1)
         {
-            error('Could not get new user_id from database. Please contact an administrator');
+            SBC::userError('Could not get new user_id from database. Please contact an administrator');
         }
     }
 }

@@ -1,4 +1,10 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-26
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\UserTimer\UserTimer as UserTimer;
+use SketchbookCafe\SBCTimezone\SBCTimezone as SBCTimezone;
 
 class SiteSettingsSubmit
 {
@@ -9,10 +15,6 @@ class SiteSettingsSubmit
         $db     = &$obj_array['db'];
         $User   = &$obj_array['User'];
 
-        // Classes and Functions
-        sbc_class('UserTimer');
-        sbc_function('sbc_timezone');
-
         // Timezone ID
         $timezone_id = isset($_POST['timezone_id']) ? (int) $_POST['timezone_id'] : 0;
         if ($timezone_id < 1 || $timezone_id > 126)
@@ -21,7 +23,7 @@ class SiteSettingsSubmit
         }
 
         // Timezone My
-        $timezone_my = sbc_timezone($timezone_id,0);
+        $timezone_my = SBCTimezone::timezone($timezone_id,0);
 
         // Open Connection
         $db->open();
@@ -49,11 +51,7 @@ class SiteSettingsSubmit
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('sii',$timezone_my,$timezone_id,$user_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (update user) for SiteSettingsSubmit->construct()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
 
         // User Timer
         $UserTimer->update($db);

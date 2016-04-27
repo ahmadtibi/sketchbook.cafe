@@ -1,4 +1,8 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
+
+use SketchbookCafe\SBC\SBC as SBC;
 
 class ForumMain
 {
@@ -10,6 +14,8 @@ class ForumMain
     // Construct
     public function __construct(&$obj_array)
     {
+        $method = 'ForumMain->__construct()';
+
         // Initialize Objects
         $db     = &$obj_array['db'];
         $User   = &$obj_array['User'];
@@ -34,6 +40,8 @@ class ForumMain
     // Get Forum Categories and Forums
     final private function getAll(&$db)
     {
+        $method = 'ForumMain->getAll()';
+
         // Switch
         $db->sql_switch('sketchbookcafe');
 

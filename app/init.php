@@ -1,34 +1,32 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
 use SketchbookCafe\Db\Db as Db;
+use SketchbookCafe\User\User as User;
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\Member\Member as Member;
+use SketchbookCafe\Comment\Comment as Comment;
+
+// Composer AutoLoader
+require '../vendor/autoload.php';
 
 // Functions + Classes
 require 'functions/error.php';
 require 'functions/statement_error.php';
-require 'functions/sbc_function.php';
-require 'functions/sbc_class.php';
+require 'functions/display_comment.php';
 require 'classes/ProcessAllData.php';
-require 'classes/Db.php';
-require 'classes/User.php';
-require 'classes/Member.php';
-require 'classes/Comment.php';
-
-// Vars
-$sbc_function['test']           = 1;
-$sbc_class['test']              = 1;
 
 // Initialize Objects
 $User       = new User();
 $Member     = new Member();
 $Comment    = new Comment();
 $Member     = new Member();
+$SBC        = new SBC();
 
 // Database Object
 require 'database_settings.php';
 $db = new Db($database_settings);
 unset($database_settings); // just in case
-
-// Composer AutoLoader
-require '../vendor/autoload.php';
 
 // Core
 require 'core/App.php';

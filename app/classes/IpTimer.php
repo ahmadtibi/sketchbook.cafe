@@ -1,5 +1,11 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
 // IP Timer Class for managing IP.. Timers
+namespace SketchbookCafe\IpTimer;
+
+use SketchbookCafe\SBC\SBC as SBC;
+
 class IpTimer
 {
     private $ip_address = '';
@@ -11,9 +17,11 @@ class IpTimer
     // Construct
     public function __construct(&$db)
     {
+        $method = 'IpTimer->__construct()';
+
         // Get variables
-        $this->ip_address = $_SERVER['REMOTE_ADDR'];
-        $this->rd         = rand(100000,9999999);
+        $this->ip_address = SBC::getIpAddress();
+        $this->rd         = SBC::rd();
 
         // Make sure DB is set
         $db->sql_switch('sketchbookcafe');
@@ -25,18 +33,20 @@ class IpTimer
     // Check Timer
     public function checkTimer(&$db)
     {
+        $method = 'IpTimer->checkTimer()';
+
         // Set vars
         $cooldown       = $this->cooldown;
         $column         = $this->column;
         $column_time    = 0;
-        $time           = time();
+        $time           = SBC::getTime();
         $time_left      = 0;
         $id             = $this->id;
 
         // Check
         if (empty($column) || $id < 1 || $time < 1 || $cooldown < 1)
         {
-            error('Dev error: checkTimer error: $cooldown: '.$cooldown.', $column: '.$column.', $time: '.$time.', $id: '.$id);
+            SBC::devError('checkTimer error: $cooldown: '.$cooldown.', $column: '.$column.', $time: '.$time.', $id: '.$id,$method);
         }
 
         // Check table
@@ -47,15 +57,9 @@ class IpTimer
             FROM ip_timer
             WHERE id=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('i',$id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement for IpTimer->checkTimer()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Set vars
         $column_time    = $row[$column];
@@ -64,19 +68,21 @@ class IpTimer
         $time_left = $time - $column_time;
         if ($time_left < $cooldown)
         {
-            error('You must wait at least '.$cooldown.' second(s) before repeating this action');
+            SBC::userError('You must wait at least '.$cooldown.' second(s) before repeating this action');
         }
     }
 
     // Set Column
     public function setColumn($value)
     {
+        $method = 'IpTimer->setColumn()';
+
         // Vars
         $cooldown = 0;
         $value = isset($value) ? $value : '';
         if (empty($value))
         {
-            error('Dev error: $value is not set for IpTimer->setColumn()');
+            SBC::devError('$value is not set',$method);
         }
 
         // Switch
@@ -99,7 +105,7 @@ class IpTimer
         $this->column = $column;
         if (empty($this->column))
         {
-            error('Could not set column for IpTimer->setColumn()');
+            SBC::devError('Could not set column',$method);
         }
 
         // Set Cooldown
@@ -109,6 +115,8 @@ class IpTimer
     // Update Timer
     public function update(&$db)
     {
+        $method = 'IpTimer->update()';
+
         // Make sure database is correct
         $db->sql_switch('sketchbookcafe');
 
@@ -120,7 +128,7 @@ class IpTimer
         // Check column
         if (empty($column))
         {
-            error('$column is empty for IpTimer->updateTimer(). Use setColumn() first!');
+            SBC::devError('$column is empty for IpTimer->updateTimer(). Use setColumn() first',$method);
         }
 
         // Update IP Timer
@@ -130,16 +138,14 @@ class IpTimer
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('ii', $time,$id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement for IpTimer->update()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 
     // Check IP Address if it exists
     private function checkIpAddress(&$db)
     {
+        $method = 'IpTimer->checkIpAddress()';
+
         // Set vars
         $ip_address = $this->ip_address;
 
@@ -148,15 +154,9 @@ class IpTimer
             FROM ip_timer
             WHERE ip_address=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('s',$ip_address);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement for IpTimer->checkIpAddress()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Do we have an IP?
         if ($row['id'] < 1)
@@ -166,26 +166,16 @@ class IpTimer
                 SET ip_address=?';
             $stmt = $db->prepare($sql);
             $stmt->bind_param('s',$ip_address);
-            if (!$stmt->execute())
-            {
-                error('Could not insert new IP address into database for IpTimer->checkIpAddress()');
-            }
-            $stmt->close();
+            SBC::statementExecute($stmt,$db,$sql,$method);
 
             // Get new ID
             $sql = 'SELECT id
                 FROM ip_timer
                 WHERE ip_address=?
                 LIMIT 1';
-            $stmt = $db->prepare($sql);
+            $stmt   = $db->prepare($sql);
             $stmt->bind_param('s',$ip_address);
-            if (!$stmt->execute())
-            {
-                error('Could not get newly inserted IP address from database for IpTimer->checkIpAddress()');
-            }
-            $result = $stmt->get_result();
-            $row    = $db->sql_fetchrow($result);
-            $stmt->close();
+            $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
         }
 
         // Set vars
@@ -194,7 +184,7 @@ class IpTimer
         // Just in case
         if ($this->id < 1)
         {
-            error('Invalid ID for IpTimer()');
+            SBC::devError('Invalid ID for IpTimer()',$method);
         }
     }
 }

@@ -1,4 +1,10 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-26 
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\Form\Form as Form;
+use SketchbookCafe\SBCTimezone\SBCTimezone as SBCTimezone;
 
 class SiteSettingsEdit
 {
@@ -11,16 +17,14 @@ class SiteSettingsEdit
         $db     = &$obj_array['db'];
         $User   = &$obj_array['User'];
 
-        // Classes and Functions
-        sbc_class('Form');
-        sbc_function('sbc_timezone');
-
         // Open Connection
         $db->open();
 
-        // Required User + Process Data
+        // Required User
         $User->setFrontpage();
         $User->required($db);
+
+        // Process Data
         $ProcessAllData = new ProcessAllData();
 
         // Close Connection
@@ -31,7 +35,7 @@ class SiteSettingsEdit
         $i = 1;
         while ($i < 127)
         {
-            $temp_name                  = sbc_timezone($i,1);
+            $temp_name                  = SBCTimezone::timezone($i,1);
             $timezone_list[$temp_name]  = $i;
             
             $i++;

@@ -1,4 +1,9 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
+
+use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\CountMail\CountMail as CountMail;
 
 class NoteDeleteSubmit
 {
@@ -10,18 +15,17 @@ class NoteDeleteSubmit
     // Construct
     public function __construct(&$obj_array)
     {
+        $method = 'NoteDeleteSubmit->__construct()';
+
         // Initialize Objects
         $db     = &$obj_array['db'];
         $User   = &$obj_array['User'];
-
-        // Classes and Functions
-        sbc_class('CountMail');
 
         // Get Mail ID
         $mail_id    = isset($_POST['mail_id']) ? (int) $_POST['mail_id'] : 0;
         if ($mail_id < 1)
         {
-            error('Dev error: $mail_id is not set for NoteDeleteSubmit->construct()');
+            SBC::devError('$mail_id is not set',$method);
         }
         $this->mail_id  = $mail_id;
 
@@ -60,6 +64,8 @@ class NoteDeleteSubmit
     // Get Note Information
     final private function getNoteInfo(&$db)
     {
+        $method = 'NoteDeleteSubmit->getNoteInfo()';
+
         // Initialize Vars
         $mail_id    = $this->mail_id;
         $user_id    = $this->user_id;
@@ -67,7 +73,7 @@ class NoteDeleteSubmit
         // Verify
         if ($mail_id < 1 || $user_id < 1)
         {
-            error('Dev error: $mail_id or $user_id is not set for NoteDeleteSubmit->getNoteInfo()');
+            SBC::devError('$mail_id or $user_id is not set',$method);
         }
 
         // Switch
@@ -78,22 +84,15 @@ class NoteDeleteSubmit
             FROM mailbox_threads
             WHERE id=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt   = $db->prepare($sql);
         $stmt->bind_param('i',$mail_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (get note information) for NoteDeleteSubmit->getNoteInfo()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Set
         $mail_id    = isset($row['id']) ? (int) $row['id'] : 0;
         if ($mail_id < 1)
         {
-            error('Dev error: Could not find mail thread in database for NoteDeleteSubmit->getNoteInfo()');
+            SBC::devError('Could not find mail thread in database',$method);
         }
 
         // Do they have permission?
@@ -101,7 +100,7 @@ class NoteDeleteSubmit
         {
             if ($row['r_user_id'] != $user_id)
             {
-                error('Sorry, you do not have permission to delete this mail thread');
+                SBC::userError('Sorry, you do not have permission to delete this mail thread');
             }
         }
 
@@ -121,6 +120,8 @@ class NoteDeleteSubmit
     // Remove From User's Table
     final private function removeFromTable(&$db)
     {
+        $method = 'NoteDeleteSubmit->removeFromTable()';
+
         // Initialize Vars
         $mail_id    = $this->mail_id;
         $user_id    = $this->user_id;
@@ -128,7 +129,7 @@ class NoteDeleteSubmit
         // Verify
         if ($user_id < 1 || $mail_id < 1)
         {
-            error('Dev error: $user_id or $mail_id is not set for NoteDeleteSubmit->removeFromTable()');
+            SBC::devError('$user_id or $mail_id is not set',$method);
         }
 
         // Switch
@@ -143,16 +144,14 @@ class NoteDeleteSubmit
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('i',$mail_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (delete from mailbox table) for NoteDeleteSubmit->removeFromTable()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 
     // Update Mail Thread
     final private function updateMailThread(&$db)
     {
+        $method = 'NoteDeleteSubmit->updateMailThread()';
+
         // Initialize Vars
         $user_id    = $this->user_id;
         $mail_id    = $this->mail_id;
@@ -161,7 +160,7 @@ class NoteDeleteSubmit
         // Check
         if ($user_id < 1 || $mail_id < 1 || empty($who))
         {
-            error('Dev error: $user_id:'.$user_id.', $mail_id:'.$mail_id.', $who:'.$who.' for NoteDeleteSubmit->updateMailThread()');
+            SBC::devError('Dev error: $user_id:'.$user_id.', $mail_id:'.$mail_id.', $who:'.$who,$method);
         }
 
         // Switch
@@ -175,21 +174,19 @@ class NoteDeleteSubmit
             LIMIT 1';
         $stmt   = $db->prepare($sql);
         $stmt->bind_param('i',$mail_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (update mailbox thread) for NoteDeleteSubmit->updateMailThread()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 
     // Calculate Deleted
     private function calculateDeleted(&$db)
     {
+        $method = 'NoteDeleteSubmit->calculateDeleted()';
+
         // Initialize Vars
         $mail_id    = $this->mail_id;
         if ($mail_id < 1)
         {
-            error('Dev error: $mail_id is not set for NoteDeleteSubmit->calculateDelete()');
+            SBC::devError('$mail_id is not set',$method);
         }
 
         // Switch
@@ -202,14 +199,7 @@ class NoteDeleteSubmit
             LIMIT 1';
         $stmt   = $db->prepare($sql);
         $stmt->bind_param('i',$mail_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (get thread info) for NoteDeleteSubmit->calculateDelete()');
-        }
-        $result = $stmt->get_result();
-        $row    = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Verify
         $mail_id    = isset($row['id']) ? (int) $row['id'] : 0;
@@ -233,10 +223,6 @@ class NoteDeleteSubmit
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('ii',$isdeleted,$mail_id);
-        if (!$stmt->execute())
-        {
-            error('Could not execute statement (update mailbox thread) for NoteDeleteSubmit->calculateDelete()');
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 }

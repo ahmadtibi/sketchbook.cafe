@@ -2,6 +2,9 @@
 // @author          Jonathan Maltezo (Kameloh)
 // @lastUpdated     2016-04-27
 // Stats Organizer
+namespace SketchbookCafe\StatsOrganizer;
+
+use SketchbookCafe\SBC\SBC as SBC;
 
 class StatsOrganizer
 {
@@ -17,14 +20,15 @@ class StatsOrganizer
     // User: Add Forum Posts
     final public function userForumPostAdd($user_id)
     {
+        $method = 'StatsOrganizer->userForumPostAdd()';
+
         // Initialize Objects and Vars
-        $db     = $this->db;
-        $method = 'StatsOrganizer->userForumAddPost()';
+        $db  = $this->db;
 
         // Check
         if ($user_id < 1)
         {
-            error('Dev error: $user_id is not set for '.$method);
+            SBC::devError('$user_id is not set',$method);
         }
 
         // Switch
@@ -37,10 +41,6 @@ class StatsOrganizer
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('i',$user_id);
-        if (!$stmt->execute())
-        {
-            statement_error('update user posts',$method);
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 }

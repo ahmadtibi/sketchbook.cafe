@@ -6,6 +6,9 @@ use SketchbookCafe\SBC\SBC as SBC;
 use SketchbookCafe\TextareaSettings\TextareaSettings as TextareaSettings;
 use SketchbookCafe\ForumOrganizer\ForumOrganizer as ForumOrganizer;
 use SketchbookCafe\StatsOrganizer\StatsOrganizer as StatsOrganizer;
+use SketchbookCafe\Message\Message as Message;
+use SketchbookCafe\UserTimer\UserTimer as UserTimer;
+use SketchbookCafe\BlockCheck\BlockCheck as BlockCheck;
 
 class ForumThreadReply
 {
@@ -29,23 +32,16 @@ class ForumThreadReply
         $db     = &$obj_array['db'];
         $User   = &$obj_array['User'];
 
-        // Classes and Functions
-        sbc_class('TextareaSettings');
-        sbc_class('ForumOrganizer');
-        sbc_class('StatsOrganizer');
-        sbc_class('Message');
-        sbc_class('UserTimer');
-
         // Initialize Vars
-        $this->time         = time();
-        $this->ip_address   = $_SERVER['REMOTE_ADDR'];
-        $this->rd           = rd();
+        $this->time         = SBC::getTime();
+        $this->ip_address   = SBC::getIpAddress();
+        $this->rd           = SBC::rd();
 
         // Thread ID
         $this->thread_id    = isset($_POST['thread_id']) ? (int) $_POST['thread_id'] : 0;
         if ($this->thread_id < 1)
         {
-            error('Dev error: $thread_id is not set for ForumThreadReply->construct()');
+            SBC::devError('$thread_id is not set',$method);
         }
 
         // Textarea Settings
@@ -129,7 +125,7 @@ class ForumThreadReply
         {
             $total_comments = 0;
         }
-        $pageno = current_page($ppage,$total_comments);
+        $pageno = SBC::currentPage($ppage,$total_comments);
 
         // Header
         header('Location: https://www.sketchbook.cafe/forum/thread/'.$this->thread_id.'/'.$pageno.'/#recent');
@@ -139,12 +135,10 @@ class ForumThreadReply
     // Get Thread Information
     final private function getThreadInfo(&$db)
     {
-        // Classes and Functions
-        sbc_function('check_number');
+        $method = 'ForumThreadReply->getThreadInfo()';
 
         // Initialize Vars
-        $statement_method   = 'ForumThreadReply->getThreadInfo';
-        $thread_id          = check_number($this->thread_id,'thread_id');
+        $thread_id = SBC::checkNumber($this->thread_id,'thread_id');
 
         // Switch
         $db->sql_switch('sketchbookcafe');
@@ -156,26 +150,19 @@ class ForumThreadReply
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('i',$thread_id);
-        if (!$stmt->execute())
-        {
-            statement_error('get thread info',$statement_method);
-        }
-        $result     = $stmt->get_result();
-        $thread_row = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $thread_row = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Check Thread
         $thread_id  = isset($thread_row['id']) ? (int) $thread_row['id'] : 0;
         if ($thread_id < 1)
         {
-            error('Could not find thread in database');
+            SBC::userError('Could not find thread in database');
         }
 
         // Is it locked?
         if ($thread_row['is_locked'] == 1)
         {
-            error('Thread is locked and it cannot be replied to');
+            SBC::userError('Thread is locked and it cannot be replied to');
         }
 
         // Set User ID for Block Checks
@@ -189,28 +176,21 @@ class ForumThreadReply
             FROM forums
             WHERE id=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt       = $db->prepare($sql);
         $stmt->bind_param('i',$forum_id);
-        if (!$stmt->execute())
-        {
-            statement_error('get forum info',$statement_method);
-        }
-        $result     = $stmt->get_result();
-        $forum_row  = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $forum_row  = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Check Forum
         $forum_id   = isset($forum_row['id']) ? (int) $forum_row['id'] : 0;
         if ($forum_id < 1)
         {
-            error('Thread does not belong to a forum');
+            SBC::userError('Thread does not belong to a forum');
         }
 
         // Make sure forum isn't deleted
         if ($forum_row['isdeleted'] == 1)
         {
-            error('Forum for thread no longer exists. Please ask an administrator if you want this thread moved.');
+            SBC::userError('Forum for thread no longer exists. Please ask an administrator if you want this thread moved.');
         }
 
         // Parent ID
@@ -221,28 +201,21 @@ class ForumThreadReply
             FROM forums
             WHERE id=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt           = $db->prepare($sql);
         $stmt->bind_param('i',$category_id);
-        if (!$stmt->execute())
-        {
-            statement_error('get category info',$statement_method);
-        }
-        $result         = $stmt->get_result();
-        $category_row   = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        $stmt->close();
+        $category_row   = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
         // Check
         $category_id    = isset($category_row['id']) ? (int) $category_row['id'] : 0;
         if ($category_id < 1)
         {
-            error('Thread\'s forum does not have a category set');
+            SBC::userError('Thread\'s forum does not have a category set');
         }
 
         // Deleted?
         if ($category_row['isdeleted'] == 1)
         {
-            error('Thread\'s category no longer exists. Please contact an admiministrator');
+            SBC::userError('Thread\'s category no longer exists. Please contact an admiministrator');
         }
 
         // Set Vars
@@ -253,8 +226,7 @@ class ForumThreadReply
     // Check Block
     final private function checkBlocked(&$db)
     {
-        // Classes
-        sbc_class('BlockCheck');
+        $method = 'ForumThreadReply->checkBlocked()';
 
         // Initialize Vars
         $user_id    = $this->user_id;
@@ -272,15 +244,13 @@ class ForumThreadReply
     // Create Message
     final private function createReply(&$db,&$messageObject)
     {
-        // Classes and Functions
-        sbc_function('check_number');
-        sbc_function('check_empty');
+        $method = 'ForumThreadReply->createReply()';
 
         // Initialize Vars
-        $thread_id  = check_number($this->thread_id,'thread_id');
-        $user_id    = check_number($this->user_id,'user_id');
-        $time       = check_number($this->time,'time');
-        $ip_address = check_empty($this->ip_address,'ip_address');
+        $thread_id  = SBC::checkNumber($this->thread_id,'thread_id');
+        $user_id    = SBC::checkNumber($this->user_id,'user_id');
+        $time       = SBC::checkNumber($this->time,'time');
+        $ip_address = SBC::checkEmpty($this->ip_address,'ip_address');
 
         // Create New Message
         $messageObject->setUserId($user_id);
@@ -297,14 +267,12 @@ class ForumThreadReply
     // Insert Comment into Thread's Table
     final private function insertIntoTable(&$db)
     {
-        // Classes and Functions
-        sbc_function('check_number');
+        $method = 'ForumThreadReply->insertIntoTable()';
 
         // Initialize Vars
-        $statement_method   = 'ForumThreadReply->insertIntoTable()';
-        $thread_id          = check_number($this->thread_id,'thread_id');
-        $comment_id         = check_number($this->comment_id,'comment_id');
-        $user_id            = check_number($this->user_id,'user_id');
+        $thread_id          = SBC::checkEmpty($this->thread_id,'thread_id');
+        $comment_id         = SBC::checkEmpty($this->comment_id,'comment_id');
+        $user_id            = SBC::checkEmpty($this->user_id,'user_id');
 
         // Switch
         $db->sql_switch('sketchbookcafe_forums');
@@ -318,24 +286,22 @@ class ForumThreadReply
             uid=?';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('ii',$comment_id,$user_id);
-        if (!$stmt->execute())
-        {
-            statement_error('insert comment',$statement_method);
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 
     // Update Thread's Timer
     final private function updateThread(&$db)
     {
+        $method = 'ForumThreadReply->updateThread()';
+
         // Initiailize Vars
-        $time       = time();
+        $time       = SBC::getTime();
         $thread_id  = $this->thread_id;
         $forum_id   = $this->forum_id;
-        $method     = 'ForumThreadReply->updateThread()';
+
         if ($thread_id < 1)
         {
-            error('Dev error: $thread_id('.$thread_id.') or $forum_id('.$forum_id.') is not set for '.$method);
+            SBC::devError('$thread_id('.$thread_id.') or $forum_id('.$forum_id.') is not set',$method);
         }
 
         // Switch
@@ -349,11 +315,7 @@ class ForumThreadReply
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('iii',$time,$time,$thread_id);
-        if (!$stmt->execute())
-        {
-            statement_error('update thread timer',$method);
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
 
         // Switch
         $db->sql_switch('sketchbookcafe_forums');
@@ -369,10 +331,6 @@ class ForumThreadReply
             LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('iii',$time,$time,$thread_id);
-        if (!$stmt->execute())
-        {
-            statement_error('update forum table',$method);
-        }
-        $stmt->close();
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 }

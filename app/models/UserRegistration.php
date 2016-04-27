@@ -45,6 +45,9 @@ class UserRegistration
         // Address
         $this->ip_address = SBC::getIpAddress();
 
+        // Registration Closed (temp)
+        SBC::userError('Sorry, registration is currently closed');
+
         // Random Digit and Time
         $this->rd   = SBC::rd();
         $this->time = SBC::getTime();

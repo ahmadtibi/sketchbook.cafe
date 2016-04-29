@@ -2,6 +2,10 @@
 // Get username
 function get_username($username)
 {
+    error('GET_USERNAME is no longer used');
+
+/*
+
     // Quick Clean
     $username = isset($username) ? trim(addslashes($username)) : '';
 
@@ -25,4 +29,5 @@ function get_username($username)
 
     // Return
     return $username;
+*/
 }

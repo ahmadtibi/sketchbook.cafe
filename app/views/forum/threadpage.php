@@ -21,6 +21,13 @@ $pages_total        = &$data['pages_total'];
 
 <div class="threadTitleWrap">
     <div class="threadTitle">
+<?php
+// Locked
+if ($thread_row['is_locked'] == 1)
+{
+    echo '<b>[LOCKED]</b>';
+}
+?>
         <a href=""><?php echo $thread_row['title'];?></a>
     </div>
 </div>
@@ -106,9 +113,31 @@ echo $pagenumbers;
 // Users Only
 if ($User->loggedIn())
 {
-    // Start Form
-    echo $Form->start();
-    echo $Form->field['thread_id'];
+    // Thread Locked
+    if ($thread_row['is_locked'] == 1)
+    {
+?>
+    <div class="commentLeft">
+        <div class="commentAvatarDiv">
+            <script>sbc_avatar(<?php echo $user_id;?>);</script>
+        </div>
+        <div class="commentUsername">
+            <script>sbc_username(<?php echo $user_id;?>);</script>
+        </div>
+        <div class="commentUserTitle">
+            <?php echo $Member->displayTitle($user_id);?>
+        </div>
+    </div>
+    <div class="commentRight">
+        <b>Forum Thread is locked.</b>
+    </div>
+<?php
+    }
+    else
+    {
+        // Start Form
+        echo $Form->start();
+        echo $Form->field['thread_id'];
 ?>
     <div class="commentLeft">
         <div class="commentAvatarDiv">
@@ -127,15 +156,16 @@ if ($User->loggedIn())
         </div>
         <div>
 <?php
-    // Message
-    echo $Form->field['message'];
+        // Message
+        echo $Form->field['message'];
 ?>
         </div>
     </div>
 
 <?php
-    // End Form
-    echo $Form->end();
+        // End Form
+        echo $Form->end();
+    }
 }
 ?>
 </div>

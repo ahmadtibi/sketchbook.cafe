@@ -1,4 +1,7 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-29
+
 namespace SketchbookCafe\SBC;
 
 class SBC

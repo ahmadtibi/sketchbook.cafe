@@ -1,13 +1,12 @@
 <?php
 // @author          Jonathan Maltezo (Kameloh)
-// @lastUpdated     2016-04-27
+// @lastUpdated     2016-04-29
 
 use SketchbookCafe\SBC\SBC as SBC;
 use SketchbookCafe\Form\Form as Form;
 use SketchbookCafe\TextareaSettings\TextareaSettings as TextareaSettings;
 use SketchbookCafe\PageNumbers\PageNumbers as PageNumbers;
 use SketchbookCafe\ForumOrganizer\ForumOrganizer as ForumOrganizer;
-use SketchbookCafe\ForumAdmin\ForumAdmin as ForumAdmin;
 
 class ForumThreadPage
 {
@@ -103,10 +102,11 @@ class ForumThreadPage
         $this->getThreadInfo($db,$Member,$Comment);
 
         // If Admin?
+        $forum_id = $this->forum_id;
         if ($User->isAdmin())
         {
             // Check if Forum Admin
-            $this->checkForumAdmin($db);
+            $User->getForumAdminFlags($db,$forum_id);
         }
 
         // Page Numbers
@@ -202,7 +202,8 @@ class ForumThreadPage
         $db->sql_switch('sketchbookcafe');
  
         // Get Thread Information
-        $sql = 'SELECT id, forum_id, user_id, date_created, comment_id, title, total_comments, isdeleted
+        $sql = 'SELECT id, forum_id, user_id, date_created, comment_id, title, total_comments, 
+            is_poll, is_locked, is_sticky, isdeleted
             FROM forum_threads
             WHERE id=?
             LIMIT 1';
@@ -331,26 +332,5 @@ class ForumThreadPage
 
         // Add Comment IDs
         $Comment->idAddRows($comments_result,'cid');
-    }
-
-    // Check if the user is a forum admin
-    final private function checkForumAdmin(&$db)
-    {
-        $method = 'ForumThreadPage->checkForumAdmin()';
-
-        // Initialize Vars
-        $user_id    = $this->user_id;
-        $forum_id   = $this->forum_id;
-        if ($user_id < 1 || $forum_id < 1)
-        {
-            SBC::devError('$user_id:'.$user_id.', $forum_id:'.$forum_id,$method);
-        }
-
-        // New Forum Admin
-        $ForumAdmin = new ForumAdmin($user_id,$forum_id);
-        $ForumAdmin->process($db);
-
-        // Set
-        $this->ForumAdmin = $ForumAdmin;
     }
 }

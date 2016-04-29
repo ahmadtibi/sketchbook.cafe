@@ -48,6 +48,10 @@ class User
     private $admin_session3 = '';
     private $admin_flag = [];
 
+    // Forum Admin Variables
+    private $forum_admin = 0;
+    private $forum_admin_flag = [];
+
     // Construct
     public function __construct()
     {
@@ -744,5 +748,78 @@ class User
     final public function setFrontpage()
     {
         $this->frontpage = 1;
+    }
+
+    // Is Forum Admin
+    final public function isForumAdmin()
+    {
+        if ($this->forum_admin == 1)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    // Forum Admin Flag
+    final public function hasForumAdminFlag($flag)
+    {
+        $method = 'User->hasForumAdminFlag()';
+        if (isset($this->forum_admin_flag[$flag]))
+        {
+            if ($this->forum_admin_flag[$flag] == 1)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    // Get Forum Admin Flags 
+    final public function getForumAdminFlags(&$db,$forum_id)
+    {
+        $method = 'User->getForumAdminFlags()';
+
+        // Initialize
+        $user_id    = $this->id;
+
+        // Check
+        if ($forum_id < 1)
+        {
+            SBC::devError('$forum_id is not set',$method);
+        }
+
+        // Switch
+        $db->sql_switch('sketchbookcafe');
+
+        // Get Forum Admin
+        $sql = 'SELECT id, lock_thread, lock_post, bump_thread, move_thread, sticky_thread, edit_thread, edit_post
+            FROM forum_admins
+            WHERE user_id=?
+            AND forum_id=?
+            LIMIT 1';
+        $stmt   = $db->prepare($sql);
+        $stmt->bind_param('ii',$user_id,$forum_id);
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
+
+        // Forum Admin?
+        $forum_admin    = isset($row['id']) ? (int) $row['id'] : 0;
+        if ($forum_admin < 1)
+        {
+            return null;
+        }
+
+        // Set Array
+        $this->forum_admin      = 1;
+        $this->forum_admin_flag = $row;
     }
 }

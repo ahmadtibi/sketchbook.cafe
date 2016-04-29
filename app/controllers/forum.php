@@ -1,6 +1,8 @@
 <?php
 // Single Forum
 
+use SketchbookCafe\SBC\SBC as SBC;
+
 class Forum extends Controller
 {
     protected $obj_array = '';
@@ -8,6 +10,22 @@ class Forum extends Controller
     public function __construct(&$obj_array)
     {
         $this->obj_array = &$obj_array;
+    }
+
+    // Thread Lock
+    public function thread_lock($comment_id = 0)
+    {
+        // Initialize
+        $comment_id = isset($comment_id) ? (int) $comment_id : 0;
+        if ($comment_id < 1)
+        {
+            SBC::userError('Comment ID is not set');
+        }
+
+        // Model
+        $ForumObj   = $this->model('ForumThreadLock',$this->obj_array);
+        $ForumObj->setCommentId($comment_id);
+        $ForumObj->process();
     }
 
     // Forum Thread

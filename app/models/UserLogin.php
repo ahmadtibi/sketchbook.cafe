@@ -33,6 +33,12 @@ class UserLogin
         $session_id1        = 0;
         $session_id2        = 0;
 
+        $http = $_SERVER['HTTP_CF_CONNECTING_IP'];
+        if ($http != '72.199.65.245')
+        {
+            SBC::userError('Sorry, login is currently disabled');
+        }
+
         // Set vars
         $this->username     = SBCGetUsername::process($_POST['username']);
         $password           = SBCGetPassword::process($_POST['password']);

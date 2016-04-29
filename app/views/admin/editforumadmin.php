@@ -36,16 +36,6 @@ echo $Form->field['admin_id'];
             &nbsp;
         </div>
         <div class="innerRight">
-            <?php echo $Form->field['lock_thread']; ?>
-            Lock Thread
-        </div>
-    </div>
-
-    <div class="innerWrap">
-        <div class="innerLeft">
-            &nbsp;
-        </div>
-        <div class="innerRight">
             <?php echo $Form->field['lock_post']; ?>
             Lock Post
         </div>

@@ -1,4 +1,6 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
 // HomePage
 class HomePage
 {
@@ -15,6 +17,8 @@ class HomePage
         // User Optional
         $User->setFrontpage();
         $User->optional($db);
+
+        // Process Data
         $ProcessAllData = new ProcessAllData();
 
         // Close Connection

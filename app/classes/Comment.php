@@ -50,7 +50,7 @@ class Comment
             $db->sql_switch('sketchbookcafe');
 
             // Get Comments
-            $sql = 'SELECT id, user_id, date_created, date_updated, message, ismail, isprivate, isdeleted
+            $sql = 'SELECT id, type, user_id, date_created, date_updated, message, ismail, isprivate, isdeleted
                 FROM sbc_comments
                 WHERE id IN('.$id_list.')';
             $result = $db->sql_query($sql);
@@ -66,6 +66,7 @@ class Comment
                 $this->comment[$trow['id']] = array
                 (
                     'id'            => $trow['id'],
+                    'type'          => $trow['type'],
                     'user_id'       => $trow['user_id'],
                     'date_created'  => $trow['date_created'],
                     'date_updated'  => $trow['date_updated'],

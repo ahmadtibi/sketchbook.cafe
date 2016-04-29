@@ -21,6 +21,9 @@ class ForumAdmin
     {
         $method = 'ForumAdmin->__construct()';
 
+        error('Class: ForumAdmin is no longer used. Use the User class instead');
+/*
+
         // Set
         $this->user_id  = isset($user_id) ? (int) $user_id : 0;
         $this->forum_id = isset($forum_id) ? (int) $forum_id : 0;
@@ -37,6 +40,7 @@ class ForumAdmin
 
         // Set
         $this->hasinfo = 1;
+*/
     }
 
     // Has Info

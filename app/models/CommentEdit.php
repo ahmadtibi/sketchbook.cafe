@@ -199,10 +199,11 @@ class CommentEdit
             SBC::userError('Could not find comment in database');
         }
 
-        // Do they own the comment?
+        // Edit Permissions?
         if ($comment_row['user_id'] != $user_id)
         {
-            SBC::userError('Sorry, you may only edit comments that belong to you');
+            // Check Edit Permissions
+            $this->checkEditPermission($comment_row['type'],$comment_row['parent_id']);
         }
 
         // Deleted?
@@ -241,6 +242,67 @@ class CommentEdit
             {
                 $this->textarea_settings = 'forum_reply';
             }
+        }
+    }
+
+    // Check Edit Permissions (forum threads, forum posts)
+    final private function checkEditPermission($type,$parent_id)
+    {
+        $method = 'CommentEdit->checkEditPermissions()';
+
+        // Initialize
+        $User       = &$this->obj_array['User'];
+        $db         = &$this->obj_array['db'];
+        $allow_edit = 0;
+
+        // Type Check
+        if ($type == 2 || $type == 3)
+        {
+            // Set
+            $thread_id  = $parent_id;
+
+            // Admin Check?
+            if ($User->isAdmin() && $thread_id > 0)
+            {
+                // Switch
+                $db->sql_switch('sketchbookcafe');
+
+                // Get Thread Info
+                $sql = 'SELECT id, forum_id
+                    FROM forum_threads
+                    WHERE id=?
+                    LIMIT 1';
+                $stmt   = $db->prepare($sql);
+                $stmt->bind_param('i',$thread_id);
+                $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
+
+                // Thread?
+                $thread_id  = isset($row['id']) ? (int) $row['id'] : 0;
+                if ($thread_id > 0)
+                {
+                    // Set Forum ID
+                    $forum_id   = $row['forum_id'];
+
+                    // Check if Forum Admin
+                    $User->getForumAdminFlags($db,$forum_id);
+
+                    // Thread
+                    if ($type == 2 && $User->hasForumAdminFlag('edit_thread'))
+                    {
+                        $allow_edit = 1;
+                    }
+                    else if ($type == 3 && $User->hasForumAdminFlag('edit_post'))
+                    {
+                        $allow_edit = 1;
+                    }
+                }
+            }
+        }
+
+        // Allow Edit?
+        if ($allow_edit != 1)
+        {
+            SBC::userError('Sorry, you may only edit comments that belong to you');
         }
     }
 

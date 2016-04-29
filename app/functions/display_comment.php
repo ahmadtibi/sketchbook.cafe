@@ -1,4 +1,6 @@
 <?php
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-29
 // Display Comment
 function display_comment($comment_id)
 {
@@ -15,6 +17,7 @@ function display_comment($comment_id)
     }
 
     // Comment Vars
+    $type           = $Comment->comment[$comment_id]['type'];
     $date_created   = $Comment->comment[$comment_id]['date_created'];
     $date_updated   = $Comment->comment[$comment_id]['date_updated'];
     $message        = $Comment->comment[$comment_id]['message'];
@@ -36,11 +39,51 @@ function display_comment($comment_id)
         </div>';
     }
 
+    // Admin Edit
+    $allow_admin_edit = 0;
+    if ($current_user_id != $user_id)
+    {
+        if ($type == 2)
+        {
+            if ($User->hasForumAdminFlag('edit_thread'))
+            {
+                $allow_admin_edit = 1;
+            }
+        }
+        else if ($type == 3)
+        {
+            if ($User->hasForumAdminFlag('edit_post'))
+            {
+                $allow_admin_edit = 1;
+            }
+        }
+    }
+
+    // Thread
+    $admin_link = '';
+    if ($type == 2 && $User->isForumAdmin())
+    {
+        // Lock Thread
+        if ($User->hasForumAdminFlag('lock_thread'))
+        {
+            $admin_link .= '<a href="https://www.sketchbook.cafe/forum/thread_lock/'.$comment_id.'/">[lock thread]</a>';
+        }
+
+        // Sticky Thread
+
+        // Bump Thread
+    }
+
     // Edit Link
     $edit_link = '';
-    if ($current_user_id == $user_id)
+    if ($current_user_id == $user_id || $allow_admin_edit == 1)
     {
-        $edit_link  = '<a href="#" onClick="sbc_edit_comment_form('.$comment_id.'); return false;">edit</a>';
+        if ($allow_admin_edit == 1)
+        {
+            $edit_link .= 'admin:';
+        }
+        $edit_link  .= $admin_link;
+        $edit_link  .= '<a href="#" onClick="sbc_edit_comment_form('.$comment_id.'); return false;">edit</a>';
     }
 
     // Value

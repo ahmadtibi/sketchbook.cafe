@@ -1,6 +1,6 @@
 <?php
-// Last Updated:    2016-04-26
-
+// @author          Jonathan Maltezo (Kameloh)
+// @lastUpdated     2016-04-27
 class SettingsPage
 {
     // Construct

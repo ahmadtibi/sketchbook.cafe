@@ -2,6 +2,8 @@
 // Get session code - mainly used for cookies
 function get_session_code($input)
 {
+    error('GET_SESSION_CODE is no longer used');
+/*
     // Quick clean
     $value  = isset($input) ? trim(addslashes($input)) : '';
 
@@ -13,4 +15,5 @@ function get_session_code($input)
 
     // Return
     return $value;
+*/
 }

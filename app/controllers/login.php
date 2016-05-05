@@ -1,5 +1,6 @@
 <?php
-
+// @author          Kameloh
+// @lastUpdated     2016-05-02
 class Login extends Controller
 {
     protected $obj_array = '';

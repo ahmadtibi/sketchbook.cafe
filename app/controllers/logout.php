@@ -1,5 +1,6 @@
 <?php
-
+// @author          Kameloh
+// @lastUpdated     2016-05-02
 class Logout extends Controller
 {
     protected $obj_array = '';

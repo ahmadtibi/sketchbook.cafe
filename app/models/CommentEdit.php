@@ -1,6 +1,6 @@
 <?php
-// @author          Jonathan Maltezo (Kameloh)
-// @lastUpdated     2016-04-27
+// @author          Kameloh
+// @lastUpdated     2016-04-29
 // Comment Edit : forums, mailbox, user profiles
 // Types:   1 - Note Post and Replies
 //          2 - Forum Thread Post
@@ -25,6 +25,8 @@ class CommentEdit
     private $comment_row = [];
     private $message_code = '';
     private $textarea_settings = '';
+
+    private $admin_edit = 0;
 
     private $obj_array = [];
 
@@ -184,7 +186,7 @@ class CommentEdit
         $db->sql_switch('sketchbookcafe');
 
         // Get Comment Information
-        $sql = 'SELECT id, type, parent_id, user_id, message_code, isdeleted
+        $sql = 'SELECT id, type, parent_id, user_id, message_code, is_locked, isdeleted
             FROM sbc_comments
             WHERE id=?
             LIMIT 1';
@@ -204,6 +206,15 @@ class CommentEdit
         {
             // Check Edit Permissions
             $this->checkEditPermission($comment_row['type'],$comment_row['parent_id']);
+        }
+
+        // Post Locked?
+        if ($comment_row['is_locked'] == 1)
+        {
+            if ($this->admin_edit != 1)
+            {
+                SBC::userError('Sorry, this post is locked and cannot be edited');
+            }
         }
 
         // Deleted?
@@ -304,6 +315,9 @@ class CommentEdit
         {
             SBC::userError('Sorry, you may only edit comments that belong to you');
         }
+
+        // Set Admin Edit
+        $this->admin_edit = 1;
     }
 
     // Mailbox Permissions
@@ -354,7 +368,11 @@ class CommentEdit
         // Thread Locked?
         if ($thread_row['is_locked'] == 1)
         {
-            SBC::userError('Thread is locked');
+            // Allow admins to bypass edits if thread is locked
+            if ($this->admin_edit != 1)
+            {
+                SBC::userError('Thread is locked');
+            }
         }
 
         // Deleted?
@@ -402,6 +420,7 @@ class CommentEdit
         $this->hasInfo();
 
         // Initialize Vars
+        $last_user_id   = $this->user_id;
         $time           = $this->time;
         $comment_id     = $this->comment_id;
         $ip_address     = $this->ip_address;
@@ -413,14 +432,15 @@ class CommentEdit
 
         // Update Comment
         $sql = 'UPDATE sbc_comments
-            SET date_updated=?,
+            SET last_user_id=?,
+            date_updated=?,
             ip_updated=?,
             message=?,
             message_code=?
             WHERE id=?
             LIMIT 1';
         $stmt = $db->prepare($sql);
-        $stmt->bind_param('isssi',$time,$ip_address,$message,$message_code,$comment_id);
+        $stmt->bind_param('iisssi',$last_user_id,$time,$ip_address,$message,$message_code,$comment_id);
         SBC::statementExecute($stmt,$db,$sql,$method);
 
         // Set Message

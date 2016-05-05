@@ -1,5 +1,5 @@
 <?php
-// @author          Jonathan Maltezo (Kameloh)
+// @author          Kameloh
 // @lastUpdated     2016-04-27
 // IP Timer Class for managing IP.. Timers
 namespace SketchbookCafe\IpTimer;

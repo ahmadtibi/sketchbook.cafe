@@ -102,7 +102,7 @@ if ($categories_rownum > 0)
 
         <div class="tr">
             <div class="td adminmanageForumTd">
-                [<a href="https://www.sketchbook.cafe/admin/forum_categories_edit/<?php echo $frow['id'];?>">edit</a>]
+                [<a href="https://www.sketchbook.cafe/admin/forum_forums_edit/<?php echo $frow['id'];?>">edit</a>]
                 <?php echo $frow['name'];?>
             </div>
             <div class="td adminmanageForumTd">

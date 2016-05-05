@@ -1,5 +1,5 @@
 <?php
-// @author          Jonathan Maltezo (Kameloh)
+// @author          Kameloh
 // @lastUpdated     2016-04-27
 // Count Content Class : Counts any type of content in the user's tables
 namespace SketchbookCafe\CountContent;

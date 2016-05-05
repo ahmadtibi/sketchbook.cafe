@@ -1,4 +1,6 @@
 <?php
+// @author          Kameloh
+// @lastUpdated     2016-05-02
 // Login Timer : Allows a certain number of tries before a cooldown occurs
 namespace SketchbookCafe\LoginTimer;
 

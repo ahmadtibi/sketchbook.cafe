@@ -3,9 +3,9 @@
 *
 * ImageFile Class
 *
-* @author       Jonathan Maltezo (Kameloh)
-* @copyright    (c) 2016, Jonathan Maltezo (Kameloh)
-* @lastupdated  2016-04-26
+* @author       Kameloh
+* @copyright    (c) 2016, Kameloh
+* @lastupdated  2016-05-04
 *
 */
 namespace SketchbookCafe\ImageFile;
@@ -16,6 +16,7 @@ use SketchbookCafe\GenerateRandom\GenerateRandom as GenerateRandom;
 class ImageFile
 {
     public $name = '';
+    private $time = 0;
     private $user_id = 0;
     private $rd = 0;
     private $rd_code = '';
@@ -44,6 +45,8 @@ class ImageFile
     private $filetype = '';
     private $filesize = 0;
     private $hasfile = 0;
+    private $file_url = '';
+    private $thumb_name = ''; // does not contain filetype
 
     // SQL Stuff
     private $old_id = 0;
@@ -58,10 +61,12 @@ class ImageFile
         $method = 'ImageFile->__construct()';
 
         // Set Vars
+        $this->time         = SBC::getTime();
         $this->ip_address   = SBC::getIpAddress();
         $this->rd           = SBC::rd();
-        $randObj            = new GenerateRandom(5);
-        $this->rd_code      = $randObj->getValue();
+        // $randObj            = new GenerateRandom(5);
+        $this->rd_code      = GenerateRandom::process(5);
+        // $this->rd_code      = $randObj->getValue();
 
         // Name
         $this->name = isset($input['name']) ? $input['name'] : '';
@@ -352,5 +357,288 @@ class ImageFile
 
         // Return array
         return $value;
+    }
+
+    // File Ready
+    final private function isReady()
+    {
+        $method = 'ImageFile->isReady()';
+
+        if ($this->isready != 1)
+        {
+            SBC::devError('$isready is not set',$method);
+        }
+    }
+
+    // Create Image
+    final public function createImage(&$db)
+    {
+        $method = 'ImageFile->createImage()';
+
+        // Ready?
+        $this->isReady();
+
+        // Initialize
+        $user_id        = $this->user_id;
+        $time           = $this->time;
+        $ip_address     = $this->ip_address;
+        $filetype       = $this->filetype;
+        $filesize       = $this->filesize;
+        $rd             = $this->rd;
+        $rd_code        = $this->rd_code;
+        $image_width    = $this->image_width;
+        $image_height   = $this->image_height;
+
+        // Switch
+        $db->sql_switch('sketchbookcafe');
+
+        // Insert image info into database
+        $sql = 'INSERT INTO images
+            SET rd=?,
+            rd_code=?,
+            user_id=?,
+            date_created=?,
+            date_updated=?,
+            ip_created=?,
+            ip_updated=?,
+            filetype=?,
+            filesize=?,
+            image_width=?,
+            image_height=?,
+            isdeleted=1';
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param('isiiisssiii',$rd,$rd_code,$user_id,$time,$time,$ip_address,$ip_address,$filetype,$filesize,$image_width,$image_height);
+        SBC::statementExecute($stmt,$db,$sql,$method);
+
+        // Get Image ID
+        $sql = 'SELECT id
+            FROM images
+            WHERE rd=?
+            AND user_id=?
+            AND date_created=?
+            LIMIT 1';
+        $stmt   = $db->prepare($sql);
+        $stmt->bind_param('iii',$rd,$user_id,$time);
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
+
+        // Image ID?
+        $image_id   = isset($row['id']) ? (int) $row['id'] : 0;
+        if ($image_id < 1)
+        {
+            SBC::devError('Could not insert image into database',$method);
+        }
+        $this->image_id = $image_id;
+
+        // Create Filenames
+        $folder     = 'img/';
+        $filename   = $image_id.'-'.$rd_code.'.'.$filetype;
+        $file_url   = $folder . $filename;
+
+        // Create the File
+        $createimage    = @copy($this->file,$file_url) or die('Could not create new file');
+
+        // Set
+        $this->thumb_name   = $image_id.'-'.$rd_code;
+        $this->file_url     = $file_url;
+
+        // Generate Thumbnail
+        $this->generateThumbnail(325);
+
+        // Mark image as not deleted
+        $sql = 'UPDATE images
+            SET isdeleted=0
+            WHERE id=?
+            LIMIT 1';
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param('i',$image_id);
+        SBC::statementExecute($stmt,$db,$sql,$method);
+    }
+
+    // Get Image ID
+    final public function getImageId()
+    {
+        return $this->image_id;
+    }
+
+    // Generate Thumbnail
+    final private function generateThumbnail($thumb_size)
+    {
+        $method = 'ImageFile->generateThumbnail()';
+
+        if ($thumb_size < 1 || $thumb_size > 1000)
+        {
+            SBC::devError('Invalid thumb size',$method);
+        }
+
+        // Initialize
+        $image_source   = SBC::checkEmpty($this->file_url,'$this->file_url');
+        $thumb_name     = SBC::checkEmpty($this->thumb_name,'$this->thumb_name');
+        $file_datatype  = $this->filetype;
+        $end_name       = $thumb_size;
+
+        // Destination
+        $file_destination   = 'img_thumb/'.$thumb_name;
+
+        // GD Library
+        if (extension_loaded('gd'))
+        {
+            // Set Thumbnail Name
+            $thumbnail  = $file_destination.'_'.$end_name;
+
+            // Get File Information
+            $p_filesize = filesize($image_source);
+            $p_sizes    = GetImageSize($image_source);
+            $p_area     = $p_sizes[0] * $p_sizes[1];
+
+            // Which side is bigger?
+            if ($p_sizes[0] < $p_sizes[1])
+            {
+                // Tall Image
+                $long_mode  = 1;
+                $long_side  = $p_sizes[1];
+                $short_side = $p_sizes[0];
+            }
+            else
+            {
+                // Wide Image
+                $long_mode  = 0;
+                $long_side  = $p_sizes[0];
+                $short_side = $p_sizes[1];
+            }
+
+            // Set Functions
+            $create_function    = 'imagecreatetruecolor';
+            $resize_function    = 'imagecopyresampled';
+
+            // Switch from File Type
+            switch ($file_datatype)
+            {
+                case 'png':     $source = @imagecreatefrompng($image_source);
+                                break;
+
+                case 'jpg':     $source = @imagecreatefromjpeg($image_source);
+                                break;
+
+                case 'gif':     $source = @imagecreatefromgif($image_source);
+                                break;
+
+                default:        $source = '';
+                                break;
+            }
+            if (empty($source))
+            {
+                SBC::devError('Image file not supported by GD',$method);
+            }
+
+            // Check if GD Barfed
+            if (!$source)
+            {
+                SBC:devError('Sorry, GD Barfed :(',$method);
+            }
+
+            // Set Common Values
+            $ratio      = $thumb_size / $long_side;
+            $lesser_s   = round($short_side * $ratio);
+
+            // PNGs
+            if ($file_datatype == 'png')
+            {
+                // Start creating the thumbnail
+                if ($long_mode == 0)
+                {
+                    $thumb = imagecreatetruecolor($thumb_size,$lesser_s);
+                }
+                else
+                {
+                    $thumb = imagecreatetruecolor($lesser_s,$thumb_size);
+                }
+
+                // PNG Options
+                imagealphablending($thumb,false);
+                imagesavealpha($thumb,true);
+                $source = imagecreatefrompng($image_source);
+                imagealphablending($source,true);
+
+                // Which side?
+                if ($long_mode == 0)
+                {
+                    imagecopyresampled($thumb,$source,0,0,0,0,$thumb_size,$lesser_s,$p_sizes[0],$p_sizes[1]);
+                }
+                else
+                {
+                    imagecopyresampled($thumb,$source,0,0,0,0,$lesser_s,$thumb_size,$p_sizes[0],$p_sizes[1]);
+                }
+                imagepng($thumb,$thumbnail.'.png');
+
+                // Clear Memory
+                imagedestroy($thumb);
+                imagedestroy($source);
+            }
+            // JPGs
+            else if ($file_datatype == 'jpg')
+            {
+                // Start
+                if ($long_mode == 0)
+                {
+                    $new_s = $create_function($thumb_size,$lesser_s);
+                    $resize_function($new_s,$source,0,0,0,0,$thumb_size,$lesser_s,$p_sizes[0],$p_sizes[1]);
+                }
+                else
+                {
+                    $new_s = $create_function($lesser_s,$thumb_size);
+                    $resize_function($new_s,$source,0,0,0,0,$lesser_s,$thumb_size,$p_sizes[0],$p_sizes[1]);
+                }
+                imagejpeg($new_s,$thumbnail.'.jpg',100); // 100 quality
+
+                // Clear Memory
+                imagedestroy($new_s);
+                imagedestroy($source);
+            }
+            else
+            // GIFs
+            // Let's create a PNG thumbnail instead since animated gifs can be problematic in filesize
+            if ($file_datatype == 'gif')
+            {
+                // Which side?
+                if ($long_mode == 0)
+                {
+                    $thumb = imagecreatetruecolor($thumb_size,$lesser_s);
+                }
+                else
+                {
+                    $thumb = imagecreatetruecolor($lesser_s,$thumb_size);
+                }
+
+                // PNG Options
+                imagealphablending($thumb,false);
+                imagesavealpha($thumb,true);
+                $source = imagecreatefromgif($image_source);
+                imagealphablending($source,true);
+
+                // Which side?
+                if ($long_mode == 0)
+                {
+                    imagecopyresampled($thumb,$source,0,0,0,0,$thumb_size,$lesser_s,$p_sizes[0],$p_sizes[1]);
+                }
+                else
+                {
+                    imagecopyresampled($thumb,$source,0,0,0,0,$lesser_s,$thumb_size,$p_sizes[0],$p_sizes[1]);
+                }
+                imagepng($thumb,$thumbnail.'.png');
+
+                // Clear Memory
+                imagedestroy($thumb);
+                imagedestroy($source);
+            }
+            else
+            {
+                SBC::devError('Could not generate thumbnail',$method);
+            }
+        }
+        else
+        {
+            SBC::devError('Could not load GD Library',$method);
+        }
+        
     }
 }

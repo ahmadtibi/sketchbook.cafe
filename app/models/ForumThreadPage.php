@@ -1,19 +1,28 @@
 <?php
-// @author          Jonathan Maltezo (Kameloh)
-// @lastUpdated     2016-04-29
+// @author          Kameloh
+// @lastUpdated     2016-05-04
 
 use SketchbookCafe\SBC\SBC as SBC;
 use SketchbookCafe\Form\Form as Form;
 use SketchbookCafe\TextareaSettings\TextareaSettings as TextareaSettings;
 use SketchbookCafe\PageNumbers\PageNumbers as PageNumbers;
 use SketchbookCafe\ForumOrganizer\ForumOrganizer as ForumOrganizer;
+use SketchbookCafe\ThreadOrganizer\ThreadOrganizer as ThreadOrganizer;
 
 class ForumThreadPage
 {
+    private $challenge_id = 0;
     private $thread_id = 0;
     private $user_id = 0;
     private $forum_id = 0;
+    private $poll_id = 0;
 
+    public $challenge_row;
+
+    public $ChallengeForm = '';
+    public $SubscribeForm = '';
+    public $PollForm = '';
+    public $poll_row = '';
     public $ForumAdmin = '';
     public $Form = '';
     public $thread_row = [];
@@ -38,10 +47,18 @@ class ForumThreadPage
     public $pages_max = 0;
     public $pages_total = 0;
 
+    // Subscription
+    private $time = 0;
+    private $thread_date_updated = 0;
+    private $subscription_lda = 0; // subscription last updated for user table
+    private $table_forum_subscriptions = 0;
+    public $subscribed = 0;
+
     // Construct
     public function __construct()
     {
         $method = 'ForumThreadPage->__construct()';
+        $this->time = SBC::getTime();
     }
 
     // Set Thread ID
@@ -97,9 +114,16 @@ class ForumThreadPage
         $User->optional($db);
         $user_id = $User->getUserId();
         $this->user_id = $user_id;
+        $this->table_forum_subscriptions = $User->getColumn('table_forum_subscriptions');
 
         // Get Thread Info
         $this->getThreadInfo($db,$Member,$Comment);
+
+        // Challenge Info
+        $this->getChallengeInfo($db);
+
+        // Get Poll Info
+        $this->getPollInfo($db);
 
         // If Admin?
         $forum_id = $this->forum_id;
@@ -132,6 +156,13 @@ class ForumThreadPage
             $ForumOrganizer->userViewedThread($thread_id,$user_id);
         }
 
+        // Check if the user has subscribed to this thread
+        $this->checkSubscribed($db);
+
+        // Thread View Count
+        $ThreadOrganizer    = new ThreadOrganizer($db);
+        $ThreadOrganizer->viewCountUpdate($thread_id,$user_id);
+
         // Process all data
         $ProcessAllData = new ProcessAllData();
 
@@ -159,6 +190,39 @@ class ForumThreadPage
         $this->pages_max    = $PageNumbersObject->pages_max;
         $this->pages_total  = $PageNumbersObject->pages_total;
 
+        // Subscribe Name
+        $subscribe_name_inactive    = 'Subscribe to Thread';
+        $subscribe_name_active      = 'Subscribing...';
+        if ($this->subscribed == 1)
+        {
+            $subscribe_name_inactive    = 'Unsubscribe from Thread';
+            $subscribe_name_active      = 'Unsubscribing...';
+        }
+
+        // If user, create Subscribe Form
+        $SubscribeForm  = new Form(array
+        (
+            'name'      => 'subscribeform',
+            'action'    => 'https://www.sketchbook.cafe/forum/thread_subscribe/',
+            'method'    => 'POST',
+            'inactive'  => $subscribe_name_inactive,
+            'active'    => $subscribe_name_active,
+        ));
+
+        // Thread ID
+        $SubscribeForm->field['thread_id'] = $SubscribeForm->hidden(array
+        (
+            'name'      => 'thread_id',
+            'value'     => $thread_id,
+        ));
+
+        // Submit
+        $SubscribeForm->field['submit'] = $SubscribeForm->submit(array
+        (
+            'name'      => 'Submit',
+            'css'       => '',
+        ));
+
         // New Form
         $Form = new Form(array
         (
@@ -182,8 +246,37 @@ class ForumThreadPage
         // Textarea
         $Form->field['message'] = $Form->textarea($message_settings);
 
+        // New Form
+        $PollForm = new Form(array
+        (
+            'name'      => 'forumpollvote',
+            'action'    => 'https://www.sketchbook.cafe/forum/poll_vote/',
+            'method'    => 'POST',
+            'inactive'  => 'Vote',
+            'active'    => 'Voting...',
+        ));
+
+        // Hidden
+        $PollForm->field['poll_id'] = $PollForm->hidden(array
+        (
+            'name'      => 'poll_id',
+            'value'     => $this->poll_id,
+        ));
+
+        // Submit
+        $PollForm->field['submit'] = $PollForm->submit(array
+        (
+            'name'      => 'Submit',
+            'css'       => 'pollvotebutton',
+        ));
+
+        // Create Challenge Form
+        $this->createChallengeForm();
+
         // Set Vars
-        $this->Form = $Form;
+        $this->SubscribeForm    = $SubscribeForm;
+        $this->PollForm         = $PollForm;
+        $this->Form             = $Form;
     }
 
     // Get Thread Information
@@ -202,12 +295,12 @@ class ForumThreadPage
         $db->sql_switch('sketchbookcafe');
  
         // Get Thread Information
-        $sql = 'SELECT id, forum_id, user_id, date_created, comment_id, title, total_comments, 
+        $sql = 'SELECT id, challenge_id, poll_id, forum_id, user_id, date_created, date_updated, comment_id, title, total_comments, 
             is_poll, is_locked, is_sticky, isdeleted
             FROM forum_threads
             WHERE id=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
+        $stmt       = $db->prepare($sql);
         $stmt->bind_param('i',$thread_id);
         $thread_row = SBC::statementFetchRow($stmt,$db,$sql,$method);
 
@@ -223,6 +316,9 @@ class ForumThreadPage
         {
             SBC::userError('Thread no longer exists');
         }
+
+        // Set date for subscriptions
+        $this->thread_date_updated = $thread_row['date_updated'];
 
         // Forum ID
         $forum_id   = $thread_row['forum_id'];
@@ -275,6 +371,8 @@ class ForumThreadPage
         }
 
         // Set
+        $this->challenge_id = $thread_row['challenge_id'];
+        $this->poll_id      = $thread_row['poll_id'];
         $this->category_row = $category_row;
         $this->forum_row    = $forum_row;
         $this->thread_row   = $thread_row;
@@ -332,5 +430,190 @@ class ForumThreadPage
 
         // Add Comment IDs
         $Comment->idAddRows($comments_result,'cid');
+    }
+
+    // Get Poll Info
+    final private function getPollInfo(&$db)
+    {
+        $method = 'ForumThreadPage->getPollInfo()';
+
+        // Initialize
+        $poll_id    = $this->poll_id;
+        if ($poll_id < 1)
+        {
+            return null;
+        }
+
+        // Switch
+        $db->sql_switch('sketchbookcafe');
+
+        // Get Poll Info
+        $sql = 'SELECT id, message1, message2, message3, message4, message5, 
+            message6, message7, message8, message9, message10, 
+            vote1, vote2, vote3, vote4, vote5, 
+            vote6, vote7, vote8, vote9, vote10,
+            total_votes, is_locked, is_hidden, isdeleted
+            FROM forum_polls
+            WHERE id=?
+            LIMIT 1';
+        $stmt       = $db->prepare($sql);
+        $stmt->bind_param('i',$poll_id);
+        $poll_row   = SBC::statementFetchRow($stmt,$db,$sql,$method);
+
+        // Verify
+        $poll_id    = isset($poll_row['id']) ? (int) $poll_row['id'] : 0;
+        if ($poll_id < 1)
+        {
+            SBC::devError('Cannot find Poll in database',$method);
+        }
+
+        // Set
+        $this->poll_row = $poll_row;
+    }
+
+    // Check Subscription
+    final private function checkSubscribed(&$db)
+    {
+        $method = 'ForumThreadPage->checkSubscribed()';
+
+        // Initialize
+        $time                   = $this->time;
+        $thread_date_updated    = $this->thread_date_updated;
+        $thread_id              = SBC::checkNumber($this->thread_id,'$this->thread_id');
+        $user_id                = $this->user_id;
+        $table                  = $this->table_forum_subscriptions;
+        if ($user_id < 1 || $table < 1)
+        {
+            return null;
+        }
+
+        // Switch
+        $db->sql_switch('sketchbookcafe_users');
+
+        // Table
+        $table_name = 'u'.$user_id.'fs';
+
+        // Check
+        $sql = 'SELECT id, lda
+            FROM '.$table_name.'
+            WHERE tid=?
+            LIMIT 1';
+        $stmt   = $db->prepare($sql);
+        $stmt->bind_param('i',$thread_id);
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
+
+        // Subscribed?
+        $id = isset($row['id']) ? (int) $row['id'] : 0;
+        if ($id > 0)
+        {
+            $this->subscribed = 1;
+            $this->subscription_lda = $row['lda'];
+
+            // Update subscription's last update column
+            $sql = 'UPDATE '.$table_name.'
+                SET lda=?,
+                pda=?
+                WHERE id=?
+                LIMIT 1';
+            $stmt = $db->prepare($sql);
+            $stmt->bind_param('iii',$thread_date_updated,$time,$id);
+            SBC::statementExecute($stmt,$db,$sql,$method);
+        }
+    }
+
+    // Get Challenge Info
+    final private function getChallengeInfo(&$db)
+    {
+        $method = 'ForumThreadPage->getChallengeInfo()';
+
+        // Initialize
+        $challenge_id   = $this->challenge_id;
+        if ($challenge_id < 1)
+        {
+            return null;
+        }
+
+        // Switch
+        $db->sql_switch('sketchbookcafe');
+
+        // Get Challenge Info
+        $sql = 'SELECT id, points, name, description, requirements
+            FROM challenges
+            WHERE id=?
+            LIMIT 1';
+        $stmt   = $db->prepare($sql);
+        $stmt->bind_param('i',$challenge_id);
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
+
+        // Verify
+        $challenge_id = isset($row['id']) ? (int) $row['id'] : 0;
+        if ($challenge_id < 1)
+        {
+            return null;
+        }
+
+        // Set
+        $this->challenge_row = $row;
+    }
+
+    // Create Challenge Form
+    final private function createChallengeForm()
+    {
+        $method = 'ForumThreadPage->createChallengeForm()';
+
+        // Initialize
+        $challenge_id = $this->challenge_id;
+        if ($challenge_id < 1)
+        {
+            return null;
+        }
+
+        // New Form
+        $ChallengeForm  = new Form(array
+        (
+            'name'      => 'challengeform',
+            'action'    => 'https://www.sketchbook.cafe/challenge/entry_submit/',
+            'method'    => 'POST',
+        ));
+
+        // Challenge Id
+        $ChallengeForm->field['challenge_id'] = $ChallengeForm->hidden(array
+        (
+            'name'      => 'challenge_id',
+            'value'     => $challenge_id,
+        ));
+
+        // File Input
+        $ChallengeForm->field['imagefile'] = $ChallengeForm->file(array
+        (
+            'name'  => 'imagefile',
+        ));
+
+        // Normal Submit
+        $ChallengeForm->field['submit'] = $ChallengeForm->submit(array
+        (
+            'name'  => 'Submit',
+            'css'   => '',
+        ));
+
+        // Upload Submit
+        $ChallengeForm->field['upload'] = $ChallengeForm->upload(array
+        (
+            'name'      => 'imagefile',
+            'imagefile' => 'imagefile',
+            'post_url'  => 'https://www.sketchbook.cafe/challenge/entry_submit/',
+            'css'       => '',
+        ));
+
+        // Textarea Settings
+        $TS = new TextareaSettings('challenge_reply');
+        $TS->setValue('');
+        $message_settings   = $TS->getSettings();
+
+        // Textarea
+        $ChallengeForm->field['message'] = $ChallengeForm->textarea($message_settings);
+
+        // Set
+        $this->ChallengeForm = $ChallengeForm;
     }
 }

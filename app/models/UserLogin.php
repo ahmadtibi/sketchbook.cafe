@@ -1,6 +1,6 @@
 <?php
-// User Login Stuff
-// Last Updated:    2016-04-26
+// @author          Kameloh
+// @lastUpdated     2016-04-26
 use SketchbookCafe\SBC\SBC as SBC;
 use SketchbookCafe\LoginTimer\LoginTimer as LoginTimer;
 use SketchbookCafe\UserSession\UserSession as UserSession;

@@ -1,7 +1,8 @@
 <?php
-// Block Check
-// Last Updated     2016-04-26
+// @author          Kameloh
+// @lastUpdated     2016-05-02
 namespace SketchbookCafe\BlockCheck;
+
 use SketchbookCafe\SBC\SBC as SBC;
 
 class BlockCheck

@@ -1,6 +1,6 @@
 <?php
-// @author          Jonathan Maltezo (Kameloh)
-// @lastUpdated     2016-04-27
+// @author          Kameloh
+// @lastUpdated     2016-05-03
 
 use SketchbookCafe\SBC\SBC as SBC;
 use SketchbookCafe\Form\Form as Form;
@@ -15,6 +15,8 @@ class ForumPage
     public $Form = '';
     private $forum_id = 0;
     public $forum_row = [];
+    public $forum_admin_result = '';
+    public $forum_admin_rownum = 0;
 
     public $threads_result = '';
     public $threads_rownum = 0;
@@ -115,6 +117,9 @@ class ForumPage
             $this->getThreadTimers($db);
         }
 
+        // Get Forum Admins
+        $this->getForumAdmins($db);
+
         // Process all data
         $ProcessAllData = new ProcessAllData();
 
@@ -156,6 +161,22 @@ class ForumPage
             'name'      => 'forum_id',
             'value'     => $forum_id,
         ));
+
+        $i = 1;
+        while ($i < 11)
+        {
+            // Poll
+            $Form->field['poll'.$i] = $Form->input(array
+            (
+                'name'          => 'poll'.$i,
+                'type'          => 'text',
+                'max'           => 100,
+                'value'         => '',
+                'placeholder'   => 'poll answer '.$i,
+                'css'           => 'fpInputPoll',
+            ));
+            $i++;
+        }
 
         // Title
         $Form->field['name']     = $Form->input(array
@@ -308,8 +329,8 @@ class ForumPage
         if (!empty($id_list))
         {
             // Get Threads
-            $sql = 'SELECT id, user_id, date_created, date_updated, title, last_user_id,
-                total_comments, total_users, is_poll, is_locked, is_sticky, isdeleted
+            $sql = 'SELECT id, poll_id, user_id, date_created, date_updated, title, last_user_id,
+                total_comments, total_views, total_users, is_poll, is_locked, is_sticky, isdeleted
                 FROM forum_threads
                 WHERE id IN('.$id_list.')
                 ORDER BY date_bumped
@@ -386,5 +407,34 @@ class ForumPage
                 mysqli_data_seek($vt_result,0);
             }
         }
+    }
+
+    // Get Forum Admins
+    final private function getForumAdmins(&$db)
+    {
+        $method = 'ForumPage->getForumAdmins()';
+
+        // Initialize
+        $forum_id   = $this->forum_id;
+        $Member     = &$this->obj_array['Member'];
+
+        // Switch
+        $db->sql_switch('sketchbookcafe');
+
+        // Get Forum Admins
+        $sql = 'SELECT user_id
+            FROM forum_admins
+            WHERE forum_id=?';
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param('i',$forum_id);
+        if (!$stmt->execute())
+        {
+            SBC::devError('Could not get forum admins',$method);
+        }
+        $this->forum_admin_result = $stmt->get_result();
+        $this->forum_admin_rownum = $db->sql_numrows($this->forum_admin_result);
+
+        // Add Users
+        $Member->idAddRows($this->forum_admin_result,'user_id');
     }
 }

@@ -106,6 +106,26 @@ echo $Form->field['admin_id'];
             &nbsp;
         </div>
         <div class="innerRight">
+            <?php echo $Form->field['delete_post']; ?>
+            Delete Post
+        </div>
+    </div>
+
+    <div class="innerWrap">
+        <div class="innerLeft">
+            &nbsp;
+        </div>
+        <div class="innerRight">
+            <?php echo $Form->field['delete_thread']; ?>
+            Delete Thread
+        </div>
+    </div>
+
+    <div class="innerWrap">
+        <div class="innerLeft">
+            &nbsp;
+        </div>
+        <div class="innerRight">
 <?php
 echo $Form->field['submit'];
 ?>

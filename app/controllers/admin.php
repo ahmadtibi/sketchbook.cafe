@@ -1,5 +1,8 @@
 <?php
-// Admin
+// @author          Kameloh
+// @lastUpdated     2016-05-04
+
+use SketchbookCafe\SBC\SBC as SBC;
 
 class Admin extends Controller
 {
@@ -10,9 +13,83 @@ class Admin extends Controller
         $this->obj_array = &$obj_array;
     }
 
+    // Create new Challenge
+    public function new_challenge()
+    {
+        $this->model('AdminChallengeSubmit',$this->obj_array);
+    }
+
+    // Manage Challenges
+    public function manage_challenges()
+    {
+        $method = 'admin->manage_challenges()';
+
+        $User           = &$this->obj_array['User'];
+        $current_page   = 'challenges';
+
+        // Model
+        $PageObj            = $this->model('AdminChallengesPage',$this->obj_array);
+        $Form               = $PageObj->Form;
+
+        // View
+        $this->view('sketchbookcafe/header');
+        $this->view('sketchbookcafe/admin_top', 
+        [
+            'User'          => $User,
+            'current_page'  => $current_page,
+        ]);
+        $this->view('admin/challenges',
+        [
+            'Form'              => $Form,
+        ]);
+        $this->view('sketchbookcafe/admin_bottom');
+        $this->view('sketchbookcafe/footer');
+    }
+
+    // Create Challenge Category
+    public function create_challenge_category()
+    {
+        $this->model('AdminChallengeCategoriesSubmit',$this->obj_array);
+    }
+
+    // Challenge Categories
+    public function challenge_categories()
+    {
+        $method = 'admin->challenge_categories()';
+
+        // Objects
+        $User   = &$this->obj_array['User'];
+
+        // Model
+        $PageObj            = $this->model('AdminChallengeCategoriesPage',$this->obj_array);
+        $Form               = $PageObj->Form;
+        $categories_result  = $PageObj->categories_result;
+        $categories_rownum  = $PageObj->categories_rownum;
+
+        $current_page   = 'challenge_categories';
+
+        // View
+        $this->view('sketchbookcafe/header');
+        $this->view('sketchbookcafe/admin_top', 
+        [
+            'User'          => $User,
+            'current_page'  => $current_page,
+        ]);
+        $this->view('admin/managechallengecategories',
+        [
+            'Form'              => $Form,
+            'categories_result' => $categories_result,
+            'categories_rownum' => $categories_rownum,
+        ]);
+        $this->view('sketchbookcafe/admin_bottom');
+        $this->view('sketchbookcafe/footer');
+    }
+
     // Edit Forum Admin
     public function edit_forum_admin($id = 0)
     {
+        $method = 'admin->edit_forum_admin()';
+
         // Objects
         $User   = &$this->obj_array['User'];
         $Member = &$this->obj_array['Member'];
@@ -21,7 +98,7 @@ class Admin extends Controller
         $id     = isset($id) ? (int) $id : 0;
         if ($id < 1)
         {
-            error('Admin ID not set');
+            SBC::devError('Admin ID not set',$method);
         }
 
         // Edit Forum Admin

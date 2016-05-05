@@ -1,5 +1,6 @@
 <?php
-// Mailbox
+// @author          Kameloh
+// @lastUpdated     2016-05-02 
 
 class Mailbox extends Controller
 {

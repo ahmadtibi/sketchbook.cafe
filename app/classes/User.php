@@ -3,9 +3,9 @@
 *
 * User Class
 *
-* @author       Jonathan Maltezo (Kameloh)
-* @copyright    (c) 2016, Jonathan Maltezo (Kameloh)
-* @lastupdated  2016-04-27
+* @author       Kameloh
+* @copyright    (c) 2016, Kameloh
+* @lastupdated  2016-05-03
 *
 */
 // Main user class
@@ -334,7 +334,8 @@ class User
 
         // Get User Information
         $sql = 'SELECT id, username, isadmin, timezone_my, timezone_id, avatar_id, avatar_url, 
-            mail_total, mailbox_update, mailbox_lastupdate 
+            mail_total, mailbox_update, mailbox_lastupdate, 
+            table_forum_subscriptions
             FROM users
             WHERE id=?
             LIMIT 1';
@@ -613,7 +614,7 @@ class User
         // Get Admin Info
         $sql = 'SELECT id, haspass, ip_address, session_active, admin_session1, admin_session2, admin_session3,
             manage_forum_categories, manage_forum_forums, fix_user_table, fix_forum_table, manage_forum,
-            manage_forum_admins
+            manage_forum_admins, challenge_categories, challenges 
             FROM admins
             WHERE user_id=?
             LIMIT 1';
@@ -661,6 +662,8 @@ class User
         $this->admin_flag['manage_forum']               = $row['manage_forum'];
         $this->admin_flag['fix_forum_table']            = $row['fix_forum_table'];
         $this->admin_flag['manage_forum_admins']        = $row['manage_forum_admins'];
+        $this->admin_flag['challenge_categories']       = $row['challenge_categories'];
+        $this->admin_flag['challenges']                 = $row['challenges'];
     }
 
     // Require Admin Flag
@@ -763,6 +766,12 @@ class User
         }
     }
 
+    // Forum Admin Flag Array
+    final public function getForumAdminFlagArray()
+    {
+        return $this->forum_admin_flag;
+    }
+
     // Forum Admin Flag
     final public function hasForumAdminFlag($flag)
     {
@@ -802,7 +811,7 @@ class User
         $db->sql_switch('sketchbookcafe');
 
         // Get Forum Admin
-        $sql = 'SELECT id, lock_thread, lock_post, bump_thread, move_thread, sticky_thread, edit_thread, edit_post
+        $sql = 'SELECT *
             FROM forum_admins
             WHERE user_id=?
             AND forum_id=?

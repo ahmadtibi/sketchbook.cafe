@@ -1,4 +1,6 @@
 <?php
+// @author          Kameloh
+// @lastUpdated     2016-05-02
 class Home extends Controller
 {
 	/*

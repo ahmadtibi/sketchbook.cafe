@@ -1,6 +1,6 @@
 <?php
-// @author          Jonathan Maltezo (Kameloh)
-// @lastUpdated     2016-04-29
+// @author          Kameloh
+// @lastUpdated     2016-05-04
 
 namespace SketchbookCafe\SBC;
 
@@ -90,7 +90,7 @@ class SBC
     // Get IP Address
     public static function getIpAddress()
     {
-        $ip_address = $_SERVER['REMOTE_ADDR'];
+        $ip_address = isset($_SERVER['HTTP_CF_CONNECTING_IP']) ? $_SERVER['HTTP_CF_CONNECTING_IP'] : $_SERVER['REMOTE_ADDR'];
 
         return $ip_address;
     }

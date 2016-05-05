@@ -3,8 +3,8 @@
 *
 * Database Class
 * 
-* @author       Jonathan Maltezo (Kameloh)
-* @copyright    (c) 2016, Jonathan Maltezo (Kameloh)
+* @author       Kameloh
+* @copyright    (c) 2016, Kameloh
 * @lastUpdated  2016-04-09
 *
 */

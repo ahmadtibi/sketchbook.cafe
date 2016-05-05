@@ -1,5 +1,5 @@
 <?php
-// @author          Jonathan Maltezo
+// @author          Kameloh
 // @lastUpdated     2016-04-26
 
 use SketchbookCafe\SBC\SBC as SBC;

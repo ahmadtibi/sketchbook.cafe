@@ -568,6 +568,9 @@
 
 /* Enabled Document */
 /* --------------------------------------------------------------- */
+.formHelpTd {
+    padding: 6px;
+}
 .formEnabledItem {
     padding-right: 9px;
     font-size: 11px;
@@ -607,6 +610,7 @@
     padding-left: 6px;
 }
 .formHelpContent {
+    margin: 6px;
     font-family: Georgia, serif;
     font-size: 12px;
     line-height: 18px;
@@ -722,7 +726,7 @@
 .headerUserWrap {
     float: right;
     overflow: hidden;
-    width: 300px;
+    min-width: 300px;
     min-height: 50px;
 }
 .headerUserDiv {
@@ -873,6 +877,16 @@
     font-size: 14px;
     line-height: 20px;
 }
+.commentMessage img {
+    max-width: 95%;
+    margin-left: 4px;
+
+    -webkit-box-shadow: 0px 0px 5px 0px rgba(99,99,99,1);
+    -moz-box-shadow: 0px 0px 5px 0px rgba(99,99,99,1);
+    box-shadow: 0px 0px 5px 0px rgba(99,99,99,1);
+
+    border: 3px solid #FFFFFF;
+}
 .commentMessage a:link, .commentMessage a:visited, .commentMessage a:active {
     color: red;
 }
@@ -896,7 +910,7 @@
 /* --------------------------------------------------------------- */
 .threadTitleWrap {
     overflow: hidden;
-    margin-top: 9px;
+    margin-top: 24px;
     margin-bottom: 9px;
     margin-left: 9px;
 }
@@ -911,7 +925,7 @@
     overflow: hidden;
     font-family: Georgia, serif;
     font-size: 22px;
-    height: 22px;
+    min-height: 22px;
 }
 .threadTitle a:link, .threadTitle a:visited, .threadTitle a:active {
     color: #151515;
@@ -995,6 +1009,10 @@
 
 /* Sizes */
 /* --------------------------------------------------------------- */
+.textarea_challenges {
+    width: 500px;
+    height: 110px;
+}
 .textarea_forum_reply {
     width: 600px;
     height: 210px;

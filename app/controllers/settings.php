@@ -1,5 +1,6 @@
 <?php
-// Settings Page
+// @author          Kameloh
+// @lastUpdated     2016-05-02
 
 class Settings extends Controller
 {

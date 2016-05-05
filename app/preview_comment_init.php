@@ -1,5 +1,5 @@
 <?php
-// @author          Jonathan Maltezo (Kameloh)
+// @author          Kameloh
 // @lastUpdated     2016-04-26
 use SketchbookCafe\SBC\SBC as SBC;
 use SketchbookCafe\GetSettingName\GetSettingName as GetSettingName;
@@ -83,6 +83,9 @@ $db->close();
     font-size: 14px;
     line-height: 20px;
     font-family: Georgia, serif;
+}
+.previewMessage img {
+    max-width: 100%;
 }
 </style>
 <div class="previewWrap">

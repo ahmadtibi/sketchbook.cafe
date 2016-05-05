@@ -1,6 +1,7 @@
 <?php
+// @author          Kameloh
+// @lastUpdated     2016-04-26
 // User timer based off user's ID instead of IP address
-// Last Updated     2016-04-26
 namespace SketchbookCafe\UserTimer;
 
 use SketchbookCafe\SBC\SBC as SBC;

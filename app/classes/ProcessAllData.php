@@ -9,13 +9,14 @@ class ProcessAllData
     public function __construct()
     {
         // Globals
-        global $db, $User, $Member, $Comment;
+        global $db, $User, $Member, $Comment, $Images;
 
         // Add User
         $Member->idAddOne($User->getUserId());
 
         // Process Members
         $Comment->getComments($db);
+        $Images->getImages($db);
         $Member->getUsers($db);
     }
 }

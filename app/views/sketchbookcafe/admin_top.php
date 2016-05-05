@@ -68,6 +68,37 @@ $current_page   = &$data['current_page'];
 <div class="adminWrap">
     <div class="adminLeft">
 
+        <div class="adminCategory">
+            <div class="adminItemTitle">
+                Challenges
+            </div>
+<?php
+// Challenge Categories
+if ($User->hasAdminFlag('challenge_categories'))
+{
+?>
+            <a href="https://www.sketchbook.cafe/admin/challenge_categories/">
+                <div class="adminItem <?php if ($current_page == 'challenge_categories') { echo ' adminItemSelected ' ;}?>">
+                    Manage Categories
+                </div>
+            </a>
+<?php
+}
+
+// Manage Challenges
+if ($User->hasAdminFlag('challenges'))
+{
+?>
+            <a href="https://www.sketchbook.cafe/admin/manage_challenges/">
+                <div class="adminItem <?php if ($current_page == 'challenges') { echo ' adminItemSelected ' ;}?>">
+                    Manage Challenges
+                </div>
+            </a>
+<?php
+}
+?>
+        </div>
+
 
         <div class="adminCategory">
             <div class="adminItemTitle">

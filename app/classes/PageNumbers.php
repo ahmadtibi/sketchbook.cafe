@@ -3,8 +3,8 @@
 *
 * Pagenumbers Class
 *
-* @author       Jonathan Maltezo (Kameloh)
-* @copyright    (c) 2016, Jonathan Maltezo (Kameloh)
+* @author       Kameloh
+* @copyright    (c) 2016, Kameloh
 * @lastupdated  2016-04-27
 *
 */

@@ -1,5 +1,5 @@
 <?php
-// @author          Jonathan Maltezo (Kameloh)
+// @author          Kameloh
 // @lastUpdated     2016-04-26
 // User Sessions - Creates/Cleans/Updates login sessions
 // This assumes that the user is authenticated either through

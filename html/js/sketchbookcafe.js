@@ -369,7 +369,7 @@ function sbc_dateago_calc(current_date, old_date)
         }
         else
         {
-            return interval + 'year ago';
+            return interval + ' year ago';
         }
     }
 
@@ -383,7 +383,7 @@ function sbc_dateago_calc(current_date, old_date)
         }
         else
         {
-            return interval + 'month ago';
+            return interval + ' month ago';
         }
     }
 
@@ -397,7 +397,7 @@ function sbc_dateago_calc(current_date, old_date)
         }
         else
         {
-            return interval + 'week ago';
+            return interval + ' week ago';
         }
     }
 
@@ -411,7 +411,7 @@ function sbc_dateago_calc(current_date, old_date)
         }
         else
         {
-            return interval + 'day ago';
+            return interval + ' day ago';
         }
     }
 
@@ -425,7 +425,7 @@ function sbc_dateago_calc(current_date, old_date)
         }
         else
         {
-            return interval + 'hour ago';
+            return interval + ' hour ago';
         }
     }
 
@@ -439,7 +439,7 @@ function sbc_dateago_calc(current_date, old_date)
         }
         else
         {
-            return interval + 'minute ago';
+            return interval + ' minute ago';
         }
     }
 
@@ -453,7 +453,7 @@ function sbc_dateago_calc(current_date, old_date)
         }
         else
         {
-            return interval + 'second ago';
+            return interval + ' second ago';
         }
     }
 }
@@ -570,6 +570,30 @@ function sbc_ajax_form(page_url,f_window)
     xmlhttp.open("GET",page_url,true);
     xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
     xmlhttp.send('');
+}
+
+// Thread: Edit Title
+function sbc_thread_edittitle(thread_id,comment_id)
+{
+    var page_url = 'https://www.sketchbook.cafe/ajax/edit_threadtitle/' + thread_id + '/';
+    var f_window = 'edit_comment_window' + comment_id;
+    return sbc_ajax_form(page_url,f_window);
+}
+
+// Thread: Sticky Form (no longer used)
+function sbc_thread_sticky_form(id)
+{
+    var page_url = 'https://www.sketchbook.cafe/ajax/sticky_thread/' + id + '/';
+    var f_window = 'edit_comment_window' + id;
+    return sbc_ajax_form(page_url,f_window);
+}
+
+// Thread: Delete
+function sbc_thread_deletethread(thread_id,comment_id)
+{
+    var page_url = 'https://www.sketchbook.cafe/ajax/delete_thread/' + thread_id + '/';
+    var f_window = 'edit_comment_window' + comment_id;
+    return sbc_ajax_form(page_url,f_window);
 }
 
 // Edit Comment Form

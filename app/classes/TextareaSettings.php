@@ -1,6 +1,6 @@
 <?php
-// @author          Jonathan Maltezo (Kameloh)
-// @lastUpdated     2016-04-26
+// @author          Kameloh
+// @lastUpdated     2016-05-04
 namespace SketchbookCafe\TextareaSettings;
 
 use SketchbookCafe\SBC\SBC as SBC;
@@ -33,8 +33,62 @@ class TextareaSettings
     {
         $method = 'TextareaSettings->__construct()';
 
-       // Initialize Vars
+        // Initialize Vars
         $settings = [];
+
+        // Forum Reply
+        $settings['challenge_reply']    = array
+        (
+            'name'          => 'message',
+            'min'           => 2, // min value
+            'max'           => 20000, // user input max
+            'column_max'    => 60000, // database max
+            'css'           => 'textarea_forum_reply', 
+            'preview'       => 1,
+            'submit'        => 0,
+            'help'          => 1,
+            'nl2br'         => 1,
+            'basic'         => 1,
+            'images'        => 1,
+            'videos'        => 1,
+            'setting_name'  => 'challenge_reply',
+        );
+
+        // Challenge Requirements
+        $settings['challenge_requirements']    = array
+        (
+            'name'          => 'requirements',
+            'min'           => 1, // min value
+            'max'           => 20000, // user input max
+            'column_max'    => 60000, // database max
+            'css'           => 'textarea_challenges', 
+            'preview'       => 1,
+            'submit'        => 0,
+            'help'          => 1,
+            'nl2br'         => 1,
+            'basic'         => 1,
+            'images'        => 1,
+            'videos'        => 1,
+            'setting_name'  => 'challenge_requirements',
+        );
+
+        // Challenge Description
+        $settings['challenge_description']    = array
+        (
+            'name'          => 'description',
+            'min'           => 1, // min value
+            'max'           => 20000, // user input max
+            'column_max'    => 60000, // database max
+            'css'           => 'textarea_challenges', 
+            'preview'       => 1,
+            'submit'        => 0,
+            'help'          => 1,
+            'nl2br'         => 1,
+            'basic'         => 1,
+            'images'        => 1,
+            'videos'        => 1,
+            'setting_name'  => 'challenge_description',
+        );
 
         // Forum Reply
         $settings['forum_reply']    = array
@@ -162,6 +216,15 @@ class TextareaSettings
         // Set Type
         switch ($setting_name)
         {
+            case 'challenge_reply':     $type = 'challenge_reply';
+                                        break;
+
+            case 'challenge_requirements':  $type = 'challenge_requirements';
+                                            break;
+
+            case 'challenge_description':   $type = 'challenge_description';
+                                            break;
+
             case 'forum_reply':         $type = 'forum_reply';
                                         break;
 

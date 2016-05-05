@@ -1,4 +1,6 @@
 <?php
+// @author          Kameloh
+// @lastUpdated     2016-05-02
 // Forums Controller
 // Main Forums Page!
 
@@ -14,6 +16,10 @@ class Forums extends Controller
     // Main Page
     public function index()
     {
+        // Header
+        header('Location: https://www.sketchbook.cafe/forum/');
+        exit;
+/*
         // Objects
         $User   = $this->obj_array['User'];
 
@@ -35,5 +41,6 @@ class Forums extends Controller
             'forums_rownum'     => $forums_rownum,
         ]);
         $this->view('sketchbookcafe/footer');
+*/
     }
 }

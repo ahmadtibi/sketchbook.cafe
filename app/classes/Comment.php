@@ -1,6 +1,6 @@
 <?php
-// @author          Jonathan Maltezo (Kameloh)
-// @lastUpdated     2016-04-26
+// @author          Kameloh
+// @lastUpdated     2016-05-04
 namespace SketchbookCafe\Comment;
 
 use SketchbookCafe\SBC\SBC as SBC;
@@ -26,7 +26,7 @@ class Comment
         $method = 'Comment->getComments()';
 
         // Global (for now);
-        global $Member;
+        global $Member,$Images;
 
         // Create list
         $id_list = SBC::idClean($this->id_list);
@@ -50,7 +50,8 @@ class Comment
             $db->sql_switch('sketchbookcafe');
 
             // Get Comments
-            $sql = 'SELECT id, type, user_id, date_created, date_updated, message, ismail, isprivate, isdeleted
+            $sql = 'SELECT id, type, image_id, entry_id, user_id, last_user_id, date_created, date_updated, message,
+                is_locked, ismail, isprivate, isdeleted
                 FROM sbc_comments
                 WHERE id IN('.$id_list.')';
             $result = $db->sql_query($sql);
@@ -67,10 +68,14 @@ class Comment
                 (
                     'id'            => $trow['id'],
                     'type'          => $trow['type'],
+                    'image_id'      => $trow['image_id'],
+                    'entry_id'      => $trow['entry_id'],
                     'user_id'       => $trow['user_id'],
+                    'last_user_id'  => $trow['last_user_id'], 
                     'date_created'  => $trow['date_created'],
                     'date_updated'  => $trow['date_updated'],
                     'message'       => $trow['message'],
+                    'is_locked'     => $trow['is_locked'],
                     'ismail'        => $trow['ismail'],
                     'isprivate'     => $trow['isprivate'],
                     'isdeleted'     => $trow['isdeleted'],
@@ -78,8 +83,12 @@ class Comment
             }
             mysqli_data_seek($result,0);
 
-            // Add User ID
+            // Add User ID and Last User IDs
             $Member->idAddRows($result,'user_id');
+            $Member->idAddRows($result,'last_user_id');
+
+            // Add Images
+            $Images->idAddRows($result,'image_id');
         }
     }
 

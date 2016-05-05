@@ -1,6 +1,6 @@
 <?php
-// @author          Jonathan Maltezo (Kameloh)
-// @lastUpdated      2016-04-26
+// @author          Kameloh
+// @lastUpdated     2016-04-30
 namespace SketchbookCafe\Member;
 
 use SketchbookCafe\SBC\SBC as SBC;
@@ -60,6 +60,7 @@ class Member
             {
                 $this->member[$trow['id']] = array
                 (
+                    'username'          => $trow['username'],
                     'title'             => $trow['title'],
                     'forumsignature'    => $trow['forumsignature'], 
                     'total_posts'       => $trow['total_posts'],
@@ -67,6 +68,14 @@ class Member
             }
             mysqli_data_seek($result,0);
         }
+    }
+
+    // Display Username
+    final public function displayUsername($id)
+    {
+        $method = 'Member->displayUsername()';
+
+        return $this->member[$id]['username'];
     }
 
     // Display Posts

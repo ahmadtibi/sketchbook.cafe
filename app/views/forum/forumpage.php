@@ -9,6 +9,10 @@ $threads_rownum = &$data['threads_rownum'];
 $Member         = &$data['Member'];
 $Comment        = &$data['Comment'];
 
+// Forum Admins
+$forum_admin_result = &$data['forum_admin_result'];
+$forum_admin_rownum = &$data['forum_admin_rownum'];
+
 // Page Numbers
 $pagenumbers    = &$data['pagenumbers'];
 $pages_min      = &$data['pages_min'];
@@ -103,6 +107,16 @@ $user_id        = $User->getUserId();
 .fpInputTitle {
     border: 1px solid #D4D4D4;
 }
+.fpInputPoll {
+    border: 1px solid #D4D4D4;
+    width: 500px;
+}
+.fpCreatePollLink {
+    font-size: 12px;
+}
+.createpolldiv {
+    margin-bottom: 25px;
+}
 </style>
 <div class="fpTitle">
     <a href="https://www.sketchbook.cafe/forum/<?php echo $forum_row['id'];?>"><?php echo $forum_row['name'];?></a>
@@ -123,7 +137,7 @@ if ($User->loggedIn())
 ?>
     </div>
     <div class="breadCrumbs">
-        <a href="https://www.sketchbook.cafe/forums/"><?php echo $category_row['name'];?></a>
+        <a href="https://www.sketchbook.cafe/forum/"><?php echo $category_row['name'];?></a>
         <span class="breadCrumbSeparator">></span>
         <a href="https://www.sketchbook.cafe/forum/<?php echo $forum_row['id'];?>"><?php echo $forum_row['name'];?></a>
     </div>
@@ -138,8 +152,75 @@ if ($User->loggedIn())
 ?>
 <div id="fpNewThreadDiv" class="fpNewThreadDiv" style="display: none;">
     <div>
-        <b>New Forum Thread</b>
+        <b>New Forum Thread</b> 
+        <span class="fpCreatePollLink">
+            <a href="" onClick="hideshow('createpoll');return false;">[Create Poll]</a>
+        </span>
     </div>
+
+    <!-- Start Polls -->
+    <div id="createpoll" class="createpolldiv" style="display:none;">
+
+    <div class="innerWrap">
+        <div class="innerLeft">
+            &nbsp;
+        </div>
+        <div class="innerRight">
+            <b>Create a Poll</b> (note: answers cannot be changed after thread is created)
+        </div>
+    </div>
+
+<?php
+// Polls
+$i = 1;
+while ($i < 11)
+{
+    // If 5, hide the rest
+    if ($i == 6)
+    {
+?>
+    <span id="createpoll_more" style="display: none;">
+<?php
+    }
+?>
+
+    <div class="innerWrap">
+        <div class="innerLeft">
+            Poll <?php echo $i;?>:
+        </div>
+        <div class="innerRight">
+<?php
+echo $Form->field['poll'.$i];
+?>
+<?php
+    // More Options
+    if ($i == 5)
+    {
+?>
+            <span id="createpoll_more_link" style="display:;">
+                <a href="" onClick="hideshow('createpoll_more'); hideshow('createpoll_more_link'); return false;">[More Options]</a>
+            </span>
+<?php
+    }
+?>
+        </div>
+    </div>
+
+<?php
+    // If 10, hide the rest
+    if ($i == 10)
+    {
+?>
+    </span>
+<?php
+    }
+
+    $i++;
+}
+?>
+
+    </div>
+    <!-- End Polls -->
 
     <div class="innerWrap">
         <div class="innerLeft">
@@ -198,6 +279,9 @@ echo $pagenumbers;
             <div class="fpTd fpTdMiddle fpTdMainTop">
                 Posts
             </div>
+            <div class="fpTd fpTdMiddle fpTdMainTop">
+                Views
+            </div>
             <div class="fpTd fpTdRight fpTdMainTop">
                 Freshness
             </div>
@@ -205,6 +289,8 @@ echo $pagenumbers;
 
 <style type="text/css">
 .fpTdTitle {
+    overflow: hidden;
+    max-width: 800px;
     font-size: 16px;
     font-family: Georgia, serif;
 }
@@ -276,6 +362,9 @@ echo $pagenumbers;
     -moz-border-radius: 2px 2px 2px 2px;
     border-radius: 2px 2px 2px 2px;
 }
+.fpTdSticky {
+    background-color: #EBF4F4;
+}
 </style>
 
 
@@ -302,9 +391,34 @@ if ($threads_rownum > 0)
             }
         }
 ?>
-        <div class="tr">
+        <div class="tr <?php if ($trow['is_sticky'] == 1) { ?> fpTdSticky<?php } ?>">
             <div class="fpTd fpTdMain">
                 <div class="fpTdTitle">
+<?php
+        // Sticky Thread
+        if ($trow['is_sticky'] == 1)
+        {
+?>
+                    <span class="fb">[Sticky]</span>
+<?php
+        }
+
+        // Locked Thread
+        if ($trow['is_locked'] == 1)
+        {
+?>
+                    <span class="fb">[Locked]</span>
+<?php
+        }
+
+        // Poll
+        if ($trow['poll_id'] > 0)
+        {
+?>
+                    <span class="fb">[Poll]</span>
+<?php
+        }
+?>
                     <a href="https://www.sketchbook.cafe/forum/thread/<?php echo $trow['id'];?>" class="<?php echo $isupdated;?>"><?php echo $trow['title'];?></a>
                     <span class="fpPageNumbers">
                         <script>sbc_numbered_links('https://www.sketchbook.cafe/forum/thread/<?php echo $trow['id'];?>/',10,<?php echo $trow['total_comments']-1;?>,'sbc_pagenumber');</script>
@@ -323,6 +437,9 @@ if ($threads_rownum > 0)
             </div>
             <div class="fpTd fpTdMain fpPosts">
                 <?php echo $trow['total_comments'];?>
+            </div>
+            <div class="fpTd fpTdMain fpPosts">
+                <?php echo $trow['total_views'];?>
             </div>
             <div class="fpTd fpTdMain fpFreshness">
                 <script>sbc_dateago(<?php echo time();?>, <?php echo $trow['date_updated'];?>);</script>
@@ -356,3 +473,74 @@ echo $pagenumbers;
 
     </div>
 </div>
+
+
+<style type="text/css">
+.forum_admins_wrap {
+    margin-left: 15px;
+    margin-right: 15px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    border 1px solid #151515;
+
+    background-color: #C1C1C1;
+
+    -moz-border-radius: 100px 100px 100px 100px;
+    border-radius: 100px 100px 100px 100px;
+}
+
+.forum_admins_title {
+    font-size: 13px;
+    font-family: Georgia, serif;
+}
+.forum_admins_inner {
+    padding: 6px;
+    font-size: 0px;
+    overflow: hidden;
+
+    text-align: center;
+}
+.forum_admins_admin {
+    display: inline-block;
+    overflow: hidden;
+    width: 85px;
+    height: 85px;
+    margin: 2px;
+
+    -moz-border-radius: 85px 85px 85px 85px;
+    border-radius: 85px 85px 85px 85px;
+
+    border: 2px solid #FFFFFF;
+}
+.forum_admins_avatar {
+    max-width: 85px;
+
+}
+</style>
+
+<?php
+// Forum Admins
+if ($forum_admin_rownum > 0)
+{
+?>
+<div class="forum_admins_wrap">
+
+    <div class="forum_admins_inner">
+<?php
+    // Loop Admins
+    while ($trow = mysqli_fetch_assoc($forum_admin_result))
+    {
+?>
+        <div class="forum_admins_admin">
+            <script>sbc_avatar(<?php echo $trow['user_id'];?>,'forum_admins_avatar');</script>
+        </div>
+<?php
+    }
+    mysqli_data_seek($forum_admin_result,0);
+?>
+    </div>
+</div>
+
+<?php
+}
+?>

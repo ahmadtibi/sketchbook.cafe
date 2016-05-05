@@ -1,6 +1,6 @@
 <?php
-// @author          Jonathan Maltezo (Kameloh)
-// @lastUpdated     2016-04-27
+// @author          Kameloh
+// @lastUpdated     2016-04-29
 
 use SketchbookCafe\SBC\SBC as SBC;
 use SketchbookCafe\Form\Form as Form;
@@ -146,6 +146,24 @@ class AdminEditForumAdminPage
             'css'       => '',
         ));
 
+        // Delete Post
+        $Form->field['delete_post'] = $Form->checkbox(array
+        (
+            'name'      => 'delete_post',
+            'value'     => 1,
+            'checked'   => $this->admin_flags['delete_post'],
+            'css'       => '',
+        ));
+
+        // Delete Thread
+        $Form->field['delete_thread'] = $Form->checkbox(array
+        (
+            'name'      => 'delete_thread',
+            'value'     => 1,
+            'checked'   => $this->admin_flags['delete_thread'],
+            'css'       => '',
+        ));
+
         // Set
         $this->Form = $Form;
     }
@@ -169,7 +187,7 @@ class AdminEditForumAdminPage
 
         // Get Admin Info
         $sql = 'SELECT id, user_id, forum_id, lock_thread, lock_post, bump_thread, move_thread,
-            sticky_thread, edit_thread, edit_post
+            sticky_thread, edit_thread, edit_post, delete_post, delete_thread
             FROM forum_admins
             WHERE id=?
             LIMIT 1';

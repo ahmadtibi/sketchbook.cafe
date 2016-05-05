@@ -1,5 +1,5 @@
 <?php
-// @author          Jonathan Maltezo (Kameloh)
+// @author          Kameloh
 // @lastUpdated     2016-04-26
 namespace SketchbookCafe\GetSettingName;
 

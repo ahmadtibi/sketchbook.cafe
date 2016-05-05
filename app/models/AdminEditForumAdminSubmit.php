@@ -1,6 +1,6 @@
 <?php
-// @author          Jonathan Maltezo (Kameloh)
-// @lastUpdated     2016-04-27
+// @author          Kameloh
+// @lastUpdated     2016-04-30
 
 use SketchbookCafe\SBC\SBC as SBC;
 
@@ -16,6 +16,8 @@ class AdminEditForumAdminSubmit
     private $sticky_thread = 0;
     private $edit_thread = 0;
     private $edit_post = 0;
+    private $delete_post = 0;
+    private $delete_thread = 0;
 
     // Construct
     public function __construct(&$obj_array)
@@ -44,6 +46,8 @@ class AdminEditForumAdminSubmit
         $this->sticky_thread    = SBC::oneZero($_POST['sticky_thread']);
         $this->edit_thread      = SBC::oneZero($_POST['edit_thread']);
         $this->edit_post        = SBC::oneZero($_POST['edit_post']);
+        $this->delete_post      = SBC::oneZero($_POST['delete_post']);
+        $this->delete_thread    = SBC::oneZero($_POST['delete_thread']);
 
         // Open Connection
         $db->open();
@@ -114,6 +118,8 @@ class AdminEditForumAdminSubmit
         $sticky_thread  = $this->sticky_thread;
         $edit_thread    = $this->edit_thread;
         $edit_post      = $this->edit_post;
+        $delete_post    = $this->delete_post;
+        $delete_thread  = $this->delete_thread;
 
         // Check
         if ($admin_id < 1)
@@ -132,11 +138,13 @@ class AdminEditForumAdminSubmit
             move_thread=?,
             sticky_thread=?,
             edit_thread=?,
-            edit_post=?
+            edit_post=?,
+            delete_post=?,
+            delete_thread=?
             WHERE id=?
             LIMIT 1';
         $stmt = $db->prepare($sql);
-        $stmt->bind_param('iiiiiiii',$lock_thread,$lock_post,$bump_thread,$move_thread,$sticky_thread,$edit_thread,$edit_post,$admin_id);
+        $stmt->bind_param('iiiiiiiiii',$lock_thread,$lock_post,$bump_thread,$move_thread,$sticky_thread,$edit_thread,$edit_post,$delete_post,$delete_thread,$admin_id);
         SBC::statementExecute($stmt,$db,$sql,$method);
     }
 }

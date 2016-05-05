@@ -1,6 +1,6 @@
 <?php
-// @author          Jonathan Maltezo (Kameloh)
-// @lastUpdated     2016-04-27
+// @author          Kameloh
+// @lastUpdated     2016-05-01
 // Forum Organizer: managages statistics and updates forum infos
 namespace SketchbookCafe\ForumOrganizer;
 
@@ -167,6 +167,63 @@ class ForumOrganizer
         SBC::statementExecute($stmt,$db,$sql,$method);
     }
 
+    // Thread: Update Bump Info
+    // Updates bump time based off thread info
+    final public function threadUpdateBumpDate($thread_id)
+    {
+        $method = 'ForumOrganizer->threadUpdateBumpDate';
+
+        // Initialize
+        $db         = &$this->db;
+
+        // Make sure thread ID is set
+        if ($thread_id < 1)
+        {
+            SBC::devError('thread ID is not set',$method);
+        }
+
+        // Switch
+        $db->sql_switch('sketchbookcafe');
+
+        // Get Thread Info
+        $sql = 'SELECT id, forum_id, date_bumped
+            FROM forum_threads
+            WHERE id=?
+            LIMIT 1';
+        $stmt   = $db->prepare($sql);
+        $stmt->bind_param('i',$thread_id);
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
+
+        // Verify
+        $thread_id  = isset($row['id']) ? (int) $row['id'] : 0;
+        if ($thread_id < 1)
+        {
+            SBC::devError('Cannot find thread in database',$method);
+        }
+
+        // Set
+        $forum_id       = $row['forum_id'];
+        $date_bumped    = $row['date_bumped'];
+
+        // Verify Forum
+        $this->verifyForum($forum_id);
+
+        // Switch
+        $db->sql_switch('sketchbookcafe_forums');
+
+        // Table
+        $table = 'forum'.$forum_id.'x';
+
+        // Update
+        $sql = 'UPDATE '.$table.'
+            SET date_bumped=?
+            WHERE thread_id=?
+            LIMIT 1';
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param('ii',$date_bumped,$thread_id);
+        SBC::statementExecute($stmt,$db,$sql,$method);
+    }
+
     // Thread: Update Info
     final public function threadUpdateInfo($thread_id)
     {
@@ -272,7 +329,7 @@ class ForumOrganizer
         $sql = 'SELECT thread_id
             FROM '.$table_name.'
             WHERE is_sticky=0
-            ORDER BY date_bumped
+            ORDER BY date_updated
             DESC
             LIMIT 1';
         $result = $db->sql_query($sql);

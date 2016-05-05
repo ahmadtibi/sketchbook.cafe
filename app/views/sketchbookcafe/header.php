@@ -1,7 +1,7 @@
 <?php
 // Might have to use some globals here
 // Fix this later!
-global $User, $Member;
+global $User, $Member, $Images;
 
 // Initialize Vars
 $mail_total = $User->mail_total;
@@ -23,9 +23,34 @@ var member_id = new Array();
 var member_username = new Array();
 var member_avatar_url = new Array();
 
+var image_id = new Array();
+var image_url = new Array();
+var image_thumb = new Array();
+
 <?php
+$image_folder = 'img/';
+$thumb_folder = 'img_thumb/';
+
+// Process Images
+if ($Images->rownum > 0)
+{
+    while ($trow = mysqli_fetch_assoc($Images->result))
+    {
+        if ($trow['isdeleted'] != 1)
+        {
+            echo '
+image_id['.$trow['id'].'] = '.$trow['id'].';
+image_url['.$trow['id'].'] = \''.$image_folder.$trow['id'].'-'.$trow['rd_code'].'.'.$trow['filetype'].'\';
+image_thumb['.$trow['id'].'] = \''.$thumb_folder.$trow['id'].'-'.$trow['rd_code'].'_325.'.$trow['filetype'].'\';
+';
+        }
+    }
+    mysqli_data_seek($Images->result,0);
+}
+
 // Process Members
-if ($Member->rownum > 0){
+if ($Member->rownum > 0)
+{
     while ($trow = mysqli_fetch_assoc($Member->result))
     {
         echo '
@@ -57,7 +82,7 @@ if ($User->loggedIn())
                     <a href="https://www.sketchbook.cafe/mailbox/" class="<?php if ($mail_total > 0) { echo 'fb'; } ?>">Inbox (<?php echo $mail_total;?>)</a>
                 </span>
                 <span style="padding-left: 12px;">
-                    <a href="">Notifications (0)</a>
+                    <a href="https://www.sketchbook.cafe/forum/subscriptions/">Subscriptions</a>
                 </span>
             </div>
 
@@ -113,7 +138,7 @@ else
         <a href="https://www.sketchbook.cafe/">Home</a>
     </span>
     <span class="headerMenuItem">
-        <a href="https://www.sketchbook.cafe/forums/">Forums</a>
+        <a href="https://www.sketchbook.cafe/forum/">Forums</a>
     </span>
     <span class="headerMenuItem">
         <a href="">Link 2</a>

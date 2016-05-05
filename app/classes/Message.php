@@ -3,9 +3,9 @@
 *
 * Message Class for https://www.sketchbook.cafe
 *
-* @author       Jonathan Maltezo (Kameloh)
-* @copyright   (c) 2016, Jonathan Maltezo (Kameloh)
-* @lastupdated  2016-04-27
+* @author       Kameloh
+* @copyright    (c) 2016, Kameloh
+* @lastupdated  2016-04-30
 *
 */
 namespace SketchbookCafe\Message;
@@ -544,12 +544,14 @@ class Message
             SET rd=?,
             user_id=?,
             date_created=?,
+            date_updated=?,
             ip_created=?,
+            ip_updated=?,
             message=?,
             message_code=?,
             isdeleted=1';
         $stmt = $db->prepare($sql);
-        $stmt->bind_param('iiisss',$rd,$user_id,$time,$ip_address,$message,$message_code);
+        $stmt->bind_param('iiiissss',$rd,$user_id,$time,$time,$ip_address,$ip_address,$message,$message_code);
         SBC::statementExecute($stmt,$db,$sql,$method);
 
         // Get Comment ID

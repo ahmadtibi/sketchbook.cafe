@@ -1,6 +1,6 @@
 <?php
-// @author          Jonathan Maltezo (Kameloh)
-// @lastUpdated     2016-04-27
+// @author          Kameloh
+// @lastUpdated     2016-04-30
 
 use SketchbookCafe\SBC\SBC as SBC;
 use SketchbookCafe\UserTimer\UserTimer as UserTimer;
@@ -8,6 +8,7 @@ use SketchbookCafe\Message\Message as Message;
 use SketchbookCafe\TextareaSettings\TextareaSettings as TextareaSettings;
 use SketchbookCafe\ForumOrganizer\ForumOrganizer as ForumOrganizer;
 use SketchbookCafe\TableForumThread\TableForumThread as TableForumThread;
+use SketchbookCafe\TableForumPoll\TableForumPoll as TableForumPoll;
 
 class ForumNewThread
 {
@@ -24,6 +25,12 @@ class ForumNewThread
     private $title_code = '';
     private $message = '';
     private $message_code = '';
+
+    private $pollMessage = [];
+    private $pollMessageCode = [];
+
+    private $has_poll = 0;
+    private $poll_id = 0;
 
     // Construct
     public function __construct(&$obj_array)
@@ -45,6 +52,31 @@ class ForumNewThread
         {
             SBC::devError('$forum_id is not set',$method);
         }
+
+        // Get Polls
+        $i = 1;
+        while ($i < 11)
+        {
+            // Poll Object
+            $pollObject[$i] = new Message(array
+            (
+                'name'          => 'poll'.$i,
+                'min'           => 0,
+                'column_max'    => 250,
+            ));
+
+            // Insert
+            $pollObject[$i]->insert($_POST['poll'.$i]);
+
+            // Set Messages
+            $this->pollMessage[$i]      = $pollObject[$i]->getMessage();
+            $this->pollMessageCode[$i]  = $pollObject[$i]->getMessageCode();
+
+            $i++;
+        }
+
+        // Check if a poll is set
+        $this->pollCheck();
 
         // Thread Title
         $titleObject        = new Message(array
@@ -98,6 +130,9 @@ class ForumNewThread
         // Create Thread Table
         $this->createThreadTable($db);
 
+        // Create Poll if it exists
+        $this->createPoll($db);
+
         // Mark Thread as undeleted
         $this->updateThread($db);
 
@@ -112,6 +147,9 @@ class ForumNewThread
 
         // Count Forum Threads
         $ForumOrganizer->forumCountTotalThreads($this->forum_id);
+
+        // Update last thread for forum
+        $ForumOrganizer->forumUpdateInfo($this->forum_id);
 
         // Count User Threads (fix this)
 
@@ -269,6 +307,7 @@ class ForumNewThread
 
         // Initialize Vars
         $thread_id  = $this->thread_id;
+        $poll_id    = $this->poll_id;
         if ($thread_id < 1)
         {
             SBC::devError('$thread_id is not set',$method);
@@ -279,11 +318,12 @@ class ForumNewThread
 
         // Update
         $sql = 'UPDATE forum_threads
-            SET isdeleted=0
+            SET poll_id=?,
+            isdeleted=0
             WHERE id=?
             LIMIT 1';
         $stmt = $db->prepare($sql);
-        $stmt->bind_param('i',$thread_id);
+        $stmt->bind_param('ii',$poll_id,$thread_id);
         SBC::statementExecute($stmt,$db,$sql,$method);
     }
 
@@ -317,5 +357,111 @@ class ForumNewThread
         $stmt = $db->prepare($sql);
         $stmt->bind_param('iiiiiii',$thread_id,$time,$time,$time,$user_id,$user_id,$comment_id);
         SBC::statementExecute($stmt,$db,$sql,$method);
+    }
+
+    // Poll Check
+    final private function pollCheck()
+    {
+        $method = 'ForumNewThread->pollCheck()';
+
+        // Check Array
+        $i = 1;
+        while ($i < 11)
+        {
+            if (!empty($this->pollMessage[$i]))
+            {
+                $this->has_poll = 1;
+            }
+
+            $i++;
+        }
+    }
+
+    // Create Poll
+    final private function createPoll(&$db)
+    {
+        $method = 'ForumNewThread->createPoll()';
+
+        // Check
+        if ($this->has_poll != 1)
+        {
+            return null;
+        }
+
+        // Initialize (sql vars)
+        $rd             = SBC::rd();
+        $ip_address     = SBC::getIpAddress();
+        $time           = SBC::getTime();
+        $thread_id      = SBC::checkNumber($this->thread_id,'$this->thread_id');
+        $user_id        = SBC::checkNumber($this->user_id,'$this->user_id');
+        $i = 1;
+        while ($i < 11)
+        {
+            $message[$i]        = $this->pollMessage[$i];
+            // $messageCode[$i]    = $this->pollMessageCode[$i];
+            $i++;
+        }
+
+        // Switch
+        $db->sql_switch('sketchbookcafe');
+
+        // Insert New Poll
+        $sql = 'INSERT INTO forum_polls
+            SET rd=?,
+            thread_id=?,
+            user_id=?,
+            date_created=?,
+            date_updated=?,
+            ip_created=?,
+            ip_updated=?,
+            isdeleted=1';
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param('iiiiiss',$rd,$thread_id,$user_id,$time,$time,$ip_address,$ip_address);
+        SBC::statementExecute($stmt,$db,$sql,$method);
+
+        // Get Poll ID
+        $sql = 'SELECT id
+            FROM forum_polls
+            WHERE rd=?
+            AND thread_id=?
+            AND date_created=?
+            LIMIT 1';
+        $stmt   = $db->prepare($sql);
+        $stmt->bind_param('iii',$rd,$thread_id,$time);
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
+
+        // Poll ID
+        $poll_id    = isset($row['id']) ? (int) $row['id'] : 0;
+        if ($poll_id < 1)
+        {
+            SBC::devError('Could not insert new poll into database',$method);
+        }
+
+        // Update Poll with Messages
+        $sql = 'UPDATE forum_polls
+            SET 
+            message1=?,
+            message2=?,
+            message3=?,
+            message4=?,
+            message5=?,
+            message6=?,
+            message7=?,
+            message8=?,
+            message9=?,
+            message10=?,
+            isdeleted=0
+            WHERE id=?
+            LIMIT 1';
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param('ssssssssssi',$message[1],$message[2],$message[3],$message[4],$message[5],$message[6],$message[7],$message[8],$message[9],$message[10],$poll_id);
+        SBC::statementExecute($stmt,$db,$sql,$method);
+
+        // Create Poll Tables
+        $TableForumPoll = new TableForumPoll($poll_id);
+        $TableForumPoll->checkTables($db);
+
+        // Set Poll ID
+        $this->poll_id = $poll_id;
     }
 }

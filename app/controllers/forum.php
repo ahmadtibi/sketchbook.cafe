@@ -1,6 +1,6 @@
 <?php
-// Single Forum
-
+// @author          Kameloh
+// @lastUpdated     2016-05-04
 use SketchbookCafe\SBC\SBC as SBC;
 
 class Forum extends Controller
@@ -12,20 +12,118 @@ class Forum extends Controller
         $this->obj_array = &$obj_array;
     }
 
-    // Thread Lock
-    public function thread_lock($comment_id = 0)
+    // Subscriptions Page
+    public function subscriptions()
     {
+        $method = 'forum->subscriptions()';
+
+        // Model
+        $SubPageObj     = $this->model('ForumSubscriptionsPage',$this->obj_array);
+        $threads_result = $SubPageObj->threads_result;
+        $threads_rownum = $SubPageObj->threads_rownum;
+        $sub_result     = $SubPageObj->sub_result;
+        $sub_rownum     = $SubPageObj->sub_rownum;
+
+        // View
+        $this->view('sketchbookcafe/header');
+        $this->view('forum/subscriptions',
+        [
+            'threads_result'    => $threads_result,
+            'threads_rownum'    => $threads_rownum,
+            'sub_result'        => $sub_result,
+            'sub_rownum'        => $sub_rownum,
+        ]);
+        $this->view('sketchbookcafe/footer');
+    }
+
+    // Subscribe to Thread
+    public function thread_subscribe()
+    {
+        $method = 'forum->thread_subscribe()';
+
+        // Model
+        $this->model('ThreadSubscribe',$this->obj_array);
+    }
+
+    // Poll Vote
+    public function poll_vote()
+    {
+        $method = 'forum->poll_vote()';
+
+        // Model
+        $this->model('PollVote',$this->obj_array);
+    }
+
+    // Lock Post
+    public function lock_post($comment_id = 0)
+    {
+        $method = 'forum->lock_post()';
+
         // Initialize
         $comment_id = isset($comment_id) ? (int) $comment_id : 0;
         if ($comment_id < 1)
         {
-            SBC::userError('Comment ID is not set');
+            SBC::devError('Comment ID is not set',$method);
         }
 
         // Model
-        $ForumObj   = $this->model('ForumThreadLock',$this->obj_array);
-        $ForumObj->setCommentId($comment_id);
-        $ForumObj->process();
+        $CommentObj = $this->model('CommentPostLock',$this->obj_array);
+        $CommentObj->setCommentId($comment_id);
+        $CommentObj->process();
+    }
+
+    // Sticky Thread
+    public function thread_sticky($comment_id = 0)
+    {
+        $method = 'forum->thread_sticky()';
+
+        // Initialize
+        $comment_id = isset($comment_id) ? (int) $comment_id : 0;
+        if ($comment_id < 1)
+        {
+            SBC::devError('Comment ID is not set',$method);
+        }
+
+        // Model
+        $ThreadObj  = $this->model('ForumThreadSticky',$this->obj_array);
+        $ThreadObj->setCommentId($comment_id);
+        $ThreadObj->process();
+    }
+
+    // Thread Bump
+    public function thread_bump($comment_id = 0)
+    {
+        $method = 'forum->thread_bump()';
+
+        // Initialize
+        $comment_id = isset($comment_id) ? (int) $comment_id : 0;
+        if ($comment_id < 1)
+        {
+            SBC::devError('Comment ID is not set',$method);
+        }
+
+        // Model
+        $ThreadObj   = $this->model('ForumThreadBump',$this->obj_array);
+        $ThreadObj->setCommentId($comment_id);
+        $ThreadObj->process();
+    }
+
+    // Thread Lock
+    public function thread_lock($comment_id = 0)
+    {
+        $method = 'forum->thread_lock()';
+
+        // Initialize
+        $comment_id = isset($comment_id) ? (int) $comment_id : 0;
+        if ($comment_id < 1)
+        {
+            SBC::devError('Comment ID is not set',$method);
+        }
+
+        // Model
+        $ThreadObj   = $this->model('ForumThreadLock',$this->obj_array);
+        $ThreadObj->setCommentId($comment_id);
+        $ThreadObj->process();
     }
 
     // Forum Thread
@@ -60,12 +158,17 @@ class Forum extends Controller
         $category_row       = $ThreadObject->category_row;
         $forum_row          = $ThreadObject->forum_row;
         $Form               = $ThreadObject->Form;
+        $PollForm           = $ThreadObject->PollForm;
+        $SubscribeForm      = $ThreadObject->SubscribeForm;
+        $ChallengeForm      = $ThreadObject->ChallengeForm;
         $comments_result    = $ThreadObject->comments_result;
         $comments_rownum    = $ThreadObject->comments_rownum;
         $pagenumbers        = $ThreadObject->pagenumbers;
         $pages_min          = $ThreadObject->pages_min;
         $pages_max          = $ThreadObject->pages_max;
         $pages_total        = $ThreadObject->pages_total;
+        $poll_row           = $ThreadObject->poll_row;
+        $challenge_row      = $ThreadObject->challenge_row;
 
         // View
         $this->view('sketchbookcafe/header');
@@ -85,6 +188,11 @@ class Forum extends Controller
             'pages_min'         => $pages_min,
             'pages_max'         => $pages_max,
             'pages_total'       => $pages_total,
+            'poll_row'          => $poll_row,
+            'PollForm'          => $PollForm,
+            'SubscribeForm'     => $SubscribeForm,
+            'ChallengeForm'     => $ChallengeForm,
+            'challenge_row'     => $challenge_row,
         ]);
         $this->view('sketchbookcafe/footer');
     }
@@ -106,61 +214,92 @@ class Forum extends Controller
     {
         // Objects
         $User       = $this->obj_array['User'];
-        $Member     = $this->obj_array['Member'];
-        $Comment    = $this->obj_array['Comment'];
 
-        // Initialize Vars
         $forum_id = isset($forum_id) ? (int) $forum_id : 0;
+
+        // If forum id is not set then goto the main forum page
         if ($forum_id < 1)
         {
-            error('Forum ID is not set');
-        }
+            // Model
+            $MainPageObject     = $this->model('ForumMain',$this->obj_array);
+            $categories_result  = $MainPageObject->categories_result;
+            $categories_rownum  = $MainPageObject->categories_rownum;
+            $forums_result      = $MainPageObject->forums_result;
+            $forums_rownum      = $MainPageObject->forums_rownum;
+            $thread             = $MainPageObject->thread;
+            $online_result      = $MainPageObject->online_result;
+            $online_rownum      = $MainPageObject->online_rownum;
 
-        // Page Numbers
-        $pageno = isset ($pageno) ? (int) $pageno : 0;
-        if ($pageno < 1)
+            // View
+            $this->view('sketchbookcafe/header');
+            $this->view('forum/index',
+            [
+                'User'              => $User,
+                'categories_result' => $categories_result,
+                'categories_rownum' => $categories_rownum,
+                'forums_result'     => $forums_result,
+                'forums_rownum'     => $forums_rownum,
+                'thread'            => $thread,
+                'online_result'     => $online_result,
+                'online_rownum'     => $online_rownum,
+            ]);
+            $this->view('sketchbookcafe/footer');
+
+        }
+        else
         {
-            $pageno = 0;
+            // Objects
+            $Member     = $this->obj_array['Member'];
+            $Comment    = $this->obj_array['Comment'];
+
+            // Page Numbers
+            $pageno = isset ($pageno) ? (int) $pageno : 0;
+            if ($pageno < 1)
+            {
+                $pageno = 0;
+            }
+
+            // Model
+            $ForumObject    = $this->model('ForumPage');
+            $ForumObject->setForumId($forum_id);
+            $ForumObject->setPageNumber($pageno);
+            $ForumObject->process($this->obj_array);
+            $Form           = $ForumObject->Form;
+            $category_row   = $ForumObject->category_row;
+            $forum_row      = $ForumObject->forum_row;
+            $threads_result = $ForumObject->threads_result;
+            $threads_rownum = $ForumObject->threads_rownum;
+            $view_time      = $ForumObject->view_time;
+
+            $pagenumbers    = $ForumObject->pagenumbers;
+            $pages_min      = $ForumObject->pages_min;
+            $pages_max      = $ForumObject->pages_max;
+            $pages_total    = $ForumObject->pages_total;
+
+            $forum_admin_result = $ForumObject->forum_admin_result;
+            $forum_admin_rownum = $ForumObject->forum_admin_rownum;
+
+            // View
+            $this->view('sketchbookcafe/header');
+            $this->view('forum/forumpage',
+            [
+                'User'                  => $User,
+                'Form'                  => $Form,
+                'category_row'          => $category_row,
+                'forum_row'             => $forum_row,
+                'threads_result'        => $threads_result,
+                'threads_rownum'        => $threads_rownum,
+                'Member'                => $Member,
+                'Comment'               => $Comment,
+                'pagenumbers'           => $pagenumbers,
+                'pages_min'             => $pages_min,
+                'pages_max'             => $pages_max,
+                'pages_total'           => $pages_total,
+                'view_time'             => $view_time,
+                'forum_admin_result'    => $forum_admin_result,
+                'forum_admin_rownum'    => $forum_admin_rownum,
+            ]);
+            $this->view('sketchbookcafe/footer');
         }
-
-        // Model
-        $ForumObject    = $this->model('ForumPage');
-        $ForumObject->setForumId($forum_id);
-        $ForumObject->setPageNumber($pageno);
-        $ForumObject->process($this->obj_array);
-        $Form           = $ForumObject->Form;
-        $category_row   = $ForumObject->category_row;
-        $forum_row      = $ForumObject->forum_row;
-        $threads_result = $ForumObject->threads_result;
-        $threads_rownum = $ForumObject->threads_rownum;
-        $view_time      = $ForumObject->view_time;
-
-        $pagenumbers    = $ForumObject->pagenumbers;
-        $pages_min      = $ForumObject->pages_min;
-        $pages_max      = $ForumObject->pages_max;
-        $pages_total    = $ForumObject->pages_total;
-
-        // View
-        $this->view('sketchbookcafe/header');
-        $this->view('forum/forumpage',
-        [
-            'User'              => $User,
-            'Form'              => $Form,
-            'category_row'      => $category_row,
-            'forum_row'         => $forum_row,
-            'threads_result'    => $threads_result,
-            'threads_rownum'    => $threads_rownum,
-            'Member'            => $Member,
-            'Comment'           => $Comment,
-            'pagenumbers'       => $pagenumbers,
-            'pages_min'         => $pages_min,
-            'pages_max'         => $pages_max,
-            'pages_total'       => $pages_total,
-            'view_time'         => $view_time,
-        ]);
-        $this->view('sketchbookcafe/footer');
-
     }
-
-
 }

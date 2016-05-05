@@ -3,9 +3,9 @@
 *
 * Form Class
 * 
-* @author       Jonathan Maltezo (Kameloh)
-* @copyright    (c) 2016, Jonathan Maltezo (Kameloh)
-* @lastUpdated  2016-04-27
+* @author       Kameloh
+* @copyright    (c) 2016, Kameloh
+* @lastUpdated  2016-04-29
 *
 */
 namespace SketchbookCafe\Form;
@@ -532,61 +532,61 @@ class Form
 
             <div class="table">
                 <div class="tr">
-                    <div class="td fb">
+                    <div class="td fb formHelpTd">
                         Code
                     </div>
-                    <div class="td fb">
+                    <div class="td fb formHelpTd">
                         Example
                     </div>
-                    <div class="td fb">
+                    <div class="td fb formHelpTd">
                         Output
                     </div>
                 </div>
 
                 <div class="tr">
-                    <div class="td">
+                    <div class="td formHelpTd">
                         &lt;b&gt;&lt;/b&gt;
                     </div>
-                    <div class="td">
+                    <div class="td formHelpTd">
                         &lt;b&gt;this is a message&lt;/b&gt;
                     </div>
-                    <div class="td">
+                    <div class="td formHelpTd">
                         <b>this is a message</b>
                     </div>
                 </div>
 
                 <div class="tr">
-                    <div class="td">
+                    <div class="td formHelpTd">
                         &lt;i&gt;&lt;/i&gt;
                     </div>
-                    <div class="td">
+                    <div class="td formHelpTd">
                         &lt;i&gt;This message uses italics&lt;/i&gt;
                     </div>
-                    <div class="td">
+                    <div class="td formHelpTd">
                         <i>This message uses italics</i>
                     </div>
                 </div>
 
                 <div class="tr">
-                    <div class="td">
+                    <div class="td formHelpTd">
                         &lt;u&gt;&lt;/u&gt;
                     </div>
-                    <div class="td">
+                    <div class="td formHelpTd">
                         Sometimes it\'s &lt;u&gt;important&lt;/u&gt; to underline things
                     </div>
-                    <div class="td">
+                    <div class="td formHelpTd">
                         Sometimes it\'s <u>important</u> to underline things
                     </div>
                 </div>
 
                 <div class="tr">
-                    <div class="td">
+                    <div class="td formHelpTd">
                         &lt;strike&gt;&lt;/strike&gt;
                     </div>
-                    <div class="td">
+                    <div class="td formHelpTd">
                         This is &lt;strike&gt;an example of&lt;/strike&gt; a strikethrough
                     </div>
-                    <div class="td">
+                    <div class="td formHelpTd">
                         This is <strike>an example of</strike> a strikethrough
                     </div>
                 </div>
@@ -613,37 +613,37 @@ class Form
 
             <div class="table">
                 <div class="tr">
-                    <div class="td fb">
+                    <div class="td fb formHelpTd">
                         Example
                     </div>
-                    <div class="td fb">
+                    <div class="td fb formHelpTd">
                         Output
                     </div>
                 </div>
 
                 <div class="tr">
-                    <div class="td">
+                    <div class="td formHelpTd">
                         http://www.google.com
                     </div>
-                    <div class="td">
+                    <div class="td formHelpTd">
                         <a href="http://www.google.com" target="_new">http://www.google.com</a>
                     </div>
                 </div>
 
                 <div class="tr">
-                    <div class="td">
+                    <div class="td formHelpTd">
                         [url]http://www.google.com[/url]
                     </div>
-                    <div class="td">
+                    <div class="td formHelpTd">
                         <a href="http://www.google.com" target="_new">http://www.google.com</a>
                     </div>
                 </div>
 
                 <div class="tr">
-                    <div class="td">
+                    <div class="td formHelpTd">
                         :userKameloh:
                     </div>
-                    <div class="td">
+                    <div class="td formHelpTd">
                         <a href="#" target="_new">userKameloh</a>
                     </div>
                 </div>
@@ -674,19 +674,19 @@ class Form
 
             <div class="table">
                 <div class="tr">
-                    <div class="td fb">
+                    <div class="td fb formHelpTd">
                         Example
                     </div>
-                    <div class="td fb">
+                    <div class="td fb formHelpTd">
                         Output
                     </div>
                 </div>
 
                  <div class="tr">
-                    <div class="td">
+                    <div class="td formHelpTd">
                         [img]http://url.of.image[/img]
                     </div>
-                    <div class="td">
+                    <div class="td formHelpTd">
                         (should display the image in your post)
                     </div>
                 </div>
@@ -716,19 +716,19 @@ class Form
 
             <div class="table">
                 <div class="tr">
-                    <div class="td fb">
+                    <div class="td fb formHelpTd">
                         Example
                     </div>
-                    <div class="td fb">
+                    <div class="td fb formHelpTd">
                         Output
                     </div>
                 </div>
 
                  <div class="tr">
-                    <div class="td">
+                    <div class="td formHelpTd">
                         [youtube=VIDEO_ID]
                     </div>
-                    <div class="td">
+                    <div class="td formHelpTd">
                         (displays youtube video)
                     </div>
                 </div>

@@ -1,6 +1,6 @@
 <?php
-// @author          Jonathan Maltezo (Kameloh)
-// @lastUpdated     2016-04-27
+// @author          Kameloh
+// @lastUpdated     2016-05-02
 
 use SketchbookCafe\SBC\SBC as SBC;
 use SketchbookCafe\TextareaSettings\TextareaSettings as TextareaSettings;
@@ -19,6 +19,7 @@ class ForumThreadReply
     private $rd = 0;
     private $thread_id = 0;
     private $thread_user_id = 0;
+    private $bump_date = 0;
 
     private $forum_id = 0;
     private $category_id = 0;
@@ -94,6 +95,9 @@ class ForumThreadReply
         // Update Last Info for Forum Thread
         $ForumOrganizer->threadUpdateInfo($this->thread_id);
 
+        // Update Bump Timer for Thread
+        $ForumOrganizer->threadUpdateBumpDate($this->thread_id);
+
         // Get Total Comments
         $total_comments = $ForumOrganizer->threadGetTotalComments($this->thread_id);
 
@@ -144,7 +148,7 @@ class ForumThreadReply
         $db->sql_switch('sketchbookcafe');
 
         // Get Thread Information
-        $sql = 'SELECT id, forum_id, user_id, is_locked, isdeleted
+        $sql = 'SELECT id, forum_id, user_id, is_locked, is_sticky, isdeleted
             FROM forum_threads
             WHERE id=?
             LIMIT 1';
@@ -167,6 +171,14 @@ class ForumThreadReply
 
         // Set User ID for Block Checks
         $this->thread_user_id = $thread_row['user_id'];
+
+        // Bump Date
+        $this->bump_date  = $this->time;
+        if ($thread_row['is_sticky'] == 1)
+        {
+            // Stickied threads are always 10 years ahead
+            $this->bump_date  += 315360000;
+        }
 
         // Forum ID
         $forum_id   = $thread_row['forum_id'];
@@ -296,8 +308,10 @@ class ForumThreadReply
 
         // Initiailize Vars
         $time       = SBC::getTime();
+        $user_id    = $this->user_id;
         $thread_id  = $this->thread_id;
         $forum_id   = $this->forum_id;
+        $bump_date  = $this->bump_date;
 
         if ($thread_id < 1)
         {
@@ -310,11 +324,12 @@ class ForumThreadReply
         // Update Thread's Date Updated
         $sql = 'UPDATE forum_threads
             SET date_updated=?,
-            date_bumped=?
+            date_bumped=?,
+            last_user_id=?
             WHERE id=?
             LIMIT 1';
         $stmt = $db->prepare($sql);
-        $stmt->bind_param('iii',$time,$time,$thread_id);
+        $stmt->bind_param('iiii',$time,$bump_date,$user_id,$thread_id);
         SBC::statementExecute($stmt,$db,$sql,$method);
 
         // Switch

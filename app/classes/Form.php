@@ -5,7 +5,7 @@
 * 
 * @author       Kameloh
 * @copyright    (c) 2016, Kameloh
-* @lastUpdated  2016-04-29
+* @lastUpdated  2016-05-11
 *
 */
 namespace SketchbookCafe\Form;
@@ -26,6 +26,13 @@ class Form
 
     // Preview (array)
     public $preview;
+
+    // CSS
+    private $css_input = ' sbc_font ';
+    private $css_dropdown = ' sbc_font ';
+    private $css_textarea = ' sbc_font sbc_font_size sbc_font_height ';
+    private $css_formHelpTd = ' formHelpTd sbc_font ';
+    private $css_formEnabledItem = ' formEnabledItem sbc_font ';
 
     // Construct
     public function __construct($input)
@@ -198,7 +205,7 @@ class Form
 
         // CSS
         $css = isset($input['css']) ? $input['css'] : '';
-        $css .= ' dropdown ';
+        $css .= ' dropdown '.$this->css_dropdown;
 
 		// OnClick
 		$onclick = 'onclick="sbc_button_sumbit_enable(); document.getElementById(\''.$this->data['submit_id'].'\').disabled = 0; document.getElementById(\''.$this->data['submit_id'].'\').value = \''.$this->data['inactive'].'\';"';
@@ -316,7 +323,7 @@ class Form
 
         // CSS
         $css    = isset($input['css']) ? $input['css'] : '';
-        $css    = 'input ' . $css;
+        $css    = 'input ' . $css . $this->css_input;
 
         // Name
         $name   = isset($input['name']) ? $input['name'] : '';
@@ -433,7 +440,7 @@ class Form
 
         // CSS
         $css = isset($input['css']) ? $input['css'] : '';
-        $css .= ' textarea ';
+        $css .= ' textarea '.$this->css_textarea;
 
         // Max
         $max    = isset($input['max']) ? (int) $input['max'] : 0;
@@ -519,74 +526,72 @@ class Form
             if ($basic == 1)
             {
                 $temp = $id . '_basicHTML';
-                $help_top .= '<span class="formEnabledItem"><a href="" onClick="hideshow(\'' . $temp . '\'); return false;">Basic HTML</a></span>';
+                $help_top .= '<span class="'.$this->css_formEnabledItem.'"><a href="" onClick="hideshow(\'' . $temp . '\'); return false;">Basic HTML</a></span>';
                 $help_bottom .= '
 <!-- Start Basic HTML -->
 <span id="' . $temp . '" style="display: none;">
     <div class="formHelpOverlay">
 
-        <div class="formHelpTitle">
-            Basic HTML
-        </div>
+
         <div class="formHelpContent">
 
             <div class="table">
                 <div class="tr">
-                    <div class="td fb formHelpTd">
+                    <div class="td fb '.$this->css_formHelpTd.'">
                         Code
                     </div>
-                    <div class="td fb formHelpTd">
+                    <div class="td fb '.$this->css_formHelpTd.'">
                         Example
                     </div>
-                    <div class="td fb formHelpTd">
+                    <div class="td fb '.$this->css_formHelpTd.'">
                         Output
                     </div>
                 </div>
 
                 <div class="tr">
-                    <div class="td formHelpTd">
+                    <div class="td '.$this->css_formHelpTd.'">
                         &lt;b&gt;&lt;/b&gt;
                     </div>
-                    <div class="td formHelpTd">
+                    <div class="td '.$this->css_formHelpTd.'">
                         &lt;b&gt;this is a message&lt;/b&gt;
                     </div>
-                    <div class="td formHelpTd">
+                    <div class="td '.$this->css_formHelpTd.'">
                         <b>this is a message</b>
                     </div>
                 </div>
 
                 <div class="tr">
-                    <div class="td formHelpTd">
+                    <div class="td '.$this->css_formHelpTd.'">
                         &lt;i&gt;&lt;/i&gt;
                     </div>
-                    <div class="td formHelpTd">
+                    <div class="td '.$this->css_formHelpTd.'">
                         &lt;i&gt;This message uses italics&lt;/i&gt;
                     </div>
-                    <div class="td formHelpTd">
+                    <div class="td '.$this->css_formHelpTd.'">
                         <i>This message uses italics</i>
                     </div>
                 </div>
 
                 <div class="tr">
-                    <div class="td formHelpTd">
+                    <div class="td '.$this->css_formHelpTd.'">
                         &lt;u&gt;&lt;/u&gt;
                     </div>
-                    <div class="td formHelpTd">
+                    <div class="td '.$this->css_formHelpTd.'">
                         Sometimes it\'s &lt;u&gt;important&lt;/u&gt; to underline things
                     </div>
-                    <div class="td formHelpTd">
+                    <div class="td '.$this->css_formHelpTd.'">
                         Sometimes it\'s <u>important</u> to underline things
                     </div>
                 </div>
 
                 <div class="tr">
-                    <div class="td formHelpTd">
+                    <div class="td '.$this->css_formHelpTd.'">
                         &lt;strike&gt;&lt;/strike&gt;
                     </div>
-                    <div class="td formHelpTd">
+                    <div class="td '.$this->css_formHelpTd.'">
                         This is &lt;strike&gt;an example of&lt;/strike&gt; a strikethrough
                     </div>
-                    <div class="td formHelpTd">
+                    <div class="td '.$this->css_formHelpTd.'">
                         This is <strike>an example of</strike> a strikethrough
                     </div>
                 </div>
@@ -600,50 +605,48 @@ class Form
 
                 // URLs
                 $temp = $id . '_urls';
-                $help_top .= '<span class="formEnabledItem"><a href="" onClick="hideshow(\'' . $temp . '\'); return false;">URLs</a></span>';
+                $help_top .= '<span class="'.$this->css_formEnabledItem.'"><a href="" onClick="hideshow(\'' . $temp . '\'); return false;">URLs</a></span>';
                 $help_bottom .= '
 <!-- Start URLs -->
 <span id="' . $temp . '" style="display: none;">
     <div class="formHelpOverlay">
 
-        <div class="formHelpTitle">
-            URLs
-        </div>
+
         <div class="formHelpContent">
 
             <div class="table">
                 <div class="tr">
-                    <div class="td fb formHelpTd">
+                    <div class="td fb '.$this->css_formHelpTd.'">
                         Example
                     </div>
-                    <div class="td fb formHelpTd">
+                    <div class="td fb '.$this->css_formHelpTd.'">
                         Output
                     </div>
                 </div>
 
                 <div class="tr">
-                    <div class="td formHelpTd">
+                    <div class="td '.$this->css_formHelpTd.'">
                         http://www.google.com
                     </div>
-                    <div class="td formHelpTd">
+                    <div class="td '.$this->css_formHelpTd.'">
                         <a href="http://www.google.com" target="_new">http://www.google.com</a>
                     </div>
                 </div>
 
                 <div class="tr">
-                    <div class="td formHelpTd">
+                    <div class="td '.$this->css_formHelpTd.'">
                         [url]http://www.google.com[/url]
                     </div>
-                    <div class="td formHelpTd">
+                    <div class="td '.$this->css_formHelpTd.'">
                         <a href="http://www.google.com" target="_new">http://www.google.com</a>
                     </div>
                 </div>
 
                 <div class="tr">
-                    <div class="td formHelpTd">
+                    <div class="td '.$this->css_formHelpTd.'">
                         :userKameloh:
                     </div>
-                    <div class="td formHelpTd">
+                    <div class="td '.$this->css_formHelpTd.'">
                         <a href="#" target="_new">userKameloh</a>
                     </div>
                 </div>
@@ -661,32 +664,30 @@ class Form
             if ($images == 1)
             {
                 $temp = $id . '_imgbbcode';
-                $help_top .= '<span class="formEnabledItem"><a href="" onClick="hideshow(\'' . $temp . '\'); return false;">Images</a></span>';
+                $help_top .= '<span class="'.$this->css_formEnabledItem.'"><a href="" onClick="hideshow(\'' . $temp . '\'); return false;">Images</a></span>';
                 $help_bottom .= '
 <!-- Start Images -->
 <span id="' . $temp . '" style="display: none;">
     <div class="formHelpOverlay">
 
-        <div class="formHelpTitle">
-            Images
-        </div>
+
         <div class="formHelpContent">
 
             <div class="table">
                 <div class="tr">
-                    <div class="td fb formHelpTd">
+                    <div class="td fb '.$this->css_formHelpTd.'">
                         Example
                     </div>
-                    <div class="td fb formHelpTd">
+                    <div class="td fb '.$this->css_formHelpTd.'">
                         Output
                     </div>
                 </div>
 
                  <div class="tr">
-                    <div class="td formHelpTd">
+                    <div class="td '.$this->css_formHelpTd.'">
                         [img]http://url.of.image[/img]
                     </div>
-                    <div class="td formHelpTd">
+                    <div class="td '.$this->css_formHelpTd.'">
                         (should display the image in your post)
                     </div>
                 </div>
@@ -703,32 +704,30 @@ class Form
             if ($videos == 1)
             {
                 $temp = $id . '_video';
-                $help_top .= '<span class="formEnabledItem"><a href="" onClick="hideshow(\'' . $temp . '\'); return false;">Video</a></span>';
+                $help_top .= '<span class="'.$this->css_formEnabledItem.'"><a href="" onClick="hideshow(\'' . $temp . '\'); return false;">Video</a></span>';
                 $help_bottom .= '
 <!-- Start Video -->
 <span id="' . $temp . '" style="display: none;">
     <div class="formHelpOverlay">
 
-        <div class="formHelpTitle">
-            Video
-        </div>
+
         <div class="formHelpContent">
 
             <div class="table">
                 <div class="tr">
-                    <div class="td fb formHelpTd">
+                    <div class="td fb '.$this->css_formHelpTd.'">
                         Example
                     </div>
-                    <div class="td fb formHelpTd">
+                    <div class="td fb '.$this->css_formHelpTd.'">
                         Output
                     </div>
                 </div>
 
                  <div class="tr">
-                    <div class="td formHelpTd">
+                    <div class="td '.$this->css_formHelpTd.'">
                         [youtube=VIDEO_ID]
                     </div>
-                    <div class="td formHelpTd">
+                    <div class="td '.$this->css_formHelpTd.'">
                         (displays youtube video)
                     </div>
                 </div>

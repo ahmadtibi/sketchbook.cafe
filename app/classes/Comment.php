@@ -1,6 +1,6 @@
 <?php
 // @author          Kameloh
-// @lastUpdated     2016-05-04
+// @lastUpdated     2016-05-05
 namespace SketchbookCafe\Comment;
 
 use SketchbookCafe\SBC\SBC as SBC;

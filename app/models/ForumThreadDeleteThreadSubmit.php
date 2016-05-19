@@ -1,6 +1,6 @@
 <?php
 // @author          Kameloh
-// @lastUpdated     2016-05-02
+// @lastUpdated     2016-05-17
 
 use SketchbookCafe\SBC\SBC as SBC;
 use SketchbookCafe\ForumAdmin\ForumAdmin as ForumAdmin;
@@ -77,12 +77,8 @@ class ForumThreadDeleteThreadSubmit
 
         // Forum Organizer
         $ForumOrganizer = new ForumOrganizer($db);
-
-        // Count Total Threads for Forum
-        $ForumOrganizer->forumCountTotalThreads($this->forum_id);
-
-        // Update Last Thread for Forum
-        $ForumOrganizer->forumUpdateInfo($this->forum_id);
+        $ForumOrganizer->countTotalThreads($this->forum_id);
+        $ForumOrganizer->updateLastPostInfo($this->forum_id);
 
         // Close Connect
         $db->close();
@@ -104,7 +100,7 @@ class ForumThreadDeleteThreadSubmit
         $db->sql_switch('sketchbookcafe');
 
         // Get Thread Info
-        $sql = 'SELECT id, poll_id, forum_id, isdeleted
+        $sql = 'SELECT id, challenge_id, poll_id, forum_id, isdeleted
             FROM forum_threads
             WHERE id=?
             LIMIT 1';
@@ -117,6 +113,12 @@ class ForumThreadDeleteThreadSubmit
         if ($thread_id < 1)
         {
             SBC::devError('Could not find thread in database',$method);
+        }
+
+        // Note: we are not allowed to delete threads with a challenge attached
+        if ($row['challenge_id'] > 0)
+        {
+            SBC::userError('Sorry, you cannot delete threads that have a challenge attached');
         }
 
         // Deleted?

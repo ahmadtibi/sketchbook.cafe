@@ -1,6 +1,6 @@
 <?php
 // @author          Kameloh
-// @lastUpdated     2016-04-26
+// @lastUpdated     2016-05-16
 use SketchbookCafe\SBC\SBC as SBC;
 use SketchbookCafe\Form\Form as Form;
 use SketchbookCafe\TextareaSettings\TextareaSettings as TextareaSettings;
@@ -30,7 +30,7 @@ class ProfileInfoEdit
         $db->sql_switch('sketchbookcafe');
 
         // Get User Information
-        $sql = 'SELECT title_code, forumsignature_code 
+        $sql = 'SELECT title_code, aboutme_code, forumsignature_code 
             FROM users
             WHERE id=?
             LIMIT 1';
@@ -46,6 +46,7 @@ class ProfileInfoEdit
 
         // Set vars
         $title_code             = $row['title_code'];
+        $aboutme_code           = $row['aboutme_code'];
         $forumsignature_code    = $row['forumsignature_code'];
 
         // New Form
@@ -73,6 +74,11 @@ class ProfileInfoEdit
             'placeholder'   => 'title',
             'css'           => 'input300',
         ));
+
+        // About Me
+        $ts_aboutme = new TextareaSettings('aboutme');
+        $ts_aboutme->setValue($aboutme_code);
+        $Form->field['aboutme'] = $Form->textarea($ts_aboutme->getSettings());
 
         // Textarea Settings
         $TextareaSettings = new TextareaSettings('forumsignature');

@@ -1,6 +1,6 @@
 <?php
 // @author          Kameloh
-// @lastUpdated     2016-04-30
+// @lastUpdated     2016-05-17
 namespace SketchbookCafe\Member;
 
 use SketchbookCafe\SBC\SBC as SBC;
@@ -45,7 +45,8 @@ class Member
             $db->sql_switch('sketchbookcafe');
 
             // Get members
-            $sql = 'SELECT id, username, avatar_id, avatar_url, title, forumsignature, total_posts
+            $sql = 'SELECT id, username, avatar_id, avatar_url, title, forumsignature, 
+                sketch_points, total_posts
                 FROM users
                 WHERE id IN('.$id_list.')';
             $result = $db->sql_query($sql);
@@ -64,6 +65,7 @@ class Member
                     'title'             => $trow['title'],
                     'forumsignature'    => $trow['forumsignature'], 
                     'total_posts'       => $trow['total_posts'],
+                    'sketch_points'     => $trow['sketch_points'],
                 );
             }
             mysqli_data_seek($result,0);
@@ -84,6 +86,14 @@ class Member
         $method = 'Member->displayPosts()';
 
         return $this->member[$id]['total_posts'];
+    }
+
+    // Display Sketch Points
+    final public function displaySketchPoints($id)
+    {
+        $method = 'Member->displaySketchPoints()';
+
+        return $this->member[$id]['sketch_points'];
     }
 
     // Display Title

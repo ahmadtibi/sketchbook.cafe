@@ -1,6 +1,6 @@
 <?php
 // @author          Kameloh
-// @lastUpdated     2016-05-04
+// @lastUpdated     2016-05-05
 
 use SketchbookCafe\SBC\SBC as SBC;
 use SketchbookCafe\UserTimer\UserTimer as UserTimer;
@@ -291,7 +291,8 @@ class ChallengeEntrySubmit
         // Insert into table
         $table_name = 'fc'.$challenge_id.'l';
         $sql = 'INSERT INTO '.$table_name.'
-            SET cid=?';
+            SET cid=?,
+            ispending=1';
         $stmt = $db->prepare($sql);
         $stmt->bind_param('i',$comment_id);
         SBC::statementExecute($stmt,$db,$sql,$method);

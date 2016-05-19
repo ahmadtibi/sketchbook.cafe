@@ -1,57 +1,107 @@
 <?php
 // @author          Kameloh
-// @lastUpdated     2016-05-02
+// @lastUpdated     2016-05-12
 
 use SketchbookCafe\SBC\SBC as SBC;
-use SketchbookCafe\TextareaSettings\TextareaSettings as TextareaSettings;
-use SketchbookCafe\ForumOrganizer\ForumOrganizer as ForumOrganizer;
-use SketchbookCafe\StatsOrganizer\StatsOrganizer as StatsOrganizer;
 use SketchbookCafe\Message\Message as Message;
 use SketchbookCafe\UserTimer\UserTimer as UserTimer;
+use SketchbookCafe\TextareaSettings\TextareaSettings as TextareaSettings;
+use SketchbookCafe\ThreadReply\ThreadReply as ThreadReply;
 use SketchbookCafe\BlockCheck\BlockCheck as BlockCheck;
+use SketchbookCafe\ThreadOrganizer\ThreadOrganizer as ThreadOrganizer;
+use SketchbookCafe\ForumOrganizer\ForumOrganizer as ForumOrganizer;
+use SketchbookCafe\UserOrganizer\UserOrganizer as UserOrganizer;
+use SketchbookCafe\ImageFile\ImageFile as ImageFile;
+use SketchbookCafe\ChallengeOrganizer\ChallengeOrganizer as ChallengeOrganizer;
 
 class ForumThreadReply
 {
+    // User Info + Required
     private $user_id = 0;
     private $ip_address = 0;
     private $time = 0;
-
     private $rd = 0;
-    private $thread_id = 0;
-    private $thread_user_id = 0;
-    private $bump_date = 0;
 
+    // Thread Info
     private $forum_id = 0;
-    private $category_id = 0;
+    private $thread_user_id = 0;
 
+    // Comment Info
     private $comment_id = 0;
+
+    // Challenge Info
+    private $challenge_difficulty = 0;
+    private $challenge_id = 0;
+    private $image_id = 0;
+    private $entry_id = 0;
+
+    // Page Numbers
+    private $ppage = 10;
 
     // Construct
     public function __construct(&$obj_array)
     {
-        // Initialize Objects
+        $method = 'ForumThreadReply->__construct()';
+
+        // Initialize
         $db     = &$obj_array['db'];
         $User   = &$obj_array['User'];
 
-        // Initialize Vars
-        $this->time         = SBC::getTime();
+        // Initialize
         $this->ip_address   = SBC::getIpAddress();
+        $this->time         = SBC::getTime();
         $this->rd           = SBC::rd();
-
-        // Thread ID
+        $this->challenge_id = isset($_POST['challenge_id']) ? (int) $_POST['challenge_id'] : 0;
         $this->thread_id    = isset($_POST['thread_id']) ? (int) $_POST['thread_id'] : 0;
+        $TextareaSettings   = new TextareaSettings('forum_reply');
+
+        // Challenge
+        if ($this->challenge_id > 0)
+        {
+            // Challenge Difficulty
+            $this->challenge_difficulty = isset($_POST['challenge_difficulty']) ? (int) $_POST['challenge_difficulty'] : 0;
+            if ($this->challenge_difficulty < 1 || $this->challenge_difficulty > 10)
+            {
+                // Set it to 0 since we still allow normal replies
+                $this->challenge_difficulty = 0;
+            }
+
+            // Image File
+            $ImageFile  = new ImageFile(array
+            (
+                'name'          => 'imagefile',
+                'max_filesize'  => 4194304, // 4 mb
+                'required'      => 0,
+                'allow_gif'     => 1,
+                'allow_png'     => 1,
+                'allow_jpg'     => 1,
+                'allow_apng'    => 0,
+                'width_min'     => 10,
+                'width_max'     => 10000,
+                'height_min'    => 10,
+                'height_max'    => 10000,
+            ));
+            $ImageFile->sendFile();
+
+            // If we have an image file then require a difficulty
+            if ($ImageFile->hasFile())
+            {
+                if ($this->challenge_difficulty < 1)
+                {
+                    SBC::userError('Please rate difficulty for challenge');
+                }
+            }
+        }
+
+        // Check Thread ID
         if ($this->thread_id < 1)
         {
             SBC::devError('$thread_id is not set',$method);
         }
 
-        // Textarea Settings
-        $TextareaSettings   = new TextareaSettings('forum_reply');
-        $message_settings   = $TextareaSettings->getSettings();
-
         // Message
-        $messageObject      = new Message($message_settings);
-        $messageObject->insert($_POST['message']);
+        $MessageObj = new Message($TextareaSettings->getSettings());
+        $MessageObj->insert($_POST['message']);
 
         // Open Connection
         $db->open();
@@ -60,292 +110,284 @@ class ForumThreadReply
         $User->required($db);
         $this->user_id = $User->getUserId();
 
-        // User Timer
-        $UserTimer = new UserTimer(array
-        (
-            'user_id'   => $this->user_id,
-        ));
+        // User Timer Check
+        $UserTimer = new UserTimer(array('user_id'=>$this->user_id,));
         $UserTimer->setColumn('forum_reply');
         $UserTimer->checkTimer($db);
 
-        // Get Thread Information
-        $this->getThreadInfo($db);
+        // Thread Reply
+        $ThreadReply = new ThreadReply($db);
+        $ThreadReply->setThreadId($this->thread_id);
+        $ThreadReply->checkThread();
+
+        // Set Vars
+        $this->thread_user_id   = $ThreadReply->getThreadUserId();
+        $this->challenge_id     = $ThreadReply->getChallengeId();
 
         // Block Check
         $this->checkBlocked($db);
 
-        // Create New Message
-        $this->createReply($db,$messageObject);
+        // Challenge
+        if ($this->challenge_id > 0 && $ImageFile->hasFile())
+        {
+            // Get Info
+            $this->getChallengeInfo($db);
 
-        // Insert into the thread's table
-        $this->insertIntoTable($db);
+            // Check if the user already submitted an entry
+            // TEMPORARY FIXME: $this->checkUserEntry($db);
 
-        // Update Thread Timer
-        $this->updateThread($db);
+            // Create Image
+            $this->createImage($db,$ImageFile);
+        }
+
+        // Create Reply
+        $this->createReply($db,$MessageObj);
+
+        // Challenge
+        if ($this->challenge_id > 0 && $ImageFile->hasFile())
+        {
+            // Create Challenge Organizer
+            $ChallengeOrganizer = new ChallengeOrganizer($db);
+            $this->entry_id = $ChallengeOrganizer->getNewEntry(array
+            (
+                'challenge_id'          => $this->challenge_id,
+                'comment_id'            => $this->comment_id,
+                'image_id'              => $this->image_id,
+                'user_id'               => $this->user_id,
+                'challenge_difficulty'  => $this->challenge_difficulty,
+            ));
+
+            // Insert into the challenge table
+            $this->insertIntoChallengeTable($db);
+
+            // Update Comment
+            $this->updateCommentInfo($db);
+        }
+
+        // Insert into thread's table
+        $ThreadReply->insertCommentId($this->comment_id);
+
+        // Thread Organizer
+        $ThreadOrganizer = new ThreadOrganizer($db);
+        $ThreadOrganizer->countUniqueUsers($this->thread_id);
+        $ThreadOrganizer->countTotalReplies($this->thread_id);
+        $ThreadOrganizer->updateLastPostInfo($this->thread_id);
+        $ThreadOrganizer->updateBumpDate($this->thread_id);
+
+        // Set Vars
+        $this->forum_id = $ThreadOrganizer->getForumId($this->thread_id);
 
         // Forum Organizer
         $ForumOrganizer = new ForumOrganizer($db);
+        $ForumOrganizer->addOnePostCount($this->forum_id);
+        $ForumOrganizer->updateLastPostInfo($this->forum_id);
 
-        // Count Unique Comments
-        $ForumOrganizer->threadUniqueComments($this->thread_id);
+        // User Organizer
+        $UserOrganizer = new UserOrganizer($db);
+        $UserOrganizer->addPostCount($this->user_id);
 
-        // Count Total Replies
-        $ForumOrganizer->threadTotalReplies($this->thread_id);
+        // Challenge
+        if ($this->challenge_id > 0 && $ImageFile->hasFile())
+        {
+            $ChallengeOrganizer->updateLastImages($this->challenge_id);
+            $ChallengeOrganizer->updateTotalEntries($this->challenge_id);
+        }
 
-        // Update Last Info for Forum Thread
-        $ForumOrganizer->threadUpdateInfo($this->thread_id);
+        // Vars
+        $total_comments = $ThreadOrganizer->getTotalComments($this->thread_id);
+        if ($total_comments < 1)
+        {
+            $total_comments = 0;
+        }
 
-        // Update Bump Timer for Thread
-        $ForumOrganizer->threadUpdateBumpDate($this->thread_id);
-
-        // Get Total Comments
-        $total_comments = $ForumOrganizer->threadGetTotalComments($this->thread_id);
-
-        // Add Total Posts for Forum
-        $ForumOrganizer->forumTotalPostsAddOne($this->forum_id);
-
-        // Update Forum Last Post
-        $ForumOrganizer->forumUpdateInfo($this->forum_id);
-
-        // Add One Post for Category
-        $ForumOrganizer->categoryTotalPostsAddOne($this->category_id);
-
-        // StatsOrganizer
-        $StatsOrganizer = new StatsOrganizer($db);
-
-        // Add Total Posts for User
-        $StatsOrganizer->userForumPostAdd($this->user_id);
-
-        // Update User Timer
+        // User Timer Update
         $UserTimer->update($db);
 
         // Close Connection
         $db->close();
 
         // Calculate Page
-        $ppage  = 10;
-        $total_comments -= 1; // subtract one since the forumorganizer adds +1 for the forum thread's post
-        if ($total_comments < 1)
-        {
-            $total_comments = 0;
-        }
-        $pageno = SBC::currentPage($ppage,$total_comments);
+        $pageno = SBC::currentPage($this->ppage,$total_comments);
 
         // Header
         header('Location: https://www.sketchbook.cafe/forum/thread/'.$this->thread_id.'/'.$pageno.'/#recent');
-        exit;
+        exit;    
     }
 
-    // Get Thread Information
-    final private function getThreadInfo(&$db)
-    {
-        $method = 'ForumThreadReply->getThreadInfo()';
-
-        // Initialize Vars
-        $thread_id = SBC::checkNumber($this->thread_id,'thread_id');
-
-        // Switch
-        $db->sql_switch('sketchbookcafe');
-
-        // Get Thread Information
-        $sql = 'SELECT id, forum_id, user_id, is_locked, is_sticky, isdeleted
-            FROM forum_threads
-            WHERE id=?
-            LIMIT 1';
-        $stmt = $db->prepare($sql);
-        $stmt->bind_param('i',$thread_id);
-        $thread_row = SBC::statementFetchRow($stmt,$db,$sql,$method);
-
-        // Check Thread
-        $thread_id  = isset($thread_row['id']) ? (int) $thread_row['id'] : 0;
-        if ($thread_id < 1)
-        {
-            SBC::userError('Could not find thread in database');
-        }
-
-        // Is it locked?
-        if ($thread_row['is_locked'] == 1)
-        {
-            SBC::userError('Thread is locked and it cannot be replied to');
-        }
-
-        // Set User ID for Block Checks
-        $this->thread_user_id = $thread_row['user_id'];
-
-        // Bump Date
-        $this->bump_date  = $this->time;
-        if ($thread_row['is_sticky'] == 1)
-        {
-            // Stickied threads are always 10 years ahead
-            $this->bump_date  += 315360000;
-        }
-
-        // Forum ID
-        $forum_id   = $thread_row['forum_id'];
-
-        // Get Forum Information
-        $sql = 'SELECT id, parent_id, isdeleted
-            FROM forums
-            WHERE id=?
-            LIMIT 1';
-        $stmt       = $db->prepare($sql);
-        $stmt->bind_param('i',$forum_id);
-        $forum_row  = SBC::statementFetchRow($stmt,$db,$sql,$method);
-
-        // Check Forum
-        $forum_id   = isset($forum_row['id']) ? (int) $forum_row['id'] : 0;
-        if ($forum_id < 1)
-        {
-            SBC::userError('Thread does not belong to a forum');
-        }
-
-        // Make sure forum isn't deleted
-        if ($forum_row['isdeleted'] == 1)
-        {
-            SBC::userError('Forum for thread no longer exists. Please ask an administrator if you want this thread moved.');
-        }
-
-        // Parent ID
-        $category_id    = $forum_row['parent_id'];
-
-        // Get Category Information
-        $sql = 'SELECT id, isdeleted
-            FROM forums
-            WHERE id=?
-            LIMIT 1';
-        $stmt           = $db->prepare($sql);
-        $stmt->bind_param('i',$category_id);
-        $category_row   = SBC::statementFetchRow($stmt,$db,$sql,$method);
-
-        // Check
-        $category_id    = isset($category_row['id']) ? (int) $category_row['id'] : 0;
-        if ($category_id < 1)
-        {
-            SBC::userError('Thread\'s forum does not have a category set');
-        }
-
-        // Deleted?
-        if ($category_row['isdeleted'] == 1)
-        {
-            SBC::userError('Thread\'s category no longer exists. Please contact an admiministrator');
-        }
-
-        // Set Vars
-        $this->forum_id     = $forum_id;
-        $this->category_id  = $category_id;
-    }
-
-    // Check Block
+    // Check Blocked
     final private function checkBlocked(&$db)
     {
         $method = 'ForumThreadReply->checkBlocked()';
 
-        // Initialize Vars
-        $user_id    = $this->user_id;
-        $r_user_id  = $this->thread_user_id;
-
-        // Check if they're blocking each other
+        // Block Check
         $BlockCheck = new BlockCheck(array
         (
-            'user_id'   => $user_id,
-            'r_user_id' => $r_user_id,
+            'user_id'   => $this->user_id,
+            'r_user_id' => $this->thread_user_id,
         ));
         $BlockCheck->check($db);
     }
 
-    // Create Message
-    final private function createReply(&$db,&$messageObject)
+    // Create Reply
+    final private function createReply(&$db,&$MessageObj)
     {
         $method = 'ForumThreadReply->createReply()';
 
-        // Initialize Vars
+        // Initialize
         $thread_id  = SBC::checkNumber($this->thread_id,'thread_id');
         $user_id    = SBC::checkNumber($this->user_id,'user_id');
-        $time       = SBC::checkNumber($this->time,'time');
-        $ip_address = SBC::checkEmpty($this->ip_address,'ip_address');
 
         // Create New Message
-        $messageObject->setUserId($user_id);
-        $messageObject->setType('forum_thread_reply');
-        $messageObject->createMessage($db);
-        $messageObject->setParentId($thread_id);
-        $messageObject->updateParentId($db);
-        $comment_id = $messageObject->getCommentId();
+        $MessageObj->setUserId($user_id);
+        $MessageObj->setType('forum_thread_reply');
+        $MessageObj->createMessage($db);
+        $MessageObj->setParentId($thread_id);
+        $MessageObj->updateParentId($db);
+        $this->comment_id = $MessageObj->getCommentId();
 
-        // Set
-        $this->comment_id = $comment_id;
-    }
-
-    // Insert Comment into Thread's Table
-    final private function insertIntoTable(&$db)
-    {
-        $method = 'ForumThreadReply->insertIntoTable()';
-
-        // Initialize Vars
-        $thread_id          = SBC::checkEmpty($this->thread_id,'thread_id');
-        $comment_id         = SBC::checkEmpty($this->comment_id,'comment_id');
-        $user_id            = SBC::checkEmpty($this->user_id,'user_id');
-
-        // Switch
-        $db->sql_switch('sketchbookcafe_forums');
-
-        // Table
-        $table_name = 't'.$thread_id.'d';
-
-        // Insert comment
-        $sql = 'INSERT INTO '.$table_name.'
-            SET cid=?,
-            uid=?';
-        $stmt = $db->prepare($sql);
-        $stmt->bind_param('ii',$comment_id,$user_id);
-        SBC::statementExecute($stmt,$db,$sql,$method);
-    }
-
-    // Update Thread's Timer
-    final private function updateThread(&$db)
-    {
-        $method = 'ForumThreadReply->updateThread()';
-
-        // Initiailize Vars
-        $time       = SBC::getTime();
-        $user_id    = $this->user_id;
-        $thread_id  = $this->thread_id;
-        $forum_id   = $this->forum_id;
-        $bump_date  = $this->bump_date;
-
-        if ($thread_id < 1)
+        // Check
+        if ($this->comment_id < 1)
         {
-            SBC::devError('$thread_id('.$thread_id.') or $forum_id('.$forum_id.') is not set',$method);
+            SBC::devError('Could not insert new comment into database',$method);
+        }
+    }
+
+    // Get Challenge Info
+    final private function getChallengeInfo(&$db)
+    {
+        $method = 'ForumThreadReply->getChallengeInfo()';
+
+        // Challenge ID
+        $challenge_id   = $this->challenge_id;
+        if ($challenge_id < 1)
+        {
+            SBC::devError('$challenge_id is not set',$method);
         }
 
         // Switch
         $db->sql_switch('sketchbookcafe');
 
-        // Update Thread's Date Updated
-        $sql = 'UPDATE forum_threads
-            SET date_updated=?,
-            date_bumped=?,
-            last_user_id=?
+        // Get Challenge Info
+        $sql = 'SELECT id, isdeleted
+            FROM challenges
+            WHERE id=?
+            LIMIT 1';
+        $stmt   = $db->prepare($sql);
+        $stmt->bind_param('i',$challenge_id);
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
+
+        // Verify
+        $challenge_id   = isset($row['id']) ? (int) $row['id'] : 0;
+        if ($challenge_id < 1)
+        {
+            SBC::devError('Could not find challenge in database',$method);
+        }
+
+        // Deleted?
+        if ($row['isdeleted'] == 1)
+        {
+            SBC::devError('Challenge no longer exists');
+        }
+    }
+
+    // Create Image
+    final private function createImage(&$db,&$ImageFile)
+    {
+        $method = 'ForumThreadReply->createImage()';
+
+        // Create New Image
+        $ImageFile->setUserId($this->user_id);
+        $ImageFile->createImage($db);
+        $this->image_id = $ImageFile->getImageId();
+    }
+
+    // Insert into Challenge Table
+    final private function insertIntoChallengeTable(&$db)
+    {
+        $method = 'ForumThreadReply->insertIntoChallengeTable()';
+
+        // Initialize
+        $comment_id     = SBC::checkNumber($this->comment_id,'$this->comment_id');
+        $challenge_id   = SBC::checkNumber($this->challenge_id,'$this->challenge_id');
+        $difficulty     = SBC::checkNumber($this->challenge_difficulty,'$this->challenge_difficulty');
+        $user_id        = SBC::checkNumber($this->user_id,'$this->user_id');
+        $entry_id       = SBC::checkNumber($this->entry_id,'$this->entry_id');
+        $table_name     = 'fc'.$challenge_id.'l';
+
+        // Switch
+        $db->sql_switch('sketchbookcafe_challenges');
+
+        // Insert into challenge table
+        $sql = 'INSERT INTO '.$table_name.'
+            SET cid=?,
+            difficulty=?,
+            ispending=1,
+            uid=?,
+            entry_id=?';
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param('iiii',$comment_id,$difficulty,$user_id,$entry_id);
+        SBC::statementExecute($stmt,$db,$sql,$method);
+    }
+
+    // Update Comment Info for Challenges
+    final private function updateCommentInfo(&$db)
+    {
+        $method = 'ForumThread->updateCommentInfo()';
+
+        // Initialize
+        $comment_id = SBC::checkNumber($this->comment_id,'$this->comment_id');
+        $image_id   = SBC::checkNumber($this->image_id,'$this->image_id');
+        $entry_id   = SBC::checkNumber($this->entry_id,'$this->entry_id');
+
+        // Switch
+        $db->sql_switch('sketchbookcafe');
+
+        // Update Comment
+        $sql = 'UPDATE sbc_comments
+            SET image_id=?,
+            entry_id=?
             WHERE id=?
             LIMIT 1';
         $stmt = $db->prepare($sql);
-        $stmt->bind_param('iiii',$time,$bump_date,$user_id,$thread_id);
+        $stmt->bind_param('iii',$image_id,$entry_id,$comment_id);
         SBC::statementExecute($stmt,$db,$sql,$method);
+    }
+
+    // Check User Entry
+    final private function checkUserEntry(&$db)
+    {
+        $method = 'ForumThreadReply->checkUserEntry()';
+
+        // Initialize
+        $challenge_id   = $this->challenge_id;
+        $user_id        = $this->user_id;
+        $table_name     = 'fc'.$challenge_id.'l';
+        if ($user_id < 1)
+        {
+            SBC::devError('$user_id is not set',$method);
+        }
+        if ($challenge_id < 1)
+        {
+            SBC::devError('$challenge_id is not set',$method);
+        }
 
         // Switch
-        $db->sql_switch('sketchbookcafe_forums');
+        $db->sql_switch('sketchbookcafe_challenges');
 
-        // Forum Table
-        $table_name = 'forum'.$forum_id.'x';
-
-        // Update Forum
-        $sql = 'UPDATE '.$table_name.'
-            SET date_updated=?,
-            date_bumped=?
-            WHERE thread_id=?
+        // Check
+        $sql = 'SELECT id
+            FROM '.$table_name.'
+            WHERE uid=?
             LIMIT 1';
-        $stmt = $db->prepare($sql);
-        $stmt->bind_param('iii',$time,$time,$thread_id);
-        SBC::statementExecute($stmt,$db,$sql,$method);
+        $stmt   = $db->prepare($sql);
+        $stmt->bind_param('i',$user_id);
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
+
+        // Entry?
+        $id = isset($row['id']) ? (int) $row['id'] : 0;
+        if ($id > 0)
+        {
+            SBC::userError('Sorry, you may only submit one entry for this challenge');
+        }
     }
 }

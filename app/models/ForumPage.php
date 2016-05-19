@@ -1,6 +1,6 @@
 <?php
 // @author          Kameloh
-// @lastUpdated     2016-05-03
+// @lastUpdated     2016-05-16
 
 use SketchbookCafe\SBC\SBC as SBC;
 use SketchbookCafe\Form\Form as Form;
@@ -22,6 +22,9 @@ class ForumPage
     public $threads_rownum = 0;
 
     private $obj_array = [];
+
+    // Challenge Info
+    private $challenge_row = [];
 
     // Page Numbers
     private $pageno = 0;
@@ -191,11 +194,7 @@ class ForumPage
 
         // Textarea Settings
         $TextareaSettings = new TextareaSettings('forum_thread');
-        $TextareaSettings->setValue('');
-        $message_settings   = $TextareaSettings->getSettings();
-
-        // Textarea
-        $Form->field['message'] = $Form->textarea($message_settings);
+        $Form->field['message'] = $Form->textarea($TextareaSettings->getSettings());
 
         // Set 
         $this->Form = $Form;
@@ -272,11 +271,12 @@ class ForumPage
         $method = 'ForumPage->getThreads()';
 
         // Initialize Objects and Vars
-        $Member     = &$this->obj_array['Member'];
-        $forum_id   = $this->forum_id;
-        $offset     = $this->offset;
-        $ppage      = $this->ppage;
-        $pageno     = $this->pageno;
+        $Member         = &$this->obj_array['Member'];
+        $forum_id       = $this->forum_id;
+        $offset         = $this->offset;
+        $ppage          = $this->ppage;
+        $pageno         = $this->pageno;
+        $challenge_list = '';
         if ($pageno < 1)
         {
             $pageno = 0;
@@ -329,7 +329,7 @@ class ForumPage
         if (!empty($id_list))
         {
             // Get Threads
-            $sql = 'SELECT id, poll_id, user_id, date_created, date_updated, title, last_user_id,
+            $sql = 'SELECT id, challenge_id, poll_id, user_id, date_created, date_updated, title, last_user_id,
                 total_comments, total_views, total_users, is_poll, is_locked, is_sticky, isdeleted
                 FROM forum_threads
                 WHERE id IN('.$id_list.')
@@ -338,9 +338,27 @@ class ForumPage
             $threads_result = $db->sql_query($sql);
             $threads_rownum = $db->sql_numrows($threads_result);
 
+            if ($threads_rownum > 0)
+            {
+                while ($trow = mysqli_fetch_assoc($threads_result))
+                {
+                    if ($trow['challenge_id'] > 0)
+                    {
+                        $challenge_list .= $trow['challenge_id'].' ';
+                    }
+                }
+                mysqli_data_seek($threads_result,0);
+            }
+
             // Add Members
             $Member->idAddRows($threads_result,'user_id');
             $Member->idAddRows($threads_result,'last_user_id');
+
+            // Challenges?
+            if (!empty($challenge_list))
+            {
+                $this->getChallengePending($db,$challenge_list);
+            }
         }
 
         // Set
@@ -436,5 +454,52 @@ class ForumPage
 
         // Add Users
         $Member->idAddRows($this->forum_admin_result,'user_id');
+    }
+
+    // Get Challenge Pending Items
+    final private function getChallengePending(&$db,$challenge_list)
+    {
+        $method = 'ForumMain->getChallengePending()';
+
+        // Initialize
+        $challenge_list = SBC::idClean($challenge_list);
+        if (empty($challenge_list))
+        {
+            return null;
+        }
+
+        // Create array
+        $temp_array = explode(',',$challenge_list);
+        foreach ($temp_array as $value)
+        {
+            $this->challenge_row[$value]['id'] = $value;
+        }
+
+        // Switch
+        $db->sql_switch('sketchbookcafe');
+
+        // Get challenge info
+        $sql = 'SELECT id, total_pending
+            FROM challenges
+            WHERE id IN('.$challenge_list.')';
+        $result = $db->sql_query($sql);
+        $rownum = $db->sql_numrows($result);
+        if ($rownum > 0)
+        {
+            while ($trow = mysqli_fetch_assoc($result))
+            {
+                $this->challenge_row[$trow['id']] = array
+                (
+                    'total_pending' => $trow['total_pending'],
+                );
+            }
+            mysqli_data_seek($result,0);
+        }
+    }
+
+    // Get Challenge Row
+    final public function getChallengeRow()
+    {
+        return $this->challenge_row;
     }
 }

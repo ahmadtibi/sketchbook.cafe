@@ -39,22 +39,22 @@ $online_rownum      = &$data['online_rownum'];
     box-shadow: 0px 2px 2px 0px rgba(135,135,135,1);
 }
 .forum_category_name {
-    margin-top: 15px;
+    margin-top: 6px;
     margin-left: 20px;
 
     font-size: 24px;
-    font-family: Georgia, serif;
+    font-family: 'Alegreya SC', serif;
 
     color: #151515;
 }
 
 .forum_category_description {
     margin-left: 20px;
-    margin-bottom: 15px;
+    margin-bottom: 6px;
 
-    font-size: 13px;
+    font-size: 14px;
     line-height: 21px;
-    font-family: Georgia, serif;
+    font-family: 'Ek Mukta', sans-serif;
 
     color: #151515;
 }
@@ -70,8 +70,8 @@ $online_rownum      = &$data['online_rownum'];
     padding-left: 20px;
 
     font-weight: bold;
-    font-size: 13px;
-    font-family: Georgia, serif;
+    font-size: 16px;
+    font-family: 'Alegreya SC', serif;
 }
 
 .forum_forum_name a:link, .forum_forum_name a:visited, .forum_forum_name a:active {
@@ -84,8 +84,8 @@ $online_rownum      = &$data['online_rownum'];
 .forum_forum_description {
     padding-left: 20px;
     padding-bottom: 5px;
-    font-size: 12px;
-    font-family: Georgia, serif;
+    font-size: 13px;
+    font-family: 'Ek Mukta', sans-serif;
 }
 
 
@@ -96,43 +96,46 @@ $online_rownum      = &$data['online_rownum'];
     padding-left: 20px;
     padding-top: 15px;
     padding-bottom: 5px;
-
+    letter-spacing: 0.1em;
     font-weight: bold;
-    font-size: 11px;
-    font-family: Georgia, serif;
+    font-size: 12px;
+    font-family: 'Ek Mukta', sans-serif;
 
     color: #151515;
 }
 .forum_table_threads_top {
     width: 100px;
+    letter-spacing: 0.1em;
     text-align: center;
     padding-top: 15px;
     padding-bottom: 5px;
 
     font-weight: bold;
-    font-size: 11px;
-    font-family: Georgia, serif;
+    font-size: 12px;
+    font-family: 'Ek Mukta', sans-serif;
 }
 .forum_table_posts_top {
     width: 100px;
+    letter-spacing: 0.1em;
     text-align: center;
     padding-top: 15px;
     padding-bottom: 5px;
 
     font-weight: bold;
-    font-size: 11px;
-    font-family: Georgia, serif;
+    font-size: 12px;
+    font-family: 'Ek Mukta', sans-serif;
 }
 .forum_table_freshness_top {
-    width: 325px;
+    width: 400px;
+    letter-spacing: 0.1em;
     text-align: right;
     padding-right: 20px;
     padding-top: 15px;
     padding-bottom: 5px;
 
     font-weight: bold;
-    font-size: 11px;
-    font-family: Georgia, serif;
+    font-size: 12px;
+    font-family: 'Ek Mukta', sans-serif;
 }
 
 .forum_table_forum_bottom {
@@ -142,33 +145,44 @@ $online_rownum      = &$data['online_rownum'];
 .forum_table_threads_bottom {
     width: 100px;
     text-align: center;
-    font-size: 13px;
-    font-family: Georgia, serif;
+    font-size: 14px;
+    font-family: 'Ek Mukta', sans-serif;
+    height: 20px;
+    padding-top: 15px;
+    overflow: hidden;
+
 }
 .forum_table_posts_bottom {
     width: 100px;
     text-align: center;
-    font-size: 13px;
-    font-family: Georgia, serif;
+    font-size: 14px;
+    font-family: 'Ek Mukta', sans-serif;
+    height: 20px;
+    padding-top: 15px;
+    overflow: hidden;
+
 }
 .forum_table_freshness_bottom {
-    width: 325px;
+    width: 400px;
     padding-right: 20px;
     text-align: right;
+
+
 }
 
 
 .forum_freshness_thread {
-    max-width: 325px;
+    width: 100%;
     overflow: hidden;
     font-weight: bold;
-    font-size: 13px;
-    font-family: Georgia, serif;
+    font-size: 14px;
+    font-family: 'Ek Mukta', sans-serif;
 }
 .forum_freshness_userdiv {
+    width: 100%;
     padding-top: 3px;
-    font-size: 13px;
-    font-family: Georgia, serif;
+    font-size: 14px;
+    font-family: 'Ek Mukta', sans-serif;
 }
 
 .forum_table_freshness_bottom a:link, .forum_table_freshness_bottom a:visited, .forum_table_freshness_bottom a:active {
@@ -199,7 +213,7 @@ while ($crow = mysqli_fetch_assoc($categories_result))
         <div class="table forum_table">
             <div class="tr forum_forum_wrap">
                 <div class="td forum_table_forum_top">
-                    Forum
+                    Forum Name
                 </div>
                 <div class="td forum_table_threads_top">
                     Threads
@@ -208,7 +222,7 @@ while ($crow = mysqli_fetch_assoc($categories_result))
                     Posts
                 </div>
                 <div class="td forum_table_freshness_top">
-                    Freshness
+                    Last Post
                 </div>
             </div>
 <?php
@@ -232,11 +246,15 @@ while ($crow = mysqli_fetch_assoc($categories_result))
 
 
                 </div>
-                <div class="td forum_table_threads_bottom">
-                    <?php echo number_format($frow['total_threads']);?>
+                <div class="td">
+                    <div class="forum_table_threads_bottom">
+                        <?php echo number_format($frow['total_threads']);?>
+                    </div>
                 </div>
-                <div class="td forum_table_posts_bottom">
-                    <?php echo number_format($frow['total_posts']);?>
+                <div class="td">
+                    <div class="forum_table_posts_bottom">
+                        <?php echo number_format($frow['total_posts']);?>
+                    </div>
                 </div>
                 <div class="td forum_table_freshness_bottom">
 <?php
@@ -249,6 +267,7 @@ while ($crow = mysqli_fetch_assoc($categories_result))
                     </div>
                     <div class="forum_freshness_userdiv">
                         <script>sbc_dateago(<?php echo time();?>,<?php echo $thread[$frow['last_thread_id']]['date_updated'];?>);</script>
+                        by 
                         <script>sbc_avatar(<?php echo $thread[$frow['last_thread_id']]['last_user_id'];?>,'forum_avatar_mini');</script>
                         <script>sbc_username(<?php echo $thread[$frow['last_thread_id']]['last_user_id'];?>,'');</script>
                     </div>
@@ -290,61 +309,71 @@ mysqli_data_seek($categories_result,0);
     margin-right: 15px;
     margin-bottom: 15px;
 
+    background-color: #FFFFFF;
+
     -webkit-box-shadow: 0px 0px 4px 0px rgba(125,125,125,1);
     -moz-box-shadow: 0px 0px 4px 0px rgba(125,125,125,1);
     box-shadow: 0px 0px 4px 0px rgba(125,125,125,1);
 }
 
 .onlinelist_title {
-    margin-top: 15px;
+    margin-top: 12px;
     margin-left: 20px;
 
     font-size: 17px;
-    font-family: Georgia, serif;
+    font-family: 'Alegreya SC', serif;
 
     color: #151515;
 }
 .onlinelist_inner_wrap {
     overflow: hidden;
-    padding: 5px;
+    margin-left: 16px;
+    margin-bottom: 12px;
+    margin-top: 4px;
 }
 .onlinelist_userdiv {
     float: left;
     display: inline-block;
     overflow: hidden;
     min-width: 50px;
-    height: 30px;
+    height: 20px;
     margin: 3px;
+    border: 1px solid #ECECEC;
+    border-bottom: 3px solid #60E0DA;
 
-    border: 1px solid #FFFFFF;
+    background-color: #ECECEC;
 
+    -moz-border-radius: 3px 3px 3px 3px;
+    border-radius: 3px 3px 3px 3px;
 }
 .onlinelist_avatardiv {
     float: left;
     display: inline-block;
     overflow: hidden;
-    width: 30px;
+    width: 20px;
     text-align: center;
     background-color: #FFFFFF;
 }
 .onlinelist_user {
-    font-size: 12px;
-    font-family: Georgia, serif;
-    line-height: 30px;
-    padding-left: 40px;
-    padding-right: 10px;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    font-family: 'Ek Mukta', sans-serif;
+    line-height: 20px;
+    padding-left: 32px;
+    padding-right: 8px;
 
-    background-color: #60E0DA;
+    color: #151515;
+
 }
 .onlinelist_user a:link, .onlinelist_user a:visited, .onlinelist_user a:active {
-    color: #FFFFFF;
+    color: #151515;
 }
 .onlinelist_user a:hover {
     text-decoration: underline;
 }
 .onlinelist_avatar {
-    max-width: 30px;
-    max-height: 30px;
+    max-width: 20px;
+    max-height: 20px;
 }
 </style>
 

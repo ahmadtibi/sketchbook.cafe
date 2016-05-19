@@ -1,6 +1,6 @@
 <?php
 // @author          Kameloh
-// @lastUpdated     2016-04-30
+// @lastUpdated     2016-05-08
 
 use SketchbookCafe\SBC\SBC as SBC;
 use SketchbookCafe\UserTimer\UserTimer as UserTimer;
@@ -9,6 +9,7 @@ use SketchbookCafe\TextareaSettings\TextareaSettings as TextareaSettings;
 use SketchbookCafe\ForumOrganizer\ForumOrganizer as ForumOrganizer;
 use SketchbookCafe\TableForumThread\TableForumThread as TableForumThread;
 use SketchbookCafe\TableForumPoll\TableForumPoll as TableForumPoll;
+use SketchbookCafe\ThreadOrganizer\ThreadOrganizer as ThreadOrganizer;
 
 class ForumNewThread
 {
@@ -141,19 +142,14 @@ class ForumNewThread
 
         // Forum Organizer
         $ForumOrganizer = new ForumOrganizer($db);
+        $ForumOrganizer->countTotalThreads($this->forum_id);
+        $ForumOrganizer->updateLastPostInfo($this->forum_id);
 
-        // Count Unique Comments
-        $ForumOrganizer->threadUniqueComments($this->thread_id);
-
-        // Count Forum Threads
-        $ForumOrganizer->forumCountTotalThreads($this->forum_id);
-
-        // Update last thread for forum
-        $ForumOrganizer->forumUpdateInfo($this->forum_id);
+        // Thread Organizer
+        $ThreadOrganizer = new ThreadOrganizer($db);
+        $ThreadOrganizer->countUniqueUsers($this->thread_id);
 
         // Count User Threads (fix this)
-
-        // Update General Category (fix this)
 
         // ==== Do These Last
 

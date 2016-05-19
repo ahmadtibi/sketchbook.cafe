@@ -1,6 +1,6 @@
 <?php
 // @author          Kameloh
-// @lastUpdated     2016-05-04
+// @lastUpdated     2016-05-17
 
 use SketchbookCafe\SBC\SBC as SBC;
 
@@ -11,6 +11,81 @@ class Admin extends Controller
     public function __construct(&$obj_array)
     {
         $this->obj_array = &$obj_array;
+    }
+
+    // Challenge Applications
+    public function challenge_applications()
+    {
+        $method = 'admin->challenges_applications()';
+
+        // Model
+        $Page = $this->model('AdminChallengeApplicationsPage',$this->obj_array);
+        $Page->process();
+        $result = $Page->getResult();
+        $rownum = $Page->getRownum();
+
+        // View
+        $this->view('sketchbookcafe/header');
+        $this->view('sketchbookcafe/admin_top', 
+        [
+            'User'              => &$this->obj_array['User'],
+            'current_page'      => 'challenges_applications',
+        ]);
+        $this->view('admin/challenge_applications',
+        [
+            'result'    => &$result,
+            'rownum'    => &$rownum,
+        ]);
+        $this->view('sketchbookcafe/admin_bottom');
+        $this->view('sketchbookcafe/footer');
+    }
+
+    // Pending Entries
+    public function pending_entries()
+    {
+        $method = 'admin->pending_entries()';
+
+        // Model
+        $PageObj        = $this->model('AdminPendingEntriesPage',$this->obj_array);
+        $challenge_row  = $PageObj->getChallengeRow();
+        $entries_result = $PageObj->getEntriesResult();
+        $entries_rownum = $PageObj->getEntriesRownum();
+
+        // View
+        $this->view('sketchbookcafe/header');
+        $this->view('sketchbookcafe/admin_top', 
+        [
+            'User'              => &$this->obj_array['User'],
+            'current_page'      => 'huh',
+        ]);
+        $this->view('admin/pending_entries',
+        [
+            'Member'            => &$this->obj_array['Member'],
+            'Images'            => &$this->obj_array['Images'],
+            'challenge_row'     => $challenge_row,
+            'entries_result'    => &$entries_result,
+            'entries_rownum'    => &$entries_rownum,
+        ]);
+        $this->view('sketchbookcafe/admin_bottom');
+        $this->view('sketchbookcafe/footer');
+    }
+
+    // Fix Challenge Table
+    public function fix_challenge_table($challenge_id = 0)
+    {
+        $method = 'admin->fix_challenge_table()';
+
+        // Check
+        $challenge_id = isset($challenge_id) ? (int) $challenge_id : 0;
+        if ($challenge_id < 1)
+        {
+            SBC::devError('Challenge ID not set',$method);
+        }
+
+        // Model
+        $ChallengeObj = $this->model('AdminChallengeFixtable',$this->obj_array);
+        $ChallengeObj->setId($challenge_id);
+        $ChallengeObj->process();
     }
 
     // Create new Challenge
@@ -41,6 +116,10 @@ class Admin extends Controller
         $this->view('admin/challenges',
         [
             'Form'              => $Form,
+            'categories_result' => &$PageObj->categories_result,
+            'categories_rownum' => &$PageObj->categories_rownum,
+            'challenges_result' => &$PageObj->challenges_result,
+            'challenges_rownum' => &$PageObj->challenges_rownum,
         ]);
         $this->view('sketchbookcafe/admin_bottom');
         $this->view('sketchbookcafe/footer');

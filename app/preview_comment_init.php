@@ -66,33 +66,11 @@ $UserTimer->update($db);
 // Close Connection
 $db->close();
 ?>
-<style type="text/css">
-.previewWrap {
-    padding: 3px;
-    overflow: hidden;
-}
-.previewTitle {
-    padding: 3px;
-    font-size: 14px;
-    line-height: 20px;
-    font-family: Georgia, serif;
-    font-weight: bold;
-}
-.previewMessage {
-    padding: 3px;
-    font-size: 14px;
-    line-height: 20px;
-    font-family: Georgia, serif;
-}
-.previewMessage img {
-    max-width: 100%;
-}
-</style>
-<div class="previewWrap">
-    <div class="previewTitle">
+<div class="preview_wrap">
+    <div class="preview_title sbc_font sbc_font_size">
         Message Preview
     </div>
-    <div class="previewMessage">
+    <div class="preview_message sbc_font sbc_font_size sbc_font_height sbc_font_link">
         <?php echo $message;?>
     </div>
 </div>

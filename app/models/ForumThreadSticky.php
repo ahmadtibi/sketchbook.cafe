@@ -1,10 +1,10 @@
 <?php
 // @author          Kameloh
-// @lastUpdated     2016-04-30
+// @lastUpdated     2016-05-08
 
 use SketchbookCafe\SBC\SBC as SBC;
 use SketchbookCafe\ForumAdmin\ForumAdmin as ForumAdmin;
-use SketchbookCafe\ForumOrganizer\ForumOrganizer as ForumOrganizer;
+use SketchbookCafe\ThreadOrganizer\ThreadOrganizer as ThreadOrganizer;
 
 class ForumThreadSticky
 {
@@ -154,8 +154,8 @@ class ForumThreadSticky
         $stmt->bind_param('iii',$date_bumped,$is_sticky,$thread_id);
         SBC::statementExecute($stmt,$db,$sql,$method);
 
-        // Forum Organizer: Update Bump Date for Thread's Forum
-        $ForumOrganizer = new ForumOrganizer($db);
-        $ForumOrganizer->threadUpdateBumpDate($thread_id);
+        // Thread Organizer: Update Bump Date for Parent Forum
+        $ThreadOrganizer    = new ThreadOrganizer($db);
+        $ThreadOrganizer->updateBumpDate($thread_id);
     }
 }

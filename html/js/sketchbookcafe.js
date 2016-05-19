@@ -1,5 +1,56 @@
 // JQuery Stuff
 $(document).ready(function() {
+
+    // Body Fade
+    // $("body").css("display", "none");
+    $("body").fadeIn(200); 
+
+    // Compose note
+    $('#challenges_page_create_button').click(function() {
+       //  $('#fpNewThreadDiv').toggle('drop', {direction: 'right'}, 150);
+        $("#challenges_page_create_wrap").slideToggle(300, function() {
+        });
+    });
+
+
+    // Comment Fade
+    //$(".tr").css("display","none");
+    //$(".tr").hide().each(function(i) {
+    //  $(this).delay(i*100).slideToggle(600);
+    //});
+    // $(".commentWrap").fadeIn(800);
+
+    // Profiles
+    $(".user_page_top_avatar_div>img").each(function(i, img) {
+        $(img).css({
+            position: "relative",
+            left: ($(img).parent().width()/2) - ($(img).width()/2)
+        });
+    });
+
+    // Realign image in div
+    $(".challenge_thumbnail_div>img").each(function(i, img) {
+        $(img).css({
+            position: "relative",
+            left: ($(img).parent().width()/2) - ($(img).width()/2)
+        });
+    });
+
+
+    // Compose note
+    $('#mailbox_compose_button').click(function() {
+       //  $('#fpNewThreadDiv').toggle('drop', {direction: 'right'}, 150);
+        $("#mailbox_compose_div").slideToggle(300, function() {
+        });
+    });
+
+    // Forum Thread Button
+    $('#forum_main_new_thread_button').click(function() {
+       //  $('#fpNewThreadDiv').toggle('drop', {direction: 'right'}, 150);
+        $("#forum_main_new_thread_div").slideToggle(500, function() {
+        });
+    });
+
     // Forum Thread Button
     $('#fpNewThreadButton').click(function() {
        //  $('#fpNewThreadDiv').toggle('drop', {direction: 'right'}, 150);
@@ -232,7 +283,7 @@ function sbc_username(user_id, f_class)
     {
         // Set vars
         username        = member_username[user_id];
-        username_url    = '<a href="#" class="' + f_class + '">' + username + '</a>';
+        username_url    = '<a href="https://www.sketchbook.cafe/u/' + username + '/" class="' + f_class + '">' + username + '</a>';
     }
 
     // Write
@@ -268,7 +319,7 @@ function sbc_avatar(user_id,f_class)
         // Full Avatar
         if (avatar_url != '')
         {
-            avatar_url  = '<a href="#"><img src="https://www.sketchbook.cafe/' + avatar_url + '" class="' + avatar_class + '"></a>';
+            avatar_url  = '<a href="https://www.sketchbook.cafe/u/' + username + '/"><img src="https://www.sketchbook.cafe/' + avatar_url + '" class="' + avatar_class + '"></a>';
         }
     }
 
@@ -572,6 +623,14 @@ function sbc_ajax_form(page_url,f_window)
     xmlhttp.send('');
 }
 
+// Edit Entry Form
+function sbc_thread_editentry_form(entry_id)
+{
+    var page_url = 'https://www.sketchbook.cafe/ajax/edit_entry/' + entry_id + '/';
+    var f_window = 'edit_entry_window' + entry_id;
+    return sbc_ajax_form(page_url,f_window);
+}
+
 // Thread: Edit Title
 function sbc_thread_edittitle(thread_id,comment_id)
 {
@@ -612,3 +671,101 @@ function sbc_edit_submit_form(id)
     return sbc_ajax_submit(page_url,f_window,id);
 }
 
+// Master Image
+function sbc_image(f_id,f_class)
+{
+    var output      = '';
+    var i_url       = '';
+    var t_url       = '';
+
+    // Is there an image?
+    if (image_id[f_id] > 0)
+    {
+        // Set Vars
+        i_url = image_url[f_id];
+        t_url = image_thumb[f_id];
+
+        // Full Image
+        if (image_s3[f_id] == 1)
+        {
+            i_url = i_url;
+        }
+        else
+        {
+            i_url = 'https://www.sketchbook.cafe/' + i_url;
+        }
+
+        // Full Image
+        output = '<div><img src="' + i_url + '" class="' + f_class + '"></img></div>';
+    }
+
+    document.write(output);
+}
+
+// Thumbnail to Image
+function sbc_thumbnail_image(f_id, f_class)
+{
+    var output      = '';
+    var i_url       = '';
+    var t_url       = '';
+
+    // Is there an image?
+    if (image_id[f_id] > 0)
+    {
+        // Set Vars
+        i_url = image_url[f_id];
+
+        // Full Image
+        if (image_s3[f_id] == 1)
+        {
+            new_img = i_url;
+        }
+        else
+        {
+            new_img = 'https://www.sketchbook.cafe/' + i_url;
+        }
+
+        // Replace image
+        document.getElementById('thumb' + f_id).src = new_img;
+    }
+}
+
+// Challenge Thumbnail
+function sbc_challenge_thumbnail(f_id)
+{
+    var output      = '';
+    var t_url       = '';
+
+    // Is there an image?
+    if (image_id[f_id] > 0)
+    {
+        // Set Vars
+        t_url = image_thumb[f_id];
+
+        // Full Image
+        output = '<img src="https://www.sketchbook.cafe/' + t_url + '" class="challenge_thumbnail_img">';
+    }
+
+    document.write(output);
+}
+
+// Master Thumbnail
+function sbc_thumbnail(f_id,f_class)
+{
+    var output      = '';
+    var i_url       = '';
+    var t_url       = '';
+
+    // Is there an image?
+    if (image_id[f_id] > 0)
+    {
+        // Set Vars
+        i_url = image_url[f_id];
+        t_url = image_thumb[f_id];
+
+        // Full Image
+        output = '<img id="thumb' + f_id + '" src="https://www.sketchbook.cafe/' + t_url + '" class="thumb_img ' + f_class + '" onClick="sbc_thumbnail_image(' + f_id + ',\'\'); return false;">';
+    }
+
+    document.write(output);
+}

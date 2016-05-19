@@ -9,8 +9,10 @@ use SketchbookCafe\TextareaSettings\TextareaSettings as TextareaSettings;
 class AdminChallengesPage
 {
     public $Form = '';
-    private $categories_result;
-    private $categories_rownum = 0;
+    public $categories_result;
+    public $categories_rownum = 0;
+    public $challenges_result;
+    public $challenges_rownum = 0;
 
     // Construct
     public function __construct(&$obj_array)
@@ -28,6 +30,9 @@ class AdminChallengesPage
         $User->setFrontpage();
         $User->admin($db);
         $User->requireAdminFlag('challenges');
+
+        // Get Challenges
+        $this->getChallenges($db);
 
         // Get Challenge Categories
         $this->getCategories($db);
@@ -149,5 +154,24 @@ class AdminChallengesPage
             ASC';
         $this->categories_result = $db->sql_query($sql);
         $this->categories_rownum = $db->sql_numrows($this->categories_result);
+    }
+
+    // Get Challenges
+    final private function getChallenges(&$db)
+    {
+        $method = 'AdminChallengesPage->getChallenges()';
+
+        // Switch
+        $db->sql_switch('sketchbookcafe');
+
+        // Get Challenges
+        $sql = 'SELECT id, category_id, name
+            FROM challenges
+            WHERE isdeleted=0
+            ORDER BY id
+            DESC
+            LIMIT 20';
+        $this->challenges_result    = $db->sql_query($sql);
+        $this->challenges_rownum    = $db->sql_numrows($this->challenges_result);
     }
 }

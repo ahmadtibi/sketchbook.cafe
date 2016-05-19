@@ -1,0 +1,4 @@
+<?php
+
+?>
+View Entry Page

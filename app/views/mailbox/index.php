@@ -13,6 +13,10 @@ $pages_min      = &$data['pages_min'];
 $pages_max      = &$data['pages_max'];
 $pages_total    = &$data['pages_total'];
 ?>
+<div class="mailbox_index_wrap">
+
+
+
 
 <div class="pageNumbersWrap">
     <div class="pageNumbersLeft">
@@ -31,13 +35,13 @@ echo $pagenumbers;
     <div class="table inboxTable">
 
         <div class="tr inboxTop">
-            <div class="tdInbox inboxUser inboxTopTd">
+            <div class="tdInbox inboxUser inboxTopTd sbc_font">
                 User
             </div>
-            <div class="tdInbox inboxTitle inboxTopTd">
+            <div class="tdInbox inboxTitle inboxTopTd sbc_font">
                 Title
             </div>
-            <div class="tdInbox inboxLastUpdated inboxTopTd">
+            <div class="tdInbox inboxLastUpdated inboxTopTd sbc_font">
                 Last Updated
             </div>
         </div>
@@ -87,7 +91,7 @@ if ($rownum > 0)
         }
 ?>
         <div class="tr inboxTr">
-            <div class="tdInbox inboxCell inboxInnerLeft">
+            <div class="tdInbox inboxCell inboxInnerLeft sbc_font">
 
                 <div class="inboxAvatarWrap">
                     <div class="inboxAvatarDiv">
@@ -105,7 +109,7 @@ if ($rownum > 0)
                     <script>sbc_numbered_links('https://www.sketchbook.cafe/mailbox/note/<?php echo $trow['id'];?>/',10,<?php echo $total_replies;?>,'sbc_pagenumber');</script>
                 </div>
             </div>
-            <div class="tdInbox inboxCell inboxInnerRight">
+            <div class="tdInbox inboxCell inboxInnerRight sbc_font">
                 <?php echo $User->mytz($trow['date_updated'],'F jS, Y - g:iA');?>
                 by 
                 <script>sbc_username(<?php echo $trow['last_user_id'];?>, '');</script>
@@ -134,4 +138,9 @@ echo $pagenumbers;
 ?>
 
     </div>
+</div>
+
+
+
+
 </div>

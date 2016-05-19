@@ -1,6 +1,6 @@
 <?php
 // @author          Kameloh
-// @lastUpdated     2016-05-01
+// @lastUpdated     2016-05-11
 namespace SketchbookCafe\PollDisplay;
 
 use SketchbookCafe\SBC\SBC as SBC;
@@ -10,6 +10,9 @@ class PollDisplay
     private $html = '';
     private $thread_row = [];
     private $poll_row = [];
+
+    // CSS
+    private $css_poll = ' sbc_font ';
 
     private $obj_array = [];
     public function __construct(&$obj_array)
@@ -60,11 +63,11 @@ class PollDisplay
         <div class="pollInnerRight">
 
             <div class="pollMessageWrap">
-                <div class="pollMessage">
+                <div class="pollMessage '.$this->css_poll.'">
                     '.$poll_row['message'.$i].'
                 </div>
                 <div class="pollBarOuter">
-                    <div class="pollBarInner" style="width: '.$innerWidth.'%;">
+                    <div class="pollBarInner '.$this->css_poll.'" style="width: '.$innerWidth.'%;">
                         <div class="pollBarInnerText">
                             '.$innerWidth.'%
                             &nbsp;
@@ -93,14 +96,14 @@ class PollDisplay
         // Main HTML
         $this->html .= '
 <div class="pollWrap">
-    <div class="pollTitle">
+    <div class="pollTitle sbc_font sbc_font_size">
         <div class="pollTitleRight">
             <script>sbc_number_display('.$poll_row['total_votes'].',\'vote\',\'votes\');</script>
         </div>
         '.$thread_row['title'].'
     </div>
 
-    <div class="pollInnerWrap">
+    <div class="pollInnerWrap sbc_font">
 ';
         // Poll HTML
         $this->html .= $poll_html;

@@ -1,6 +1,6 @@
 <?php
 // @author          Kameloh
-// @lastUpdated     2016-05-04
+// @lastUpdated     2016-05-12
 
 use SketchbookCafe\SBC\SBC as SBC;
 
@@ -11,6 +11,29 @@ class Challenge extends Controller
     public function __construct(&$obj_array)
     {
         $this->obj_array = &$obj_array;
+    }
+
+    // Main Page
+    public function index()
+    {
+        // Model
+        $PageObj = $this->model('ChallengesPage',$this->obj_array);
+        $PageObj->process();
+
+        // Set vars
+        $result = $PageObj->getResult();
+        $rownum = $PageObj->getRownum();
+        $Member = &$this->obj_array['Member'];
+
+        // View
+        $this->view('sketchbookcafe/header');
+        $this->view('challenges/index',
+        [
+            'result'    => &$result,
+            'rownum'    => &$rownum,
+            'Member'    => &$Member,
+        ]);
+        $this->view('sketchbookcafe/footer');
     }
 
     // Entry Submit

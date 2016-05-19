@@ -94,6 +94,12 @@ if ($User->hasAdminFlag('challenges'))
                     Manage Challenges
                 </div>
             </a>
+
+            <a href="https://www.sketchbook.cafe/admin/challenge_applications/">
+                <div class="adminItem <?php if ($current_page == 'challenges_applications') { echo ' adminItemSelected ' ;}?>">
+                    Applications (0)
+                </div>
+            </a>
 <?php
 }
 ?>

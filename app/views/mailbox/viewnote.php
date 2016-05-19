@@ -1,4 +1,6 @@
 <?php
+use SketchbookCafe\DisplayComment\DisplayComment as DisplayComment;
+
 // Initialize Vars
 $Mail           = &$data['Mail'];
 $Comment        = &$data['Comment'];
@@ -37,7 +39,23 @@ else
 {
     $other_id   = $Mail['user_id'];
 }
+
+// Object Array
+$obj_array = array
+(
+    'User'      => &$User,
+    'Comment'   => &$Comment,
+    'Member'    => &$Member,
+);
+
+// Display Comment
+$DisplayComment = new DisplayComment($obj_array);
 ?>
+<div class="mailbox_note_wrap">
+
+
+
+
 <div class="threadTitleWrap">
     <div class="threadTitleRight">
         <div id="deletethreadlink" class="inboxDeleteButton">
@@ -47,11 +65,6 @@ else
     <div class="threadTitle">
         <a href="https://www.sketchbook.cafe/mailbox/note/<?php echo $mail_id;?>/" class="<?php if ($is_removed == 1) { echo 'strike'; } ?>"><?php echo $Mail['title'];?></a>
     </div>
-</div>
-<div class="breadCrumbs">
-    <a href="https://www.sketchbook.cafe/mailbox/">Mailbox</a>
-    <span class="breadCrumbSeparator">></span>
-    <a href="https://www.sketchbook.cafe/mailbox/note/<?php echo $mail_id;?>/"><?php echo $Mail['title'];?></a>
 </div>
 <?php
 // Delete Form
@@ -75,55 +88,13 @@ echo $DeleteForm->field['submit'];
 <?php
 // End Delete Form
 echo $DeleteForm->end();
-?>
 
-<!-- Start Main Post -->
-<div class="commentWrap">
+// Main Comment
+echo $DisplayComment->process(array
+(
+    'comment_id'        => $Mail['comment_id'],
+));
 
-    <div class="commentLeft">
-
-        <div class="commentAvatarDiv">
-            <script>sbc_avatar(<?php echo $main_user_id;?>);</script>
-        </div>
-        <div class="commentUsername">
-            <script>sbc_username(<?php echo $main_user_id;?>);</script>
-        </div>
-        <div class="commentUserTitle">
-            <?php echo $Member->displayTitle($main_user_id);?>
-        </div>
-
-    </div>
-
-    <div class="commentRight">
-
-        <div class="commentTopWrap">
-            <div class="commentTopRight">
-                #<?php echo $Mail['comment_id'];?>
-            </div>
-            <div class="commentDate">
-                <?php echo $User->mytz($Comment->getDate($Mail['comment_id']),'F jS, Y - g:iA');?>
-            </div>
-        </div>
-
-        <div class="commentMessage">
-            <?php echo $Comment->displayComment($Mail['comment_id']);?>
-        </div>
-<?php
-// Signature?
-if ($Member->notEmpty($main_user_id,'forumsignature'))
-{
-?>
-        <div class="commentSignature">
-            <?php echo $Member->displayForumSignature($main_user_id);?>
-        </div>
-<?php
-}
-?>
-    </div>
-</div>
-<!-- End Main Post -->
-
-<?php
 // Page Numbers
 if ($rownum > 0)
 {
@@ -163,56 +134,11 @@ if ($rownum > 0)
         // Add
         $i++;
 
-        // Comment ID
-        $comment_id         = $trow['cid'];
-        $comment_user_id    = $Comment->comment[$comment_id]['user_id'];
-?>
-
-<div class="commentWrap">
-
-    <div class="commentLeft">
-
-        <div class="commentAvatarDiv">
-            <script>sbc_avatar(<?php echo $comment_user_id;?>);</script>
-        </div>
-        <div class="commentUsername">
-            <script>sbc_username(<?php echo $comment_user_id;?>);</script>
-        </div>
-        <div class="commentUserTitle">
-            <?php echo $Member->displayTitle($comment_user_id);?>
-        </div>
-
-    </div>
-
-    <div class="commentRight">
-
-        <div class="commentTopWrap">
-            <div class="commentTopRight">
-                #<?php echo $comment_id;?>
-            </div>
-            <div class="commentDate">
-                <?php echo $User->mytz($Comment->getDate($comment_id),'F jS, Y - g:iA');?>
-            </div>
-        </div>
-
-        <div class="commentMessage">
-            <?php echo $Comment->displayComment($comment_id);?>
-        </div>
-<?php
-// Signature?
-if ($Member->notEmpty($comment_user_id,'forumsignature'))
-{
-?>
-        <div class="commentSignature">
-            <?php echo $Member->displayForumSignature($comment_user_id);?>
-        </div>
-<?php
-}
-?>
-    </div>
-</div>
-
-<?php
+        // Replies
+        echo $DisplayComment->process(array
+        (
+            'comment_id'        => $trow['cid'],
+        ));
     }
     mysqli_data_seek($result,0);
 }
@@ -259,10 +185,12 @@ if ($is_removed == 1)
         </div>
     </div>
     <div class="commentRight">
-        <span class="fi">
-            <script>sbc_username(<?php echo $other_id;?>,'');</script>
-            has removed this from their mailbox and it cannot be replied to.
-        </span>
+        <div class="commentMessage sbc_font sbc_font_height sbc_font_color">
+            <span class="fi">
+                <script>sbc_username(<?php echo $other_id;?>,'');</script>
+                has removed this from their mailbox and it cannot be replied to.
+            </span>
+        </div>
     </div>
 </div>
 
@@ -306,3 +234,7 @@ else
 }
 ?>
 <!-- End Reply -->
+
+
+
+</div>

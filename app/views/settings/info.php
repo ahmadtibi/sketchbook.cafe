@@ -31,6 +31,17 @@ echo $Form->field['title'];
 
     <div class="innerWrap">
         <div class="innerLeft">
+            About Me:
+        </div>
+        <div class="innerRight">
+<?php
+echo $Form->field['aboutme'];
+?>
+        </div>
+    </div>
+
+    <div class="innerWrap">
+        <div class="innerLeft">
             Forum Signature:
         </div>
         <div class="innerRight">

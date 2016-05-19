@@ -1,6 +1,6 @@
 <?php
 // @author          Kameloh
-// @lastUpdated     2016-04-27
+// @lastUpdated     2016-05-11
 // Mailbox Page
 
 use SketchbookCafe\SBC\SBC as SBC;

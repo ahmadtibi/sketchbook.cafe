@@ -5,13 +5,14 @@
 *
 * @author       Kameloh
 * @copyright    (c) 2016, Kameloh
-* @lastupdated  2016-05-04
+* @lastupdated  2016-05-12
 *
 */
 namespace SketchbookCafe\ImageFile;
 
 use SketchbookCafe\SBC\SBC as SBC;
 use SketchbookCafe\GenerateRandom\GenerateRandom as GenerateRandom;
+use Aws\S3\S3Client;
 
 class ImageFile
 {
@@ -444,14 +445,67 @@ class ImageFile
         // Generate Thumbnail
         $this->generateThumbnail(325);
 
+        // S3 Content
+        $content_type = 'image/jpeg';
+        switch ($filetype)
+        {
+            case 'gif':     $content_type = 'image/gif';
+                            break;
+
+            case 'png':     $content_type = 'image/png';
+                            break;
+
+            case 'jpg':     $content_type = 'image/jpeg';
+                            break;
+
+            default:        $content_type = 'image/jpeg';
+                            break;
+        }
+
+        // S3
+        $bucket         = 'sketchbookcafe';
+        $keyname        = $file_url; // use it as FILENAME like image.JPG or /folder/jpg
+        $filepath       = $file_url; // path of image on host
+        $s3_settings    = require '../app/s3_settings.php';
+        $s3Client       = S3Client::factory($s3_settings);
+        $result = $s3Client->putObject(array(
+            'Bucket'       => $bucket,
+            'Key'          => $keyname,
+            'SourceFile'   => $filepath,
+            'ContentType'  => $content_type,
+            'ACL'          => 'private',
+            'StorageClass' => 'STANDARD',
+            'Metadata'     => array(    
+                'param1' => 'value 1',
+                'param2' => 'value 2'
+            )
+        ));
+
+        $s3         = 0;
+        $image_url  = $file_url;
+        $s3_url     = isset($result['ObjectURL']) ? $result['ObjectURL'] : '';
+        if (!empty($s3_url))
+        {
+            $s3 = 1;
+        }
+
         // Mark image as not deleted
         $sql = 'UPDATE images
-            SET isdeleted=0
+            SET image_url=?,
+            s3=?,
+            s3_url=?,
+            isdeleted=0
             WHERE id=?
             LIMIT 1';
         $stmt = $db->prepare($sql);
-        $stmt->bind_param('i',$image_id);
+        $stmt->bind_param('sisi',$image_url,$s3,$s3_url,$image_id);
         SBC::statementExecute($stmt,$db,$sql,$method);
+
+        // If S3, then delete from server
+        if ($s3 == 1)
+        {
+            unlink($image_url);
+        }
     }
 
     // Get Image ID

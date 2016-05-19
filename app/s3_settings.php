@@ -1,4 +1,11 @@
 <?php
-// Amazon Settings
-define('AWS_KEY', 'KEY');
-define('AWS_SECRET_KEY', 'SECRET');
+return array
+(
+    'credentials' => array
+    (
+        'key'    => 'SECRET_KEY_HERE',
+        'secret' => 'REGION_HERE',
+    ),
+    'region'    => 'us-west-2',
+    'version'   => 'latest',
+);

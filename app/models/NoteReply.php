@@ -1,6 +1,6 @@
 <?php
 // @author          Kameloh
-// @lastUpdated     2016-04-27
+// @lastUpdated     2016-05-11
 
 use SketchbookCafe\SBC\SBC as SBC;
 use SketchbookCafe\UserTimer\UserTimer as UserTimer;
@@ -219,6 +219,7 @@ class NoteReply
         $user_id    = $this->user_id;
         $mail_id    = $this->mail_id;
         $comment_id = $this->comment_id;
+        $time       = $this->time;
         if ($comment_id < 1)
         {
             SBC::devError('$comment_id is not set',$method);
@@ -254,12 +255,13 @@ class NoteReply
 
         // Update Mailbox Thread
         $sql = 'UPDATE mailbox_threads
-            SET total_replies=?,
+            SET date_updated=?,
+            total_replies=?,
             last_user_id=?
             WHERE id=?
             LIMIT 1';
         $stmt = $db->prepare($sql);
-        $stmt->bind_param('iii',$total,$user_id,$mail_id);
+        $stmt->bind_param('iiii',$time,$total,$user_id,$mail_id);
         SBC::statementExecute($stmt,$db,$sql,$method);
     }
 
@@ -271,6 +273,7 @@ class NoteReply
         // Initialize Vars
         $r_user_id  = $this->r_user_id;
         $mail_id    = $this->mail_id;
+        $time       = $this->time;
 
         // Check
         if ($r_user_id < 1 || $mail_id < 1)
@@ -286,11 +289,12 @@ class NoteReply
 
         // Update thread
         $sql = 'UPDATE '.$table_name.'
-            SET isnew=1
+            SET lastupdate=?,
+            isnew=1
             WHERE cid=?
             LIMIT 1';
         $stmt = $db->prepare($sql);
-        $stmt->bind_param('i',$mail_id);
+        $stmt->bind_param('ii',$time,$mail_id);
         SBC::statementExecute($stmt,$db,$sql,$method);
     }
 }

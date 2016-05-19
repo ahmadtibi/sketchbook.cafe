@@ -5,7 +5,7 @@
 *
 * @author       Kameloh
 * @copyright    (c) 2016, Kameloh
-* @lastupdated  2016-05-03
+* @lastupdated  2016-05-16
 *
 */
 // Main user class
@@ -22,6 +22,7 @@ class User
     private $session_code = '';
     private $ip_address = '';
     private $frontpage = 0;
+    private $time = 0;
 
     // Settings
     public $username = 'Guest';
@@ -65,6 +66,7 @@ class User
 
         // Other Vars
         $ip_address     = SBC::getIpAddress();
+        $this->time     = SBC::getTime();
 
         // Checks
         if ($id < 1)
@@ -281,6 +283,7 @@ class User
         // Set Vars
         $id                 = $this->id;
         $ip_address         = $this->ip_address;
+        $time               = $this->time;
         $error_message      = 'Invalid session. <a href="https://www.sketchbook.cafe/logout/">Please logout</a> and try again.';
         $error_logged_in    = 'You must be <a href="https://www.sketchbook.cafe/">logged in</a> to view this page.';
 
@@ -346,6 +349,20 @@ class User
         // Do we have a user?
         if ($row['id'] > 0)
         {
+            // Auth required only
+            if ($this->auth_type == 2)
+            {
+                // Update Last Login
+                $user_id = $row['id'];
+                $sql = 'UPDATE users
+                    SET date_lastlogin=?
+                    WHERE id=?
+                    LIMIT 1';
+                $stmt = $db->prepare($sql);
+                $stmt->bind_param('ii',$time,$user_id);
+                SBC::statementExecute($stmt,$db,$sql,$method);
+            }
+
             // Set vars
             $this->isadmin      = $row['isadmin'];
             $this->username     = $row['username'];
@@ -614,7 +631,7 @@ class User
         // Get Admin Info
         $sql = 'SELECT id, haspass, ip_address, session_active, admin_session1, admin_session2, admin_session3,
             manage_forum_categories, manage_forum_forums, fix_user_table, fix_forum_table, manage_forum,
-            manage_forum_admins, challenge_categories, challenges 
+            manage_forum_admins, challenge_categories, challenges, approve_entries
             FROM admins
             WHERE user_id=?
             LIMIT 1';
@@ -656,6 +673,19 @@ class User
         }
 
         // Set Admin Flags
+        $this->admin_flag = array
+        (
+            'manage_forum_categories'       => $row['manage_forum_categories'],
+            'manage_forum_forums'           => $row['manage_forum_forums'],
+            'fix_user_table'                => $row['fix_user_table'],
+            'manage_forum'                  => $row['manage_forum'],
+            'fix_forum_table'               => $row['fix_forum_table'],
+            'manage_forum_admins'           => $row['manage_forum_admins'],
+            'challenge_categories'          => $row['challenge_categories'],
+            'challenges'                    => $row['challenges'],
+            'approve_entries'               => $row['approve_entries'],
+        );
+/*
         $this->admin_flag['manage_forum_categories']    = $row['manage_forum_categories'];
         $this->admin_flag['manage_forum_forums']        = $row['manage_forum_forums'];
         $this->admin_flag['fix_user_table']             = $row['fix_user_table'];
@@ -664,6 +694,7 @@ class User
         $this->admin_flag['manage_forum_admins']        = $row['manage_forum_admins'];
         $this->admin_flag['challenge_categories']       = $row['challenge_categories'];
         $this->admin_flag['challenges']                 = $row['challenges'];
+*/
     }
 
     // Require Admin Flag

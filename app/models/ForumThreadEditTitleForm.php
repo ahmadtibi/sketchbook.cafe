@@ -1,6 +1,6 @@
 <?php
 // @author          Kameloh
-// @lastUpdated     2016-05-02
+// @lastUpdated     2016-05-08
 
 use SketchbookCafe\SBC\SBC as SBC;
 use SketchbookCafe\ForumAdmin\ForumAdmin as ForumAdmin;
@@ -107,7 +107,7 @@ class ForumThreadEditTitleForm
             'max'           => 100,
             'value'         => $this->title_code,
             'placeholder'   => 'title',
-            'css'           => 'input500 fpInputTitle',
+            'css'           => 'input500 forum_thread_title_input',
         ));
 
         // Submit

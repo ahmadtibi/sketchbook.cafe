@@ -1,11 +1,57 @@
 <?php
-$Form   = &$data['Form'];
+$Form               = &$data['Form'];
+$categories_result  = &$data['categories_result'];
+$categories_rownum  = &$data['categories_rownum'];
+$challenges_result  = &$data['challenges_result'];
+$challenges_rownum  = &$data['challenges_rownum'];
 ?>
+<style type="text/css">
+.temp_table {
+    width: 100%;
+    margin-bottom: 25px;
+}
+</style>
 <div class="adminPageTitle">
     Challenges
 </div>
 <div class="innerWrap">
 
+    <div>
+        <b>Challenges</b>
+    </div>
+    <div class="table temp_table">
+        <div class="tr">
+            <div class="td">
+                <b>ID</b>
+            </div>
+            <div class="td">
+                <b>Name</b>
+            </div>
+            <div class="td">
+                <b>Fix</b>
+            </div>
+        </div>
+<?php
+// Loop
+while ($trow = mysqli_fetch_assoc($challenges_result))
+{
+?>
+        <div class="tr">
+            <div class="td">
+                <?php echo $trow['id'];?>
+            </div>
+            <div class="td">
+                <?php echo $trow['name'];?>
+            </div>
+            <div class="td">
+                <a href="https://www.sketchbook.cafe/admin/fix_challenge_table/<?php echo $trow['id'];?>/">Fix Table</a>
+            </div>
+        </div>
+<?php
+}
+mysqli_data_seek($challenges_result,0);
+?>
+    </div>
 
 <?php
 // Form Start

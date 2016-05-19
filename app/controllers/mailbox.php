@@ -1,6 +1,6 @@
 <?php
 // @author          Kameloh
-// @lastUpdated     2016-05-02 
+// @lastUpdated     2016-05-11
 
 class Mailbox extends Controller
 {
@@ -47,6 +47,10 @@ class Mailbox extends Controller
         $noteObject->setPageNumber($pageno);
         $noteObject->getNote();
 
+        // Compose Note Obj
+        $ComposeNoteObj = $this->model('ComposeNoteForm');
+        $ComposeForm    = $ComposeNoteObj->getForm();
+
         // Set Vars
         $DeleteForm     = $noteObject->DeleteForm;
         $Form           = $noteObject->Form;
@@ -67,6 +71,7 @@ class Mailbox extends Controller
         [
             'current_page'  => $current_page,
             'User'          => $User,
+            'ComposeForm'   => $ComposeForm,
         ]);
         $this->view('mailbox/viewnote', 
         [
@@ -94,12 +99,17 @@ class Mailbox extends Controller
         $this->model('NoteReply',$this->obj_array);
     }
 
+/*
     // Compose Note
     public function compose()
     {
         $User           = $this->obj_array['User'];
         $ComposeObject  = $this->model('ComposeNotePage',$this->obj_array);
         $Form           = $ComposeObject->form;
+
+        // Compose Note Obj
+        $ComposeNoteObj = $this->model('ComposeNoteForm');
+        $ComposeForm    = $ComposeNoteObj->getForm();
 
         // Current Page
         $current_page   = 'compose';
@@ -110,11 +120,13 @@ class Mailbox extends Controller
         [
             'current_page'  => $current_page,
             'User'          => $User,
+            'ComposeForm'   => $ComposeForm,
         ]);
         $this->view('mailbox/composenote', ['Form' => $Form]);
         $this->view('sketchbookcafe/mailbox_bottom');
         $this->view('sketchbookcafe/footer');
     }
+*/
     public function compose_submit()
     {
         $noteObject     = $this->model('ComposeNoteSubmit',$this->obj_array);
@@ -140,6 +152,10 @@ class Mailbox extends Controller
         $InboxObject->setPageNumber($pageno);
         $InboxObject->processPage($this->obj_array);
 
+        // Compose Note Obj
+        $ComposeNoteObj = $this->model('ComposeNoteForm');
+        $ComposeForm    = $ComposeNoteObj->getForm();
+
         // Vars
         $user_id        = $InboxObject->user_id;
         $result         = $InboxObject->result;
@@ -159,6 +175,7 @@ class Mailbox extends Controller
         [
             'current_page'  => $current_page,
             'User'          => $User,
+            'ComposeForm'   => $ComposeForm,
         ]);
         $this->view('mailbox/index',
         [

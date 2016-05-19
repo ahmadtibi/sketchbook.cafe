@@ -1,6 +1,6 @@
 <?php
 // @author          Kameloh
-// @lastUpdated     2016-05-04
+// @lastUpdated     2016-05-06
 // notes: this does not check blocked users so please re-add this to the main files
 namespace SketchbookCafe\ThreadReply;
 
@@ -8,9 +8,12 @@ use SketchbookCafe\SBC\SBC as SBC;
 
 class ThreadReply
 {
-    private $user_id = 0;
+    private $thread_user_id = 0;
     private $thread_id = 0;
+    private $challenge_id = 0;
     private $forum_id = 0;
+
+    private $verified = 0;
 
     private $time = 0;
     private $bump_date = 0;
@@ -37,10 +40,35 @@ class ThreadReply
         }
     }
 
+    // Get Thread User ID
+    final public function getThreadUserId()
+    {
+        return $this->thread_user_id;
+    }
+
+    // Check Thread
+    final public function checkThread()
+    {
+        $method = 'ThreadReply->checkThread()';
+
+        if ($this->thread_id < 1)
+        {
+            SBC::devError('$thread_id is not set',$method);
+        }
+
+        // Verify Thread
+        $this->verifyThread($this->thread_id);
+    }
+
     // Verify Thread
     final private function verifyThread($thread_id)
     {
         $method = 'ThreadReply->verifyThread()';
+
+        if ($this->verified == 1)
+        {
+            return null;
+        }
 
         // Initialize
         $db     = &$this->db;
@@ -49,7 +77,7 @@ class ThreadReply
         $db->sql_switch('sketchbookcafe');
 
         // Get Thread Info
-        $sql = 'SELECT id, forum_id, is_locked, is_sticky, isdeleted
+        $sql = 'SELECT id, challenge_id, forum_id, user_id, is_locked, is_sticky, isdeleted
             FROM forum_threads
             WHERE id=?
             LIMIT 1';
@@ -76,6 +104,10 @@ class ThreadReply
         {
             $this->bump_date += 315360000;
         }
+
+        // Other Vars
+        $this->thread_user_id   = $row['user_id'];
+        $this->challenge_id     = $row['challenge_id'];
 
         // Forum ID
         $forum_id   = $row['forum_id'];
@@ -106,6 +138,9 @@ class ThreadReply
         {
             SBC::devError('Forum for this thread no longer exists. Please contact an administrator',$method);
         }   
+
+        // Set as verified
+        $this->verified = 1;
     }
 
     // Verify Comment
@@ -231,5 +266,11 @@ class ThreadReply
         $stmt = $db->prepare($sql);
         $stmt->bind_param('iii',$time,$bump_date,$thread_id);
         SBC::statementExecute($stmt,$db,$sql,$method);
+    }
+
+    // Get Challenge ID
+    final public function getChallengeId()
+    {
+        return $this->challenge_id;
     }
 }

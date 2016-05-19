@@ -1,6 +1,6 @@
 <?php
 // @author          Kameloh
-// @lastUpdated     2016-04-29
+// @lastUpdated     2016-05-09
 // Ajax Controller
 
 use SketchbookCafe\SBC\SBC as SBC;
@@ -13,6 +13,30 @@ class Ajax extends Controller
     public function __construct(&$obj_array)
     {
         $this->obj_array = &$obj_array;
+    }
+
+    // Edit Entry
+    public function edit_entry($entry_id = 0)
+    {
+        $method = 'ajax->edit_entry()';
+
+        // Initialize
+        $entry_id = isset($entry_id) ? (int) $entry_id : 0;
+        if ($entry_id < 1)
+        {
+            SBC::userError('$entry_id is not set');
+        }
+
+        // Entry Object
+        $EntryObj = $this->model('EntryEditForm',$this->obj_array);
+        $EntryObj->setEntryId($entry_id);
+        $EntryObj->process();
+
+        // View
+        $this->view('edit/edit_entry',
+        [
+            'Form'  => $EntryObj->Form,
+        ]);
     }
 
     // Thread: Edit Title
@@ -73,38 +97,6 @@ class Ajax extends Controller
         // Model
         $this->model('ForumThreadDeleteThreadSubmit',$this->obj_array);
     }
-
-    // Thread: Sticky Form (no longer used)
-    /*
-    public function sticky_thread($comment_id = 0)
-    {
-        $method = 'ajax->sticky_thread()';
-
-        // Initialize
-        $comment_id = isset($comment_id) ? (int) $comment_id : 0;
-        if ($comment_id < 1)
-        {
-            SBC::devError('Comment ID is not set',$method);
-        }
-
-        // Model
-        $ThreadObject   = $this->model('ThreadStickyForm',$this->obj_array);
-        $ThreadObject->setCommentId($comment_id);
-        $ThreadObject->process();
-        $Form           = $ThreadObject->Form;
-
-        // View
-        $this->view('edit/thread_sticky_form',
-        [
-            'Form'      => $Form,
-        ]);
-    }
-    public function sticky_thread_submit()
-    {
-        // Model
-        $this->model('ThreadStickySubmit',$this->obj_array);
-    }
-    */
 
     // Submit Edit
     public function edit_comment_submit($comment_id = 0)

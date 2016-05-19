@@ -1,6 +1,6 @@
 <?php
 // @author          Kameloh
-// @lastUpdated     2016-05-04
+// @lastUpdated     2016-05-09
 namespace SketchbookCafe\TableChallenge;
 
 use SketchbookCafe\SBC\SBC as SBC;
@@ -51,8 +51,12 @@ class TableChallenge
         $database   = 'sketchbookcafe_challenges';
         $columns    = array
         (
-            'id'        => 'INT NOT NULL AUTO_INCREMENT',
-            'cid'       => 'INT DEFAULT 0 NOT NULL',
+            'id'            => 'INT NOT NULL AUTO_INCREMENT',
+            'cid'           => 'INT DEFAULT 0 NOT NULL',
+            'entry_id'      => 'INT DEFAULT 0 NOT NULL',
+            'uid'           => 'INT DEFAULT 0 NOT NULL',
+            'difficulty'    => 'TINYINT(2) DEFAULT 0 NOT NULL',
+            'ispending'     => 'TINYINT(1) DEFAULT 0 NOT NULL',
         );
         $TableCreator   = new TableCreator($tablename,$database,$columns);
         $TableCreator->createTable($db);

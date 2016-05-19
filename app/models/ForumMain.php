@@ -1,6 +1,6 @@
 <?php
 // @author          Kameloh
-// @lastUpdated     2016-05-03
+// @lastUpdated     2016-05-16
 
 use SketchbookCafe\SBC\SBC as SBC;
 use SketchbookCafe\OnlineOrganizer\OnlineOrganizer as OnlineOrganizer;
@@ -108,9 +108,9 @@ class ForumMain
     {
         $method = 'ForumMain->getThreads()';
 
-        $Member     = &$this->obj_array['Member'];
-
-        $thread_ids = '';
+        // Initialize
+        $Member         = &$this->obj_array['Member'];
+        $thread_ids     = '';
         if ($this->forums_rownum > 0)
         {
             // Loop

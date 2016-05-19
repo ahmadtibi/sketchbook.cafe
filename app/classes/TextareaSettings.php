@@ -1,6 +1,6 @@
 <?php
 // @author          Kameloh
-// @lastUpdated     2016-05-04
+// @lastUpdated     2016-05-19
 namespace SketchbookCafe\TextareaSettings;
 
 use SketchbookCafe\SBC\SBC as SBC;
@@ -36,6 +36,24 @@ class TextareaSettings
         // Initialize Vars
         $settings = [];
 
+        // Forum Signature
+        $settings['aboutme'] = array
+        (
+            'name'          => 'aboutme',
+            'max'           => 1000, // user input max
+            'column_max'    => 5000, // database max
+            'css'           => 'textarea_forumsignature', 
+            'preview'       => 1,
+            'submit'        => 0,
+            'help'          => 1,
+            'nl2br'         => 0,
+            'basic'         => 1,
+            'images'        => 0,
+            'videos'        => 0,
+            'setting_name'  => 'aboutme',
+        );
+
+
         // Forum Reply
         $settings['challenge_reply']    = array
         (
@@ -67,8 +85,8 @@ class TextareaSettings
             'help'          => 1,
             'nl2br'         => 1,
             'basic'         => 1,
-            'images'        => 1,
-            'videos'        => 1,
+            'images'        => 0,
+            'videos'        => 0,
             'setting_name'  => 'challenge_requirements',
         );
 
@@ -85,8 +103,8 @@ class TextareaSettings
             'help'          => 1,
             'nl2br'         => 1,
             'basic'         => 1,
-            'images'        => 1,
-            'videos'        => 1,
+            'images'        => 0,
+            'videos'        => 0,
             'setting_name'  => 'challenge_description',
         );
 
@@ -216,6 +234,9 @@ class TextareaSettings
         // Set Type
         switch ($setting_name)
         {
+            case 'aboutme':         $type = 'aboutme';
+                                    break;
+
             case 'challenge_reply':     $type = 'challenge_reply';
                                         break;
 

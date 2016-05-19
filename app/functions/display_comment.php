@@ -1,6 +1,6 @@
 <?php
 // @author          Jonathan Maltezo (Kameloh)
-// @lastUpdated     2016-05-02
+// @lastUpdated     2016-05-08
 // Display Comment
 function display_comment($input)
 {
@@ -176,7 +176,7 @@ function display_comment($input)
     }
     if ($current_user_id == $user_id)
     {
-        $edit_link  .= '<a href="#" onClick="sbc_edit_comment_form('.$comment_id.'); return false;">edit</a>';
+        $edit_link  .= '<a href="#" onClick="sbc_edit_comment_form('.$comment_id.'); return false;">[Edit]</a>';
     }
 
     // Value

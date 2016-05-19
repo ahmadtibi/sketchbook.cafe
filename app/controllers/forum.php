@@ -1,6 +1,6 @@
 <?php
 // @author          Kameloh
-// @lastUpdated     2016-05-04
+// @lastUpdated     2016-05-16
 use SketchbookCafe\SBC\SBC as SBC;
 
 class Forum extends Controller
@@ -129,70 +129,45 @@ class Forum extends Controller
     // Forum Thread
     public function thread($thread_id = 0, $pageno = 0)
     {
-        // Objects
-        $User       = $this->obj_array['User'];
-        $Comment    = $this->obj_array['Comment'];
-        $Member     = $this->obj_array['Member'];
+        $method = 'forum->thread()';
 
-        // Thread ID
-        $thread_id  = isset($thread_id) ? (int) $thread_id : 0;
+        // Check
         if ($thread_id < 1)
         {
-            error('Invalid Thread ID');
-        }
-
-        // Page Numbers
-        $pageno     = isset($pageno) ? (int) $pageno : 0;
-        if ($pageno < 1)
-        {
-            $pageno = 0;
+            SBC::userError('Thread ID not set');
         }
 
         // Model
-        $ThreadObject       = $this->model('ForumThreadPage');
-        $ThreadObject->setThreadId($thread_id);
-        $ThreadObject->setPageNumber($pageno);
-        $ThreadObject->process($this->obj_array);
-        $ForumAdmin         = $ThreadObject->ForumAdmin;
-        $thread_row         = $ThreadObject->thread_row;
-        $category_row       = $ThreadObject->category_row;
-        $forum_row          = $ThreadObject->forum_row;
-        $Form               = $ThreadObject->Form;
-        $PollForm           = $ThreadObject->PollForm;
-        $SubscribeForm      = $ThreadObject->SubscribeForm;
-        $ChallengeForm      = $ThreadObject->ChallengeForm;
-        $comments_result    = $ThreadObject->comments_result;
-        $comments_rownum    = $ThreadObject->comments_rownum;
-        $pagenumbers        = $ThreadObject->pagenumbers;
-        $pages_min          = $ThreadObject->pages_min;
-        $pages_max          = $ThreadObject->pages_max;
-        $pages_total        = $ThreadObject->pages_total;
-        $poll_row           = $ThreadObject->poll_row;
-        $challenge_row      = $ThreadObject->challenge_row;
+        $PageObj = $this->model('ForumThreadPage',$this->obj_array);
+        $PageObj->setThreadId($thread_id);
+        $PageObj->setPageNumber($pageno);
+        $PageObj->process();
+
+        // Vars
+        $user_entry_id = $PageObj->getUserEntryId();
 
         // View
         $this->view('sketchbookcafe/header');
         $this->view('forum/threadpage',
         [
-            'ForumAdmin'        => $ForumAdmin,
-            'User'              => $User,
-            'thread_row'        => $thread_row,
-            'category_row'      => $category_row,
-            'forum_row'         => $forum_row,
-            'Comment'           => $Comment,
-            'Member'            => $Member,
-            'Form'              => $Form,
-            'comments_result'   => $comments_result,
-            'comments_rownum'   => $comments_rownum,
-            'pagenumbers'       => $pagenumbers,
-            'pages_min'         => $pages_min,
-            'pages_max'         => $pages_max,
-            'pages_total'       => $pages_total,
-            'poll_row'          => $poll_row,
-            'PollForm'          => $PollForm,
-            'SubscribeForm'     => $SubscribeForm,
-            'ChallengeForm'     => $ChallengeForm,
-            'challenge_row'     => $challenge_row,
+            'User'              => &$this->obj_array['User'],
+            'Comment'           => &$this->obj_array['Comment'],
+            'Member'            => &$this->obj_array['Member'],
+            'Form'              => &$PageObj->Form,
+            'SubscribeForm'     => &$PageObj->SubscribeForm,
+            'PollForm'          => &$PageObj->PollForm,
+            'thread_row'        => &$PageObj->thread_row,
+            'forum_row'         => &$PageObj->forum_row,
+            'category_row'      => &$PageObj->category_row,
+            'poll_row'          => &$PageObj->poll_row,
+            'challenge_row'     => &$PageObj->challenge_row,
+            'entry'             => &$PageObj->entry,
+            'comments_result'   => &$PageObj->comments_result,
+            'comments_rownum'   => &$PageObj->comments_rownum,
+            'PageNumbers'       => &$PageObj->PageNumbers,
+            'user_entry_id'     => $user_entry_id,
+            'entries_result'    => &$PageObj->entries_result,
+            'entries_rownum'    => &$PageObj->entries_rownum,
         ]);
         $this->view('sketchbookcafe/footer');
     }
@@ -298,6 +273,7 @@ class Forum extends Controller
                 'view_time'             => $view_time,
                 'forum_admin_result'    => $forum_admin_result,
                 'forum_admin_rownum'    => $forum_admin_rownum,
+                'challenge_row'         => $ForumObject->getChallengeRow(),
             ]);
             $this->view('sketchbookcafe/footer');
         }

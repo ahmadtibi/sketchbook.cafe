@@ -5,7 +5,7 @@
 *
 * @author       Kameloh
 * @copyright    (c) 2016, Kameloh
-* @lastupdated  2016-04-30
+* @lastupdated  2016-05-17
 *
 */
 namespace SketchbookCafe\Message;
@@ -328,6 +328,9 @@ class Message
         // This is probably not necessary but I like to check these just in case!
         $input = $this->paranoidReplacers($input);
 
+        // Set message_code for later
+        $this->message_code = $input;
+
         // Basic HTML and URLs?
         if ($this->basic == 1)
         {
@@ -348,9 +351,6 @@ class Message
 
         // Double check!
         $this->checkMax($input);
-
-        // Set message_code for later
-        $this->message_code = $input;
 
         // New line to <br/>
         if ($this->nl2br == 1)

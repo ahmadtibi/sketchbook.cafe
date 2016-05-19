@@ -12,6 +12,10 @@ $mail_total = $User->mail_total;
     <title>Sketchbook Cafe</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <link rel="stylesheet" type="text/css" href="https://www.sketchbook.cafe/css/sketchbookcafe.css">
+
+<link href='https://fonts.googleapis.com/css?family=Ek+Mukta:400,300' rel='stylesheet' type='text/css'>
+
+
     <link href='https://fonts.googleapis.com/css?family=Alegreya+SC' rel='stylesheet' type='text/css'>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     <script src='https://www.google.com/recaptcha/api.js'></script>
@@ -26,6 +30,7 @@ var member_avatar_url = new Array();
 var image_id = new Array();
 var image_url = new Array();
 var image_thumb = new Array();
+var image_s3 = new Array();
 
 <?php
 $image_folder = 'img/';
@@ -38,11 +43,36 @@ if ($Images->rownum > 0)
     {
         if ($trow['isdeleted'] != 1)
         {
+            echo 'image_id['.$trow['id'].'] = '.$trow['id'].';';
+            echo 'image_s3['.$trow['id'].'] = '.$trow['s3'].';';
+
+            // Thumbnails
+            if ($trow['filetype'] != 'gif')
+            {
+                echo 'image_thumb['.$trow['id'].'] = \''.$thumb_folder.$trow['id'].'-'.$trow['rd_code'].'_325.'.$trow['filetype'].'\';';
+            }
+            else
+            {
+                // GIFs have PNG thumbnails
+                echo 'image_thumb['.$trow['id'].'] = \''.$thumb_folder.$trow['id'].'-'.$trow['rd_code'].'_325.png\';';
+            }
+
+            // S3?
+            if ($trow['s3'] == 1)
+            {
+                echo 'image_url['.$trow['id'].'] = \''.$trow['s3_url'].'\';';
+            }
+            else
+            {
+                echo 'image_url['.$trow['id'].'] = \''.$image_folder.$trow['id'].'-'.$trow['rd_code'].'.'.$trow['filetype'].'\';';
+            }
+/*
             echo '
 image_id['.$trow['id'].'] = '.$trow['id'].';
 image_url['.$trow['id'].'] = \''.$image_folder.$trow['id'].'-'.$trow['rd_code'].'.'.$trow['filetype'].'\';
 image_thumb['.$trow['id'].'] = \''.$thumb_folder.$trow['id'].'-'.$trow['rd_code'].'_325.'.$trow['filetype'].'\';
 ';
+*/
         }
     }
     mysqli_data_seek($Images->result,0);
@@ -141,7 +171,7 @@ else
         <a href="https://www.sketchbook.cafe/forum/">Forums</a>
     </span>
     <span class="headerMenuItem">
-        <a href="">Link 2</a>
+        <a href="https://www.sketchbook.cafe/challenges/">Challenges</a>
     </span>
 <?php
 // Admins only
@@ -150,6 +180,9 @@ if ($User->isAdmin())
 ?>
     <span class="headerMenuItem">
         <a href="https://www.sketchbook.cafe/admin/">Admin</a>
+    </span>
+    <span class="headerMenuItem">
+        <a href="https://www.sketchbook.cafe/admin/pending_entries/">0 Pending Entries</a>
     </span>
 <?php
 }

@@ -1,6 +1,6 @@
 <?php
 // @author          Kameloh
-// @lastUpdated     2016-04-26
+// @lastUpdated     2016-05-16
 
 use SketchbookCafe\SBC\SBC as SBC;
 use SketchbookCafe\UserTimer\UserTimer as UserTimer;
@@ -33,11 +33,15 @@ class ProfileInfoSubmit
         $titleObject->insert($_POST['title']);
 
         // Textarea Settings
-        $TextareaSettings   = new TextareaSettings('forumsignature');
-        $message_settings   = $TextareaSettings->getSettings();
+        $about_settings = new TextareaSettings('aboutme');
+        $fs_settings    = new TextareaSettings('forumsignature');
+
+        // About Me
+        $aboutObject = new Message($about_settings->getSettings());
+        $aboutObject->insert($_POST['aboutme']);
 
         // Forum Signature
-        $forumsignatureObject = new Message($message_settings);
+        $forumsignatureObject = new Message($fs_settings->getSettings());
         $forumsignatureObject->insert($_POST['forumsignature']);
 
         // Set SQL Vars
@@ -45,6 +49,8 @@ class ProfileInfoSubmit
         $title_code             = $titleObject->getMessageCode();
         $forumsignature         = $forumsignatureObject->getMessage();
         $forumsignature_code    = $forumsignatureObject->getMessageCode();
+        $aboutme                = $aboutObject->getMessage();
+        $aboutme_code           = $aboutObject->getMessageCode();
         
         // Open Connection
         $db->open();
@@ -65,12 +71,14 @@ class ProfileInfoSubmit
         $sql = 'UPDATE users
             SET title=?,
             title_code=?,
+            aboutme=?,
+            aboutme_code=?,
             forumsignature=?,
             forumsignature_code=?
             WHERE id=?
             LIMIT 1';
         $stmt = $db->prepare($sql);
-        $stmt->bind_param('ssssi',$title,$title_code,$forumsignature,$forumsignature_code,$user_id);
+        $stmt->bind_param('ssssssi',$title,$title_code,$aboutme,$aboutme_code,$forumsignature,$forumsignature_code,$user_id);
         SBC::statementExecute($stmt,$db,$sql,$method);
 
         // User Timer

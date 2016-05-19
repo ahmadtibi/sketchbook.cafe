@@ -28,11 +28,11 @@ if ($rownum > 0)
             <div class="adminForumCategoryTitleRight">
                  <a href="https://www.sketchbook.cafe/admin/forum_categories_edit/<?php echo $trow['id'];?>">edit</a>
             </div>
-            <div class="adminForumCategoryTitle">
+            <div class="adminForumCategoryTitle sbc_font sbc_font_size">
                 <?php echo $trow['name'];?>
             </div>
         </div>
-        <div class="adminForumCategoryDescription">
+        <div class="adminForumCategoryDescription sbc_font sbc_font_size sbc_font_height sbc_font_link">
             <?php echo $trow['description'];?>
         </div>
     </div>

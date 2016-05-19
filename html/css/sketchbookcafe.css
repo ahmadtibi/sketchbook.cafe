@@ -1,3 +1,546 @@
+/* Challenge Gallery */
+/* --------------------------------------------------------------- */
+.challengegallery_wrap {
+    overflow: hidden;
+    margin-left: 9px;
+    margin-right: 9px;
+    margin-top: 9px;
+    margin-bottom: 15px;
+
+    background-color: #FFFFFF;
+}
+.challengegallery_gallery_wrap {
+    overflow: hidden;
+    text-align: center;
+    font-size: 0px;
+
+    padding: 12px;
+    background-color: #BFBFBF;
+}
+.challengegallery_title {
+    font-size: 24px;
+}
+.challengegallery_description {
+    padding-left: 5px;
+}
+.challengegallery_top_wrap {
+    overflow: hidden;
+    padding: 15px;
+
+    background-color: #FFFFFF;
+}
+.challengegallery_top_left {
+    overflow: hidden;
+}
+.challengegallery_top_right {
+    overflow: hidden;
+    float: right;
+    width: 325px;
+
+
+    text-align: right;
+}
+.challengegallery_item {
+    overflow: hidden;
+    display: inline-block;
+    font-size: 13px;
+    margin-left: 15px;
+}
+.challengegallery_pagenumbers_wrap {
+    padding-left: 9px;
+    padding-right: 9px;
+}
+
+/* Challenge in Forum Thread */
+/* --------------------------------------------------------------- */
+.challenge_wrap {
+    overflow: hidden;
+    margin-top: 15px;
+    margin-bottom: 15px;
+
+    padding: 15px;
+    background-color: #FFFFFF;
+
+    border-top: 1px solid #A9A9A9;
+
+    -webkit-box-shadow: 0px 4px 5px 0px rgba(163,163,163,1);
+    -moz-box-shadow: 0px 4px 5px 0px rgba(163,163,163,1);
+    box-shadow: 0px 4px 5px 0px rgba(163,163,163,1);
+}
+.challenge_title_right {
+    float: right;
+    min-width: 300px;
+    overflow: hidden;
+
+    font-size: 12px;
+    text-align: right;
+
+    color: #767676;
+}
+.challenge_title {
+    overflow: hidden;
+
+    padding: 5px;
+
+    font-family: Georgia, serif;
+    font-size: 28px;
+
+    margin-bottom: 6px;
+}
+.challenge_minitext {
+    padding: 5px;
+    font-size: 12px;
+}
+.challenge_description {
+    padding: 5px;
+    line-height: 21px;
+}
+.challenge_requirements {
+    padding: 5px;
+    line-height: 21px;
+}
+.challenge_points {
+    padding: 5px;
+    line-height: 21px;
+}
+.challenge_submit_wrap {
+    padding: 5px;
+    margin-top: 15px;
+}
+.challenge_gallery_wrap {
+    overflow: hidden;
+
+    margin-top: 10px;
+
+    padding-top: 6px;
+    padding-bottom: 6px;
+    background-color: #E8E8E8;
+
+    -moz-border-radius: 2px 2px 2px 2px;
+    border-radius: 2px 2px 2px 2px;
+}
+
+.challenge_gallery_thumb_wrap {
+    overflow: hidden;
+    text-align: center;
+    font-size: 0px;
+
+    max-height: 358px;
+}
+.challenge_thumbnail_div {
+    vertical-align: middle;
+
+    margin: 6px;
+
+    display: inline-block;
+    overflow: hidden;
+
+    max-width: 264px;
+    height: 163px;
+
+    white-space: nowrap;
+    text-align: center;
+
+    border: 2px solid #FFFFFF;
+    background-color: #FFFFFF;
+
+    -webkit-box-shadow: 0px 0px 5px 0px rgba(77,77,77,1);
+    -moz-box-shadow: 0px 0px 5px 0px rgba(77,77,77,1);
+    box-shadow: 0px 0px 5px 0px rgba(77,77,77,1);
+
+}
+.challenge_thumbnail_img {
+    // max-width: 163px;
+    max-height: 163px;
+
+    vertical-align: middle;
+}
+
+.helper {
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+}
+
+.challenge_left {
+    padding-right: 6px;
+    width: 325px;
+    float: left;
+    overflow: hidden;
+}
+.challenge_right {
+    overflow: hidden;
+}
+.challenge_bottom_links {
+    padding: 5px;
+}
+.challenge_bottom_links a:link, .challenge_bottom_links a:visited, .challenge_bottom_links a:active {
+    color: red;
+}
+.challenge_bottom_links a:hover {
+    text-decoration: underline;
+}
+.challenge_bottom_spacer {
+    padding-left: 6px;
+    padding-right: 6px;
+    font-size: 12px;
+}
+
+/* Forum Main Page */
+/* --------------------------------------------------------------- */
+.forum_main_wrap {
+    margin-left: 9px;
+    margin-right: 9px;
+    margin-top: 20px;
+}
+.forum_main_top_wrap {
+    overflow: hidden;
+
+}
+.forum_main_top_right {
+    float: right;
+    overflow: hidden;
+
+    text-align: right;
+}
+.forum_main_title {
+    font-size: 30px;
+}
+.forum_main_breadcrumbs {
+    overflow: hidden;
+}
+
+.forum_main_new_thread_button {
+    width: 100px;
+    text-align: center;
+    font-size: 12px;
+    padding: 6px;
+
+    cursor: pointer;
+
+    -moz-border-radius: 2px 2px 2px 2px;
+    border-radius: 2px 2px 2px 2px;
+
+    color: #151515;
+    background-color: #ACACAC;
+}
+.forum_main_new_thread_button:hover {
+    background-color: #757575;
+}
+.forum_main_new_thread_div {
+    display: none;
+
+    padding: 15px;
+    background-color: #FFFFFF;
+}
+.forum_main_pagenumbers_div {
+    overflow: hidden;
+}
+
+.fpTd {
+    display: table-cell;
+    padding: 12px;
+
+}
+.fpTdLeft {
+
+}
+.fpTdMiddle {
+    text-align: center;
+    width: 50px;
+}
+.fpTdRight {
+    width: 215px;
+    text-align: right;
+}
+
+.fpInputPoll {
+    border: 1px solid #D4D4D4;
+    width: 500px;
+}
+.fpCreatePollLink {
+    font-size: 12px;
+}
+.fpCreateLink a:active, .fpCreateLink a:link, .fpCreateLink a:visited {
+    color: red;
+}
+.fpCreateLink a:hover {
+    text-decoration: underline;
+}
+.createpolldiv {
+    margin-bottom: 25px;
+}
+
+
+
+
+.fpTdTitle {
+    overflow: hidden;
+    max-width: 800px;
+    font-size: 16px;
+}
+.fpTdTitle a:link, .fpTdTitle a:active, .fpTdTitle a:visited {
+    color: red;
+}
+.fpTdTitle a:hover {
+    text-decoration: underline;
+}
+.fpTdTitleUser {
+    margin-top: 6px;
+    font-size: 12px;
+
+    color: #828282;
+}
+.fpTdTitleUser a:link, .fpTdTitleUser a:active, .fpTdTitleUser a:visited {
+    color: #828282;
+    text-decoration: underline;
+}
+.fpTdTitleUser a:hover {
+    text-decoration: underline;
+}
+.fpTdMainTop {
+    font-size: 12px;
+    font-weight: bold;
+
+    color: #3C3C3C;
+    background-color: #C1C1C1;
+    border-bottom: 1px solid #CCCCCC;
+}
+.fpTdMain {
+    border-bottom: 1px solid #E1E1E1;
+}
+.fpPosts {
+    font-size: 13px;
+    line-height: 20px;
+    text-align: center;
+}
+.fpFreshness {
+    text-align: right;
+    font-size: 13px;
+
+    color: #828282;
+}
+.fpFreshness a:active, .fpFreshness a:link, .fpFreshness a:visited {
+    color: #828282;
+    text-decoration: underline;
+}
+.fpFreshness a:hover {
+    color: #828282;
+    text-decoration: underline;
+}
+.fpPendingEntries {
+    padding-left: 12px;
+    font-size: 15px;
+}
+.fpPageNumbers {
+    padding-left: 12px;
+    font-size: 13px;
+}
+.fpAvatar {
+    padding-left: 2px;
+    padding-right: 2px;
+    max-width: 20px;
+    max-height: 20px;
+
+    vertical-align: middle;
+
+    -moz-border-radius: 2px 2px 2px 2px;
+    border-radius: 2px 2px 2px 2px;
+}
+.fpTdSticky {
+    background-color: #EBF4F4;
+}
+
+/* -- Main Title Links -- */
+.forum_title_link a:link, .forum_title_link a:active, .forum_title_link a:visited {
+    color: #151515;
+}
+.forum_title_link a:hover {
+    text-decoration: underline;
+}
+/* -- -- */
+
+
+.thumb_img {
+    display: inline-block;
+    overflow: hidden;
+    cursor: pointer;
+}
+.thumb_div {
+    overflow: hidden;
+}
+/* Forum Polls */
+/* --------------------------------------------------------------- */
+.pollWrap {
+    width: 67%;
+    margin-bottom: 15px;
+    overflow: hidden;
+}
+.pollMessageWrap {
+}
+.pollMessage {
+    padding: 6px;
+    line-height: 25px;
+}
+.pollBarOuter {
+    min-height: 15px;
+    background-color: #BFBFBF;
+
+    -moz-border-radius: 15px 15px 15px 15px;
+    border-radius: 15px 15px 15px 15px;
+}
+.pollBarInner {
+    line-height: 15px;
+    min-height: 15px;
+
+    font-size: 12px;
+
+    color: #636363;
+    background-color: #7FF1F2;
+
+    -moz-border-radius: 15px 15px 15px 15px;
+    border-radius: 15px 15px 15px 15px;
+}
+.pollTitle {
+    overflow: hidden;
+    font-weight: bold;
+}
+.pollTitleRight {
+    float: right;
+    min-width: 20%;
+    font-size: 12px;
+    text-align: right;
+}
+.pollRadio {
+
+}
+.pollBarInnerText {
+    width: 400px;
+    height: 13px;
+    line-height: 18px;
+    display: inline-block;
+    overflow: hidden;
+    padding-left: 6px;
+}
+
+input[type="radio"],
+input[type="checkbox"] { outline: none; }
+
+.checkbox-custom, .radio-custom {
+    opacity: 0;
+    position: absolute;   
+}
+.checkbox-custom, .checkbox-custom-label, .radio-custom, .radio-custom-label {
+    display: inline-block;
+    vertical-align: middle;
+    margin-top: 6px;
+    margin-right: 6px;
+    cursor: pointer;
+}
+.checkbox-custom-label, .radio-custom-label {
+    position: relative;
+}
+
+.checkbox-custom + .checkbox-custom-label:before, .radio-custom + .radio-custom-label:before {
+    content: '';
+    background: #fff;
+    border: 2px solid #ddd;
+    display: inline-block;
+    vertical-align: middle;
+    width: 15px;
+    height: 15px;
+    padding: 2px;
+ 
+    text-align: center;
+}
+
+.checkbox-custom:checked + .checkbox-custom-label:before {
+    content: "\f00c";
+    font-family: 'FontAwesome';
+    background: rebeccapurple;
+    color: #fff;
+}
+
+.radio-custom + .radio-custom-label:before {
+    border-radius: 50%;
+}
+
+.radio-custom:checked + .radio-custom-label:before {
+    content: "\f00c";
+    font-family: 'FontAwesome';
+    color: #868686;
+}
+
+.checkbox-custom:focus + .checkbox-custom-label, .radio-custom:focus + .radio-custom-label {
+  outline: 1px solid #ddd; /* focus style */
+}
+
+
+.pollInnerWrap {
+    overflow: hidden;
+
+    margin-bottom: 6px;
+}
+.pollInnerLeft {
+    overflow: hidden;
+    float: left;
+    padding-top: 6px;
+}
+
+.pollInnerRight {
+    overflow: hidden;
+
+    min-height: 30px;
+}
+.pollvotebutton {
+    margin-top: 6px;
+
+    -moz-border-radius: 2px 2px 2px 2px;
+    border-radius: 2px 2px 2px 2px;
+    border: 2px solid #DDDDDD;
+}
+.pending_div {
+    overflow: hidden;
+}
+.pending_image {
+    overflow: hidden;
+    display: inline-block;
+    width: 125px;
+    height: 125px;
+    text-align: center;
+    line-height: 125px;
+    border: 1px solid #151515;
+    cursor: pointer;
+}
+
+/* Preview Comment */
+/* --------------------------------------------------------------- */
+.preview_wrap {
+    overflow: hidden;
+    padding: 9px;
+    margin-top: 9px;
+    margin-bottom: 9px;
+
+    border: 2px solid #B5B5B5;
+    background-color: #FFFFFF;
+
+    -moz-border-radius: 3px 3px 3px 3px;
+    border-radius: 3px 3px 3px 3px;
+}
+.preview_title {
+    padding: 3px;
+    line-height: 20px;
+    font-weight: bold;
+
+    color: #696969;
+}
+.preview_message {
+    padding: 3px;
+}
+.preview_message img {
+    max-width: 100%;
+}
+
 /* Admin */
 /* --------------------------------------------------------------- */
 .adminForumCategory {
@@ -29,18 +572,14 @@
     overflow: hidden;
     padding-left: 12px;
     padding-right: 12px;
-    font-size: 14px;
     font-weight: bold;
-    font-family: Georgia, serif;
 }
 .adminForumCategoryDescription {
     padding-top: 9px;
     padding-bottom: 9px;
     padding-left: 12px;
     padding-right: 12px;
-    font-size: 12px;
-    font-family: Georgia, serif;
-    line-height: 14px;
+
     background-color: #D4D4D4;
 }
 .adminRightWrap {
@@ -53,7 +592,6 @@
     min-height: 50px;
     line-height: 50px;
     font-size: 24px;
-    font-family: Georgia, serif;
     padding-left: 15px;
 
     background-color: #7D7D7D;
@@ -115,10 +653,8 @@
 /* Note */
 /* --------------------------------------------------------------- */
 .noteDeleteDiv {
-    margin-left: 9px;
     margin-top: 9px;
     margin-bottom: 9px;
-    margin-right: 9px;
 
     max-width: 100%;
     text-align: center;
@@ -141,6 +677,9 @@
 }
 
 .inboxDeleteButton {
+    margin-right: 6px;
+    height: 20px;
+    line-height: 20px;
     float: right;
     display: inline-block:
     overflow: hidden;
@@ -178,7 +717,7 @@
     overflow: hidden;
 }
 .inboxCell {
-    font-family: Georgia, serif;
+
 }
 .inboxCell a:link, .inboxCell a:visited, .inboxCell a:active {
     color: #151515;
@@ -187,10 +726,10 @@
     text-decoration: underline;
 }
 .inboxTr {
-   
+   background-color: #FFFFFF;
 }
 .inboxTr:hover {
-    background-color: #A5A5A5;
+    background-color: #F1F1F1;
 }
 .inboxUser {
     min-width: 100px;
@@ -200,6 +739,7 @@
 }
 .inboxLastUpdated {
     min-width: 200px;
+    text-align: right;
 }
 .inboxAvatarWrap {
     overflow: hidden;
@@ -239,7 +779,6 @@
 .inboxTopTd {
     padding: 12px;
     font-size: 12px;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 
     color: #FFFFFF;
 }
@@ -251,6 +790,8 @@
 }
 .inboxInnerRight {
     padding: 6px;
+    text-align: right;
+    font-size: 12px;
 }
 .inboxPagesDiv {
     overflow: hidden;
@@ -569,13 +1110,15 @@
 /* Enabled Document */
 /* --------------------------------------------------------------- */
 .formHelpTd {
-    padding: 6px;
+    padding-right: 12px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    font-size: 13px;
 }
 .formEnabledItem {
-    padding-right: 9px;
-    font-size: 11px;
+    padding-right: 12px;
+    font-size: 12px;
     font-weight: bold;
-    font-family: Georgia, serif;
 
     color: #646464;
 }
@@ -588,6 +1131,8 @@
 }
 .formEnabledOverlay {
     overflow: hidden;
+    padding-top: 3px;
+    padding-bottom: 4px;
 }
 .formTitleOverlay {
     font-weight: bold;
@@ -598,20 +1143,20 @@
 }
 .formHelpOverlay {
     overflow: hidden;
+    padding-top: 5px;
 
 }
 .formHelpTitle {
-    font-family: Georgia, serif;
+    font-family: 'Ek Mukta', sans-serif;
     font-weight: bold;
     font-size: 12px;
     height: 16px;
     line-height: 16px;
     padding-top: 6px;
-    padding-left: 6px;
 }
 .formHelpContent {
-    margin: 6px;
-    font-family: Georgia, serif;
+ 
+    font-family: 'Ek Mukta', sans-serif;
     font-size: 12px;
     line-height: 18px;
     padding-bottom: 6px;
@@ -627,12 +1172,10 @@
 /* --------------------------------------------------------------- */
 .pageNumbersWrap {
     overflow: hidden;
-    margin-top: 9px;
-    margin-bottom: 9px;
-    margin-left: 9px;
-    margin-right: 9px;
+    margin-top: 3px;
+    margin-bottom: 3px;
     font-size: 11px;
-    font-family: Georgia, serif;
+    font-family: 'Ek Mukta', sans-serif;
 
     color: #6E6E6E;
 }
@@ -640,8 +1183,10 @@
     width: 50%;
     float: left;
     overflow: hidden;
-    line-height: 25px;
+    line-height: 20px;
     font-size: 12px;
+
+    font-family: 'Ek Mukta', sans-serif;
 }
 .pageNumbersRight {
     overflow: hidden;
@@ -650,25 +1195,31 @@
 .pageNumbersItem {
     overflow: hidden;
     display: inline-block;
-    padding-left: 6px;
-    padding-right: 6px;
+    padding-left: 7px;
+    padding-right: 7px;
     margin-right: 2px;
 
-    font-size: 14px;
-    line-height: 25px;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    height: 20px;
+    line-height: 20px;
+
+    font-size: 12px;
+    font-family: 'Ek Mukta', sans-serif;
+
+    -moz-border-radius: 20px 20px 20px 20px;
+    border-radius: 20px 20px 20px 20px;
 
     color: #484848;
+
 }
 .pageNumbersItem:hover {
-    background-color: #848484;
+    background-color: #ACACAC;
 }
 .pageNumbersItemSelected {
     color: #151515;
-    background-color: #848484;
+    background-color: #ACACAC;
 }
 .pageNumbersItemUnselected {
-    background-color: #ACACAC;
+    // background-color: #ACACAC;
 }
 .pageNumbersItemUnselected:hover {
     color: #151515;
@@ -732,8 +1283,8 @@
 .headerUserDiv {
     float: center;
     line-height: 50px;
-    font-size: 12px;
-    font-family: Georgia, serif;
+    font-size: 15px;
+    font-family: 'Alegreya SC', serif;
 }
 .headerUserDiv a:link, .headerUserDiv a:visited, .headerUserDiv a:active {
     color: #151515;
@@ -785,9 +1336,8 @@
     margin-bottom: 4px;
     min-height: 50px;
     line-height: 50px;
-    font-size: 13px;
-    font-family: Georgia, serif;
-    font-weight: bold;
+    font-size: 15px;
+    font-family: 'Alegreya SC', serif;
 
     background-color: #B2B2B2;
 }
@@ -802,21 +1352,26 @@
 
 /* Comments (Global) */
 /* --------------------------------------------------------------- */
+.comment_edit_span {
+    padding-right: 6px;
+}
+.comment_edit_bullet {
+    padding-right: 6px;
+}
 .commentWrap {
     overflow: hidden;
-    margin-left: 9px;
-    margin-right: 9px;
-    margin-top: 9px;
-    margin-bottom: 9px;
+
+    margin-top: 3px;
+    margin-bottom: 3px;
 
     border-top: 1px solid #DDDDDD;
     background-color: #FFFFFF;
 }
 .commentLeft {
     overflow: hidden;
-    padding-top: 12px;
+    padding-top: 19px;
     padding-bottom: 12px;
-    width: 224px;
+    width: 238px;
     float: left;
 }
 .commentRight {
@@ -829,8 +1384,9 @@
     text-align: center;
 }
 .commentUsername {
-    font-size: 15px;
-    font-weight: bold;
+    font-family: 'Alegreya SC', serif;
+    font-size: 18px;
+
     text-align: center;
 }
 .commentUsername a:link, .commentUsername a:visited, .commentUsername a:active {
@@ -841,14 +1397,16 @@
 }
 .commentUserTitle {
     text-align: center;
-    font-size: 12px;
+    font-size: 13px;
+    font-family: 'Ek Mukta', sans-serif;
     line-height: 18px;
     color: #5a5a5a;
 }
 .commentPosts {
     text-align: center;
-    font-size: 11px;
-    line-height: 13px;
+    font-size: 12px;
+    font-family: 'Ek Mukta', sans-serif;
+    line-height: 16px;
     color: #9A9A9A;
 }
 
@@ -860,22 +1418,26 @@
     float: right;
     min-width: 100px;
     text-align: right;
-    font-family: Georgia, serif;
-    font-size: 12px;
+    font-family: 'Ek Mukta', sans-serif;
+    font-size: 13px;
 
     color: #5A5A5A;
 }
+.commentTopRight a:link, .commentTopRight a:visited, .commentTopRight a:active {
+    color: #5A5A5A;
+}
+.commentTopRight a:hover {
+    text-decoration: underline;
+}
 .commentDate {
     overflow: hidden;
-    font-size: 12px;
-    font-family: Georgia, serif;
+    font-size: 13px;
+    font-family: 'Ek Mukta', sans-serif;
 
     color: #5A5A5A;
 }
 .commentMessage {
-    font-family: Georgia, serif;
-    font-size: 14px;
-    line-height: 20px;
+
 }
 .commentMessage img {
     max-width: 95%;
@@ -894,8 +1456,8 @@
     text-decoration: underline;
 }
 .commentSignature {
-    font-family: Georgia, serif;
-    font-size: 11px;
+    font-family: 'Ek Mukta', sans-serif;
+    font-size: 12px;
     margin-top: 15px;
     padding-top: 6px;
 
@@ -910,7 +1472,7 @@
 /* --------------------------------------------------------------- */
 .threadTitleWrap {
     overflow: hidden;
-    margin-top: 24px;
+    padding-top: 9px;
     margin-bottom: 9px;
     margin-left: 9px;
 }
@@ -938,15 +1500,12 @@
 /* --------------------------------------------------------------- */
 .breadCrumbs {
     overflow: hidden;
-    margin-top: 9px;
-    margin-bottom: 9px;
-    margin-left: 9px;
-    font-family: Georgia, serif;
-    font-size: 12px;
+
+    font-family: 'Ek Mukta', sans-serif;
+    font-size: 14px;
 }
 .breadCrumbsSeperator {
-    padding-left: 1px;
-    padding-right: 1px;
+    padding-right: 3px;
 }
 .breadCrumbs a:link, .breadCrumbs a:active, .breadCrumbs a:visited {
     color: #a27e4f;
@@ -1047,6 +1606,10 @@
     min-width: 500px;
 }
 
+.forum_thread_title_input {
+    border: 1px solid #D4D4D4;
+}
+
 /* Base */
 /* --------------------------------------------------------------- */
 * {
@@ -1058,7 +1621,7 @@ html, body {
 	height: 100%;
 }
 body, div, table, td {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: 'Ek Mukta', sans-serif;
 }
 img {
     border: 0px;
@@ -1068,6 +1631,7 @@ a {
 }
 body {
     background-color: #D4D4D4;
+    display: none;
 }
 iframe {
     display: block;
@@ -1099,20 +1663,23 @@ iframe {
     display: block;
 }
 .button, .submit {
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-	font-size: 14px;
+	font-family: 'Ek Mukta', sans-serif;
+	font-size: 13px;
 	line-height: 16px;
 	padding-left: 12px;
 	padding-right: 12px;
 	padding-top: 6px;
 	padding-bottom: 6px;
+
+    background-color: #F5F5F5;
+    color: #7C7C7C;
     border: 0px;
 
-    background-color: #FFFFFF;
+    -moz-border-radius: 2px 2px 2px 2px;
+    border-radius: 2px 2px 2px 2px;
 }
 .input, .dropdown {
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-	font-size: 14px;
+	font-size: 12px;
 	line-height: 21px;
 
 	padding-left: 6px;
@@ -1120,20 +1687,19 @@ iframe {
 	padding-top: 3px;
 	padding-bottom: 3px;
 
-    border: 0px;
+    border: 1px solid #A9A9A9;
+
+    background-color: #FFFFFF;
+    color: #151515;
 
     -moz-border-radius: 2px 2px 2px 2px;
     border-radius: 2px 2px 2px 2px;
 }
 .textarea {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-	font-size: 14px;
-	line-height: 20px;
-
 	padding-left: 6px;
 	padding-right: 6px;
-	padding-top: 3px;
-	padding-bottom: 3px;
+	padding-top: 6px;
+	padding-bottom: 6px;
 }
 .table {
     display: table;
@@ -1146,4 +1712,28 @@ iframe {
 }
 .tdInbox {
     display: table-cell;
+}
+.cursor {
+    cursor: pointer;
+}
+
+/* New Classes for Stuff */
+/* --------------------------------------------------------------- */
+.sbc_font_main {
+    font-family: 'Alegreya SC', serif;
+}
+.sbc_font {
+    font-family: 'Ek Mukta', sans-serif;
+}
+.sbc_font_size {
+    font-size: 14px;
+}
+.sbc_font_height {
+    line-height: 25px;
+}
+.sbc_font_link a:link, .sbc_font_link a:visited, .sbc_font_link a:active {
+    color: red;
+}
+.sbc_font_link a:hover {
+    text-decoration: underline;
 }

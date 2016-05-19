@@ -1,6 +1,6 @@
 <?php
 // @author          Kameloh
-// @lastUpdated     2016-05-04
+// @lastUpdated     2016-05-11
 namespace SketchbookCafe\Images;
 
 use SketchbookCafe\SBC\SBC as SBC;
@@ -43,7 +43,8 @@ class Images
             $db->sql_switch('sketchbookcafe');
 
             // Get Images
-            $sql = 'SELECT id, rd_code, user_id, filetype, filesize, image_width, image_height, isdeleted
+            $sql = 'SELECT id, rd_code, user_id, filetype, filesize, image_width, image_height, 
+                image_url, s3, s3_url, isdeleted
                 FROM images
                 WHERE id IN('.$id_list.')';
             $this->result = $db->sql_query($sql);
@@ -70,6 +71,33 @@ class Images
             }
         }
 
+    }
+
+    // Add String by Result
+    final public function addStringByResult($result,$column)
+    {
+        $method = 'Images->addStringByResult()';
+
+        // Result?
+        if (!empty($result))
+        {
+            // Count
+            $rownum = mysqli_num_rows($result);
+            if ($rownum > 0)
+            {
+                // Loop
+                while ($trow = mysqli_fetch_assoc($result))
+                {
+                    $id = $trow[$column];
+                    if (!empty($id))
+                    {
+                        // Add
+                        $this->id_list .= $id.' ';
+                    }
+                }
+                mysqli_data_seek($result,0);
+            }
+        }
     }
 
     // Add String

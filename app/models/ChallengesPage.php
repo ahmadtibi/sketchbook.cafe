@@ -8,6 +8,10 @@ use SketchbookCafe\TextareaSettings\TextareaSettings as TextareaSettings;
 
 class ChallengesPage
 {
+    // Pending App for User
+    private $user_id = 0;
+    private $app_id = 0;
+
     private $obj_array = [];
     private $result = [];
     private $rownum = 0;
@@ -44,6 +48,12 @@ class ChallengesPage
 
         // Get Challenges
         $this->getChallenges($db);
+
+        if ($User->loggedIn())
+        {
+            $this->user_id = $User->getUserId();
+            $this->getUserPending($db);
+        }
 
         if ($User->isAdmin())
         {
@@ -200,5 +210,40 @@ class ChallengesPage
     final public function getApplicationsRownum()
     {
         return $this->applications_rownum;
+    }
+
+    // Get User Pending Application
+    final public function getUserPending(&$db)
+    {
+        $method = 'ChallengesPages->getUserPending()';
+
+        // Initialize
+        $user_id    = $this->user_id;
+        if ($user_id < 1)
+        {
+            return null;
+        }
+
+        // Switch
+        $db->sql_switch('sketchbookcafe');
+
+        // Get Application
+        $sql = 'SELECT id
+            FROM challenge_applications
+            WHERE user_id=?
+            AND isdeleted=0
+            LIMIT 1';
+        $stmt   = $db->prepare($sql);
+        $stmt->bind_param('i',$user_id);
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
+
+        // Pending app?
+        $this->app_id   = isset($row['id']) ? (int) $row['id'] : 0;
+    }
+
+    // Get App Id
+    final public function getAppId()
+    {
+        return $this->app_id;
     }
 }

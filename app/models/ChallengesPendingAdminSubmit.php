@@ -6,6 +6,7 @@ use SketchbookCafe\SBC\SBC as SBC;
 use SketchbookCafe\ForumThreadRobot\ForumThreadRobot as ForumThreadRobot;
 use SketchbookCafe\TableChallenge\TableChallenge as TableChallenge;
 use SketchbookCafe\MailboxRobot\MailboxRobot as MailboxRobot;
+use SketchbookCafe\MailboxOrganizer\MailboxOrganizer as MailboxOrganizer;
 
 class ChallengesPendingAdminSubmit
 {
@@ -72,20 +73,34 @@ class ChallengesPendingAdminSubmit
             // Create Challenge
             $this->createChallenge($db);
 
-            // Mark challenge application as deleted
+            // Update Application
+            $this->updateApp($db);
 
             // Mail User
-            $this->mailUser($db);
+            $message = 'Your challenge has been created! You can view the new forum thread here:
+https://www.sketchbook.cafe/forum/thread/'.$this->thread_id.'/';
+            $this->mailUser($db,$message);
         }
         else
         {
-            error('oh noes dont delete maybe');
+            // Delete App
+            $this->deleteApp($db);
+
+            // Mail User
+            $message = 'Sorry, this challenge was denied by an administrator';
+            $this->mailUser($db,$message);
         }
+
+        // Update User's Mailbox
+        $MailboxOrganizer = new MailboxOrganizer($db);
+        $MailboxOrganizer->updateTimer($this->app_user_id);
 
         // Close Connection
         $db->close();
 
-        error('end of page thingy');
+        // Header
+        header('Location: https://www.sketchbook.cafe/challenges/');
+        exit;
     }
 
     // Get Application Info
@@ -140,9 +155,9 @@ class ChallengesPendingAdminSubmit
         // Initialize
         $forum_id       = 11; // main challenge forum
         $app_user_id    = $this->app_user_id;
-        $name           = $this->app_row['name'];
-        $description    = $this->app_row['description'];
-        $requirements   = $this->app_row['requirements'];
+        $name           = $this->app_row['name_code'];
+        $description    = $this->app_row['description_code'];
+        $requirements   = $this->app_row['requirements_code'];
         if ($app_user_id < 1)
         {
             SBC::devError('Application User ID is not set',$method);
@@ -294,11 +309,73 @@ class ChallengesPendingAdminSubmit
     }
 
     // Mail User with a Reply
-    final private function mailUser(&$db)
+    final private function mailUser(&$db,$message)
     {
         $method = 'ChallengesPendingAdminSubmit->mailUser';
 
         // Initialize
-        $mail_id    = $this->mail_id;
+        $app_user_id    = $this->app_user_id;
+        $mail_id        = $this->mail_id;
+        if ($app_user_id < 1 || $mail_id < 1)
+        {
+            return null;
+        }
+
+        // Mailbox Robot
+        $MailboxRobot = new MailboxRobot($db);
+        $MailboxRobot->setUserId($app_user_id);
+        $MailboxRobot->setReplyId($mail_id);
+        $MailboxRobot->setMessage($message);
+        $MailboxRobot->createReply();
+    }
+
+    // Update Application
+    final private function updateApp(&$db)
+    {
+        $method = 'ChallengesPendingAdminSubmit->updateApp()';
+
+        // Initialize
+        $app_id = $this->app_id;
+        if ($app_id < 1)
+        {
+            SBC::devError('App ID is not set',$method);
+        }
+
+        // Switch
+        $db->sql_switch('sketchbookcafe');
+
+        // Update
+        $sql = 'UPDATE challenge_applications
+            SET isdeleted=1
+            WHERE id=?
+            LIMIT 1';
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param('i',$app_id);
+        SBC::statementExecute($stmt,$db,$sql,$method);
+    }
+
+    // Delete Challenge Application
+    final private function deleteApp(&$db)
+    {
+        $method = 'ChallengesPendingAdminSubmit->deleteApp()';
+
+        // Initialize
+        $app_id = $this->app_id;
+        if ($app_id < 1)
+        {
+            SBC::devError('Application ID is not set',$method);
+        }
+
+        // Switch
+        $db->sql_switch('sketchbookcafe');
+
+        // Update application as deleted
+        $sql = 'UPDATE challenge_applications
+            SET isdeleted=1
+            WHERE id=?
+            LIMIT 1';
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param('i',$app_id);
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 }

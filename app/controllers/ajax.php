@@ -1,6 +1,6 @@
 <?php
 // @author          Kameloh
-// @lastUpdated     2016-05-09
+// @lastUpdated     2016-05-20
 // Ajax Controller
 
 use SketchbookCafe\SBC\SBC as SBC;
@@ -13,6 +13,59 @@ class Ajax extends Controller
     public function __construct(&$obj_array)
     {
         $this->obj_array = &$obj_array;
+    }
+
+    // Delete Post
+    public function deletepost($comment_id = 0)
+    {
+        $method = 'ajax->deletepost()';
+
+        $comment_id = isset($comment_id) ? (int) $comment_id : 0;
+        if ($comment_id < 1)
+        {
+            SBC::devError('Comment ID is not set',$method);
+        }
+
+        // Model
+        $Page = $this->model('ForumThreadDeletePostPage',$this->obj_array);
+        $Page->setCommentId($comment_id);
+        $Page->process();
+        $Form = $Page->getForum();
+
+        // Page
+        $this->view('forum/deletepostform',
+        [
+            'Form'  => &$Form,
+        ]);
+    }
+    public function deletepost_submit()
+    {
+        $this->model('ForumThreadDeletePostSubmit',$this->obj_array);
+    }
+
+    // Lock Post
+    public function lockpost($comment_id = 0)
+    {
+        $method = 'ajax->lockpost()';
+
+        $comment_id = isset($comment_id) ? (int) $comment_id : 0;
+        if ($comment_id < 1)
+        {
+            SBC::devError('Comment ID is not set',$method);
+        }
+
+        // Model
+        $Page = $this->model('ForumThreadLockPost',$this->obj_array);
+        $Page->setCommentId($comment_id);
+        $Page->process();
+        $is_locked = $Page->getIsLocked();
+
+        // View
+        $this->view('forum/lockpostspan',
+        [
+            'comment_id'    => $comment_id,
+            'is_locked'     => $is_locked,
+        ]);
     }
 
     // Edit Entry

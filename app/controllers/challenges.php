@@ -147,6 +147,7 @@ class Challenges extends Controller
             $app_rownum     = $PageObj->getApplicationsRownum();
             $Member         = &$this->obj_array['Member'];
             $User           = &$this->obj_array['User'];
+            $app_id         = $PageObj->getAppId();
 
             // View
             $this->view('sketchbookcafe/header');
@@ -159,6 +160,7 @@ class Challenges extends Controller
                 'Member'        => &$Member,
                 'User'          => &$User,
                 'ChallengeForm' => &$ChallengeForm,
+                'app_id'        => &$app_id,
             ]);
             $this->view('sketchbookcafe/footer');
         }

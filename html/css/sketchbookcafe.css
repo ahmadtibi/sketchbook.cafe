@@ -1,3 +1,36 @@
+/* Forum Admin Stuff */
+/* --------------------------------------------------------------- */
+.forumadmin_action_wrap {
+    margin-top: 25px;
+    margin-bottom: 25px;
+    margin-left: 100px;
+    margin-right: 100px;
+    background-color: #FFFFFF;
+        
+    -webkit-box-shadow: 0px 0px 5px 0px rgba(201,201,201,1);
+    -moz-box-shadow: 0px 0px 5px 0px rgba(201,201,201,1);
+    box-shadow: 0px 0px 5px 0px rgba(201,201,201,1);
+
+    border: 1px solid #D14343;
+}
+.forumadmin_action_top {
+    font-weight: bold;
+
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 15px;
+    padding-right: 15px;
+
+    color: #FFFFFF;
+    background-color: #D14343;
+}
+.forumadmin_action_bottom {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
 /* Challenge Gallery */
 /* --------------------------------------------------------------- */
 .challengegallery_wrap {
@@ -1352,6 +1385,12 @@ input[type="checkbox"] { outline: none; }
 
 /* Comments (Global) */
 /* --------------------------------------------------------------- */
+.commentDeletedDiv {
+    padding: 5px;
+    font-size: 12px;
+    font-style: italic;
+    color: #D4D4D4;
+}
 .comment_edit_span {
     padding-right: 6px;
 }

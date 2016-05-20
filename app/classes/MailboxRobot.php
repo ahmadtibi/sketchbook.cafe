@@ -23,6 +23,7 @@ class MailboxRobot
 
     private $comment_id = 0;
     private $mail_id = 0;
+    private $reply_id = 0;
 
     private $db;
 
@@ -44,6 +45,18 @@ class MailboxRobot
         if ($this->r_user_id < 1)
         {
             SBC::devError('User ID is not set',$method);
+        }
+    }
+
+    // Set Reply ID
+    final public function setReplyId($mail_id)
+    {
+        $method = 'MailboxRobot->setReplyId()';
+
+        $this->reply_id = $mail_id;
+        if ($this->reply_id < 1)
+        {
+            SBC::devError('Reply ID is not set',$method);
         }
     }
 
@@ -248,5 +261,125 @@ class MailboxRobot
     final public function getMailId()
     {
         return $this->mail_id;
+    }
+
+    // Verify Mail
+    final private function verifyMail($mail_id)
+    {
+        $method = 'MailboxRobot->verifyMail()';
+
+        if ($mail_id < 1)
+        {
+            SBC::devError('Mail ID is not set',$method);
+        }
+
+        $db = &$this->db;
+
+        // Switch
+        $db->sql_switch('sketchbookcafe');
+
+        // Get mail thread
+        $sql = 'SELECT id
+            FROM mailbox_threads
+            WHERE id=?
+            LIMIT 1';
+        $stmt   = $db->prepare($sql);
+        $stmt->bind_param('i',$mail_id);
+        $row    = SBC::statementFetchRow($stmt,$db,$sql,$method);
+
+        // Verify
+        $mail_id = isset($row['id']) ? (int) $row['id'] : 0;
+        if ($mail_id < 1)
+        {
+            SBC::devError('Could not find mail thread in database',$method);
+        }
+    }
+
+    // Reply
+    final public function createReply()
+    {
+        $method = 'MailboxRobot->createMail()';
+
+        // Initialize
+        $db             = &$this->db;
+        $rd             = $this->rd;
+        $time           = $this->time;
+        $ip_address     = $this->ip_address;
+        $r_user_id      = $this->r_user_id; // recipient
+        $user_id        = $this->robot_user_id; // robot or thread owner
+        $messageObj     = &$this->messageObj;
+        $mail_id        = $this->reply_id;
+        $table_name     = 'm'.$mail_id.'x';
+        $table_user     = 'u'.$r_user_id.'m';
+        if ($mail_id < 1)
+        {
+            SBC::devError('Reply ID is not set',$method);
+        }
+        if (empty($messageObj))
+        {
+            SBC::devError('Message is not set',$method);
+        }
+
+        // Verify User
+        $this->verifyUser($user_id);
+        $this->verifyUser($r_user_id);
+
+        // Verify Mail
+        $this->verifyMail($mail_id);
+
+        // Create New Message
+        $messageObj->setUserId($user_id);
+        $messageObj->setType('note_reply');
+        $messageObj->createMessage($db);
+        $messageObj->setParentId($mail_id);
+        $messageObj->updateParentId($db);
+        $comment_id = $messageObj->getCommentId();
+        $this->comment_id = $comment_id;
+
+        // Switch
+        $db->sql_switch('sketchbookcafe_mailbox');
+
+        // Insert into thread's table
+        $sql = 'INSERT INTO '.$table_name.'
+            SET cid=?';
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param('i',$comment_id);
+        SBC::statementExecute($stmt,$db,$sql,$method);
+
+        // Let's count since we're here
+        $sql = 'SELECT COUNT(*)
+            FROM '.$table_name;
+        $result = $db->sql_query($sql);
+        $row    = $db->sql_fetchrow($result);
+
+        // Total
+        $total = isset($row[0]) ? (int) $row[0] : 0;
+
+        // Switch
+        $db->sql_switch('sketchbookcafe');
+
+        // Update Mailbox Thread
+        $sql = 'UPDATE mailbox_threads
+            SET date_updated=?,
+            total_replies=?,
+            last_user_id=?
+            WHERE id=?
+            LIMIT 1';
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param('iiii',$time,$total,$user_id,$mail_id);
+        SBC::statementExecute($stmt,$db,$sql,$method);
+
+        // Switch
+        $db->sql_switch('sketchbookcafe_users');
+
+        // Update user's thread as new
+        $sql = 'UPDATE '.$table_user.'
+            SET lastupdate=?,
+            isnew=1
+            WHERE cid=?
+            LIMIT 1';
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param('ii',$time,$mail_id);
+        SBC::statementExecute($stmt,$db,$sql,$method);
     }
 }

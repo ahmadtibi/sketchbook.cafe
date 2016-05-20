@@ -1,15 +1,8 @@
 <?php
 // @author          Kameloh
-// @lastUpdated     2016-05-02
+// @lastUpdated     2016-05-20
 class Home extends Controller
 {
-	/*
-	public function index($name = 'empty', $otherName = '')
-	{
-		echo $name . ' ' . $otherName;
-	}
-	*/
-
     protected $obj_array = '';
 
     protected $user;
@@ -24,39 +17,17 @@ class Home extends Controller
         $User = $this->obj_array['User'];
 
 		// Model
-        $this->model('HomePage',$this->obj_array);
+        $Page = $this->model('HomePage',$this->obj_array);
+        $twitch_json = $Page->getTwitchJSON();
 
         // View
         $this->view('sketchbookcafe/header');
 		$this->view('home/index', 
         [
-            'User'  => $User,
+            'User'          => $User,
+            'twitch_json'   => &$twitch_json,
         ]);
         $this->view('sketchbookcafe/footer');
 	}
-
-/*
-	public function index ($name = '')
-	{
-
-		$name = $name;
-        $this->user->test();
-        $this->model('HomePage');
-		$this->view('home/index', ['name' => $name]);
-
-		// User::find(1);
-	}
-
-    public function testsubmit ()
-    {
-        $this->model('Testsubmit');
-        $this->view('home/testsubmit');
-    }
-
-    public function create($name = '')
-    {
-
-    }
-*/
 
 }

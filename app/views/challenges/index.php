@@ -7,6 +7,7 @@ $app_rownum     = &$data['app_rownum'];
 $Member         = &$data['Member'];
 $User           = &$data['User'];
 $ChallengeForm  = &$data['ChallengeForm'];
+$app_id         = &$data['app_id'];
 ?>
 <style type="text/css">
 .challenges_page_wrap {
@@ -117,16 +118,46 @@ $ChallengeForm  = &$data['ChallengeForm'];
 .challenges_page_create_button:hover {
     background-color: #ABABAB;
 }
+.challenges_page_pending_wrap {
+    text-align: center;
+}
+.challenges_page_pending_wrap a:link, .challenges_page_pending_wrap a:active, .challenges_page_pending_wrap a:visited {
+    color: red;
+}
+.challenges_page_pending_wrap a:hover {
+    text-decoration: underline;
+}
+.challenges_page_admin_wrap {
+    margin: 20px;
+    background-color: #FFFFFF;
+}
+.challenges_page_admin_title {
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+.challenges_page_admin_item {
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+.challenges_page_admin_item a:link, .challenges_page_admin_item a:visited, .challenges_page_admin_item a:active {
+    color: red;
+}
+.challenges_page_admin_item a:hover {
+    text-decoration: underline;
+}
 </style>
 
 <?php
-/*
 // Pending Applications
 if ($app_rownum > 0)
 {
 ?>
-<div>
-    <div>
+<div class="challenges_page_admin_wrap">
+    <div class="challenges_page_admin_title">
         <b>Pending Applications</b>
     </div>
 <?php
@@ -134,8 +165,10 @@ if ($app_rownum > 0)
     while ($trow = mysqli_fetch_assoc($app_result))
     {
 ?>
-    <div>
-        Application Here
+    <div class="challenges_page_admin_item">
+        <a href="https://www.sketchbook.cafe/challenges/pending/<?php echo $trow['id'];?>/"><?php echo $trow['name'];?></a>
+        by
+        <script>sbc_username(<?php echo $trow['user_id'];?>,'');</script>
     </div>
 <?php
     }
@@ -144,7 +177,6 @@ if ($app_rownum > 0)
 </div>
 <?php
 }
-*/
 ?>
 
 <div class="challenges_page_wrap">
@@ -175,8 +207,22 @@ if ($User->loggedIn())
 // Users Only
 if ($User->loggedIn())
 {
-    // Start Form
-    echo $ChallengeForm->start();
+    // Pending App?
+    if ($app_id > 0)
+    {
+?>
+    <div id="challenges_page_create_wrap" class="challenges_page_create_wrap">
+        <div class="challenges_page_pending_wrap">
+            You have a pending application:
+            <br/><a href="https://www.sketchbook.cafe/challenges/pending/<?php echo $app_id;?>/">https://www.sketchbook.cafe/challenges/pending/<?php echo $app_id;?>/</a>
+        </div>
+    </div>
+<?php
+    }
+    else
+    {
+        // Start Form
+        echo $ChallengeForm->start();
 ?>
     <div id="challenges_page_create_wrap" class="challenges_page_create_wrap">
 
@@ -186,7 +232,7 @@ if ($User->loggedIn())
             </div>
             <div class="innerRight">
 <?php
-    echo $ChallengeForm->field['title'];
+        echo $ChallengeForm->field['title'];
 ?>
             </div>
         </div>
@@ -197,7 +243,7 @@ if ($User->loggedIn())
             </div>
             <div class="innerRight">
 <?php
-    echo $ChallengeForm->field['points'];
+        echo $ChallengeForm->field['points'];
 ?>
             </div>
         </div>
@@ -208,7 +254,7 @@ if ($User->loggedIn())
             </div>
             <div class="innerRight">
 <?php
-    echo $ChallengeForm->field['description'];
+        echo $ChallengeForm->field['description'];
 ?>
             </div>
         </div>
@@ -219,7 +265,7 @@ if ($User->loggedIn())
             </div>
             <div class="innerRight">
 <?php
-    echo $ChallengeForm->field['requirements'];
+        echo $ChallengeForm->field['requirements'];
 ?>
             </div>
         </div>
@@ -230,7 +276,7 @@ if ($User->loggedIn())
             </div>
             <div class="innerRight">
 <?php
-    echo $ChallengeForm->field['submit'];
+        echo $ChallengeForm->field['submit'];
 ?>
             </div>
         </div>
@@ -238,8 +284,9 @@ if ($User->loggedIn())
 
     </div>
 <?php
-    // End Form
-    echo $ChallengeForm->end();
+        // End Form
+        echo $ChallengeForm->end();
+    }
 }
 ?>
 

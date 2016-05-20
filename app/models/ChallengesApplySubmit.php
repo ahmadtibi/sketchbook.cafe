@@ -269,10 +269,8 @@ class ChallengesApplySubmit
 
         // NL2BR Enabled
         $message = '
-            Thank you for submitting a challenge! You can view your application here:
-            <br/>https://www.sketchbook.cafe/challenges/pending/'.$app_id.'/
-            <br/>
-            <br/>FIXME';
+Thank you for submitting a challenge! You can view your application here:
+https://www.sketchbook.cafe/challenges/pending/'.$app_id.'/';
 
         // Mailbox Robot
         $MailboxRobot = new MailboxRobot($db);

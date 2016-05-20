@@ -181,9 +181,6 @@ if ($User->isAdmin())
     <span class="headerMenuItem">
         <a href="https://www.sketchbook.cafe/admin/">Admin</a>
     </span>
-    <span class="headerMenuItem">
-        <a href="https://www.sketchbook.cafe/admin/pending_entries/">0 Pending Entries</a>
-    </span>
 <?php
 }
 ?>

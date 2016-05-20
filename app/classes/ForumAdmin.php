@@ -1,6 +1,6 @@
 <?php
 // @author          Kameloh
-// @lastUpdated     2016-05-02
+// @lastUpdated     2016-05-20
 namespace SketchbookCafe\ForumAdmin;
 
 use SketchbookCafe\SBC\SBC as SBC;
@@ -13,6 +13,8 @@ class ForumAdmin
     private $comment_id = 0;
     private $forum_admin_id = 0; // ID of admin, not user_id
     private $forum_admin_flag = [];
+
+    private $comment_type = 0;
 
     private $obj_array = [];
 
@@ -147,6 +149,7 @@ class ForumAdmin
                 SBC::userError('Sorry, this is not a thread comment');
             }
         }
+        $this->comment_type = $row['type'];
 
         // Set Parent Thread ID
         $thread_id  = $row['parent_id'];
@@ -233,5 +236,11 @@ class ForumAdmin
     final public function getForumId()
     {
         return $this->forum_id;
+    }
+
+    // Get Comment Type
+    final public function getCommentType()
+    {
+        return $this->comment_type;
     }
 }

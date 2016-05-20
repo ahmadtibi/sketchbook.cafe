@@ -1,6 +1,6 @@
 <?php
 // @author          Kameloh
-// @lastUpdated     2016-05-11
+// @lastUpdated     2016-05-20
 namespace SketchbookCafe\DisplayComment;
 
 use SketchbookCafe\SBC\SBC as SBC;
@@ -75,7 +75,21 @@ class DisplayComment
         $user_id        = $Comment->comment[$comment_id]['user_id'];
         $is_locked      = $Comment->comment[$comment_id]['is_locked'];
         $last_user_id   = $Comment->comment[$comment_id]['last_user_id'];
+        $isdeleted      = $Comment->comment[$comment_id]['isdeleted'];
         $last_username  = '';
+
+        // Message Deleted?
+        if ($isdeleted == 1)
+        {
+            $value = '
+<div class="commentWrap">
+    <div class="commentDeletedDiv">
+        deleted
+    </div>
+</div>
+';
+            return $value;
+        }
 
         // User Vars
         $posts          = $Member->displayPosts($user_id);
@@ -186,10 +200,10 @@ class DisplayComment
                 $this->addSpacing($admin_links);
             }
 
-            // Delete Post
-            if ($forum_admin_flag['delete_post'] == 1)
+            // Delete Post (type 3 comments only)
+            if ($forum_admin_flag['delete_post'] == 1 && $type == 3)
             {
-                $admin_links = 'delete post';
+                $admin_links = '<a href="#" onClick="sbc_delete_comment_form('.$comment_id.'); return false;">delete post</a>';
 
                 $this->addSpacing($admin_links);
             }
@@ -197,11 +211,22 @@ class DisplayComment
             // Lock Post
             if ($forum_admin_flag['lock_post'] == 1)
             {
+                $admin_links = '<span id="lockcomment'.$comment_id.'">';
+
+                $admin_links .= '<a href="#" onClick="sbc_thread_lockpost('.$comment_id.'); return false;">';
+                $admin_links .= $is_locked ? 'unlock post' : 'lock post';
+                $admin_links .= '</a>';
+
+                $admin_links .= '</span>';
+
+                $this->addSpacing($admin_links);
+/*
                 $admin_links = '<a href="https://www.sketchbook.cafe/forum/lock_post/'.$comment_id.'/">';
                 $admin_links .= $is_locked ? 'unlock post' : 'lock post';
                 $admin_links .= '</a>';
 
                 $this->addSpacing($admin_links);
+*/
             }
         }
 
@@ -211,14 +236,15 @@ class DisplayComment
         {
             $this->addSpacing('<a href="#" onClick="sbc_edit_comment_form('.$comment_id.'); return false;">edit</a>');
 
+/*
             // Entry
             if ($entry_id > 0)
             {
                 $this->addSpacing('<a href="#" onClick="sbc_thread_editentry_form('.$entry_id.','.$comment_id.'); return false;">edit entry</a>');
             }
+*/
         }
 
-        // Value
         $value = '
 <!-- Start Comment('.$comment_id.') -->
 <div class="commentWrap">
@@ -257,6 +283,7 @@ class DisplayComment
         <div class="commentMessage '.$this->css_comment.'">
                 '.$image_script.'
             <span id="edit_entry_window'.$entry_id.'"></span>
+            <span id="delete_comment_window'.$comment_id.'"></span>
             <span id="edit_comment_window'.$comment_id.'">
                 '.$PollDisplay.'
                 '.$message.'

@@ -623,6 +623,14 @@ function sbc_ajax_form(page_url,f_window)
     xmlhttp.send('');
 }
 
+// Lock Post
+function sbc_thread_lockpost(comment_id)
+{
+    var page_url = 'https://www.sketchbook.cafe/ajax/lockpost/' + comment_id + '/';
+    var f_window = 'lockcomment' + comment_id;
+    return sbc_ajax_form(page_url,f_window);
+}
+
 // Edit Entry Form
 function sbc_thread_editentry_form(entry_id)
 {
@@ -669,6 +677,14 @@ function sbc_edit_submit_form(id)
     var page_url = 'https://www.sketchbook.cafe/ajax/edit_comment_submit/' + id + '/';
     var f_window = 'edit_comment_window' + id;
     return sbc_ajax_submit(page_url,f_window,id);
+}
+
+// Delete Post Form
+function sbc_delete_comment_form(id)
+{
+    var page_url = 'https://www.sketchbook.cafe/ajax/deletepost/' + id + '/';
+    var f_window = 'delete_comment_window' + id;
+    return sbc_ajax_form(page_url,f_window);
 }
 
 // Master Image

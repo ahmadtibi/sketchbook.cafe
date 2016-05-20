@@ -3,14 +3,14 @@ $Form   = &$data['Form'];
 
 // Start Form
 echo $Form->start();
-echo $Form->field['thread_id'];
+echo $Form->field['comment_id'];
 ?>
 <div class="forumadmin_action_wrap">
     <div class="forumadmin_action_top">
-        Delete Thread
+        Delete Post
     </div>
     <div class="forumadmin_action_bottom">
-        Action: 
+        Action:
 <?php
 echo $Form->field['action'];
 echo $Form->field['confirm'];

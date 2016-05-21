@@ -48,7 +48,7 @@ if ($User->loggedIn())
 ?>
 
         <div class="forum_main_breadcrumbs breadCrumbs">
-            <a href="https://www.sketchbook.cafe/forum/"><?php echo $category_row['name'];?></a>
+            <a href="https://www.sketchbook.cafe/"><?php echo $category_row['name'];?></a>
             <span class="breadCrumbSeparator">></span>
             <a href="https://www.sketchbook.cafe/forum/<?php echo $forum_row['id'];?>"><?php echo $forum_row['name'];?></a>
         </div>

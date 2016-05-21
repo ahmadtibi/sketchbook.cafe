@@ -121,13 +121,6 @@ if ($thread_row['challenge_id'] > 0)
             <div>
                 Average User Difficulty: <b><?php echo $difficulty;?></b> out of 10 (<?php echo $challenge_row['difficulty_votes'];?> votes)
             </div>
-<?php
-/*
-            <div>
-                This challenge has been viewed <b><?php echo number_format(rand(1,49024));?></b> times!
-            </div>
-*/
-?>
         </div>
         <div class="challenge_bottom_links">
             <a href="https://www.sketchbook.cafe/challenges/<?php echo $thread_row['challenge_id'];?>/1/0/">View Gallery</a>
@@ -195,19 +188,6 @@ if ($thread_row['challenge_id'] > 0)
 <?php
 }
 ?>
-
-
-
-<?php
-/*
-<div style="font-size: 24px; line-height: 50px; line-spacing: 6px; text-align: center;">
-    <marquee>
-        <span style="color: red;">PookiesRevenge</span> made me do it!
-    </marquee>
-</div>
-*/
-?>
-
 
 <style type="text/css">
 .thread_wrap {
@@ -317,7 +297,7 @@ if ($User->loggedIn())
 
     <div class="thread_breadcrumbs_wrap">
         <div class="breadCrumbs">
-            <a href="https://www.sketchbook.cafe/forum/"><?php echo $category_row['name'];?></a>
+            <a href="https://www.sketchbook.cafe/"><?php echo $category_row['name'];?></a>
             <span class="breadCrumbsSeperator">></span>
             <a href="https://www.sketchbook.cafe/forum/<?php echo $forum_row['id'];?>/"><?php echo $forum_row['name'];?></a>
             <span class="breadCrumbsSeperator">></span>

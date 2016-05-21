@@ -58,8 +58,10 @@ echo $data['Form']->field['pass2'];
 <?php
 echo $data['Form']->field['termsofservice'];
 ?>
-            I have read and agreed to the <a href="#" class="fb">Terms of Service</a>
-            and <a href="#" class="fb">Privacy Policy</a>
+            I have read and agreed to the 
+            <a href="https://www.sketchbook.cafe/docs/tos/" target="_blank" class="fb">Terms of Service</a>
+            and 
+            <a href="https://www.sketchbook.cafe/docs/privacy/" target="_blank" class="fb">Privacy Policy</a>
         </div>
     </div>
 

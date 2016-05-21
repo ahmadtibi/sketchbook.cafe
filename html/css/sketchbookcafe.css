@@ -1635,6 +1635,38 @@ input[type="checkbox"] { outline: none; }
     min-height: 25px;
     background-color: #ACACAC;
 }
+.footer_left {
+    float: left;
+    overflow: hidden;
+    width: 50%;
+}
+.footer_right {
+    overflow: hidden;
+}
+.footer_copyright {
+    padding-left: 10px;
+    font-size: 12px;
+    color: #717171;
+    line-height: 25px;
+}
+.footer_credits {
+    padding-right: 10px;
+    font-size: 12px;
+    text-align: right;
+    line-height: 25px;
+    color: #717171;
+}
+.footer_item_spacer {
+    padding-left: 6px;
+    padding-right: 6px;
+}
+.footer_text a:link, .footer_text a:visited, .footer_text a:active {
+    color: #717171;
+}
+.footer_text a:hover {
+    color: #FFFFFF;
+    text-decoration: underline;
+}
 
 /* Sizes */
 /* --------------------------------------------------------------- */

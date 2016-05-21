@@ -11,6 +11,17 @@ class Docs extends Controller
         $this->obj_array = &$obj_array;
     }
 
+    public function privacy()
+    {
+        // Model
+        $Page = $this->model('PrivacyPage',$this->obj_array);
+
+        // View
+        $this->view('sketchbookcafe/header');
+        $this->view('docs/privacy');
+        $this->view('sketchbookcafe/footer');
+    }
+
     public function tos()
     {
         // Model

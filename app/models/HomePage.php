@@ -3,12 +3,14 @@
 // @lastUpdated     2016-05-20
 
 use SketchbookCafe\SBC\SBC as SBC;
+use SketchbookCafe\Forums\Forums as Forums;
 
 class HomePage
 {
     private $user_id = 0;
     private $time = 0;
     private $twitch_json = '';
+    private $forum_data = [];
 
     // Construct
     public function __construct(&$obj_array)
@@ -29,6 +31,9 @@ class HomePage
         // Streamers Update
         $this->streamersUpdate($db);
 
+        // Get Forums
+        $this->getForums($obj_array);
+
         // Process Data
         $ProcessAllData = new ProcessAllData();
 
@@ -44,7 +49,7 @@ class HomePage
         // Initialize
         $id                 = 1; // of course
         $time               = $this->time;
-        $cooldown           = 300; // 300 seconds (5 minutes) timer
+        $cooldown           = 120; // 300 seconds (5 minutes) timer
         $stream_lastupdate  = 0;
 
         // Switch
@@ -99,7 +104,7 @@ class HomePage
         require '../app/twitch_api_settings.php';
 
         $channelsApi = 'https://api.twitch.tv/kraken/streams/?channel=';
-        $channelName = 'kameloh,Glumduk,SamanthaJoanneArt,SinixDesign,Mioree,CGlas,CreeseArt,PunArt,KillerNEN,adobe,Faebelina,LuenKulo,RissaRambles';
+        $channelName = 'kameloh,Johnlestudio,Shticky,Alarios711,journeyful,LOIZA0319,AkaNoBall,Furious_Spartan,Glumduk,SamanthaJoanneArt,SinixDesign,Mioree,CGlas,CreeseArt,PunArt,KillerNEN,adobe,Faebelina,LuenKulo,RissaRambles,Arucelli,fred04142,ElectroKittenz';
         $clientId = $twitch_api_settings['client_id'];
         $ch = curl_init();
 
@@ -120,5 +125,22 @@ class HomePage
     final public function getTwitchJSON()
     {
         return $this->twitch_json;
+    }
+
+    // Get Forums
+    final public function getForums(&$obj_array)
+    {
+        $method = 'HomePage->getForums()';
+
+        // Get Forums
+        $Forums = new Forums($obj_array);
+        $Forums->findAll();
+        $this->forum_data = $Forums->getData();
+    }
+
+    // Get Forum Data
+    final public function getForumData()
+    {
+        return $this->forum_data;
     }
 }

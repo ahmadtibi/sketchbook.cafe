@@ -1,6 +1,6 @@
 <?php
 // @author          Kameloh
-// @lastUpdated     2016-04-27
+// @lastUpdated     2016-05-21
 namespace SketchbookCafe\TableUser;
 
 use SketchbookCafe\SBC\SBC as SBC;
@@ -83,6 +83,7 @@ class TableUser {
         unset($columns);
         unset($TableCreator);
 
+/*
         // Table: Notifications
         $tablename  = 'u'.$this->user_id.'n';
         $database   = 'sketchbookcafe_users';
@@ -101,6 +102,7 @@ class TableUser {
         unset($database);
         unset($columns);
         unset($TableCreator);
+*/
 
         // Table: Viewed Thread for Forums
         $tablename  = 'u'.$this->user_id.'vt';

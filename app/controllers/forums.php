@@ -3,7 +3,7 @@
 // @lastUpdated     2016-05-02
 // Forums Controller
 // Main Forums Page!
-
+/*
 class Forums extends Controller
 {
     protected $obj_array = '';
@@ -41,6 +41,7 @@ class Forums extends Controller
             'forums_rownum'     => $forums_rownum,
         ]);
         $this->view('sketchbookcafe/footer');
-*/
+
     }
 }
+*/

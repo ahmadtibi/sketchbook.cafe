@@ -1,3 +1,28 @@
+/* Docs */
+/* --------------------------------------------------------------- */
+.docs_wrap {
+    padding: 15px;
+    overflow: hidden;
+    background-color: #FFFFFF;
+}
+.docs_title {
+    margin-bottom: 10px;
+    text-align: center;
+    font-size: 24px;
+}
+.docs_category {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+.docs_paragraph {
+    margin-bottom: 15px;
+}
+.docs_paragraph_inner {
+    padding-left: 15px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+}
+
 /* Forum Admin Stuff */
 /* --------------------------------------------------------------- */
 .forumadmin_action_wrap {

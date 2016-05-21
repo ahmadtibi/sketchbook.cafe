@@ -1,5 +1,9 @@
 <?php
+// Set Arrays
+$online_data['rownum'] = 0;
+
 // Initialize
+$online_data    = &$data['online_data'];
 $forum_data     = &$data['forum_data'];
 $thread         = &$forum_data['thread'];
 $twitch_json    = &$data['twitch_json'];
@@ -410,3 +414,109 @@ mysqli_data_seek($forum_data['categories_result'],0);
 ?>
 <!-- End Forum -->
 </div>
+
+<style type="text/css">
+.onlinelist_wrap {
+    overflow: hidden;
+    margin-left: 15px;
+    margin-right: 15px;
+    margin-bottom: 15px;
+
+    background-color: #FFFFFF;
+
+    -webkit-box-shadow: 0px 0px 4px 0px rgba(125,125,125,1);
+    -moz-box-shadow: 0px 0px 4px 0px rgba(125,125,125,1);
+    box-shadow: 0px 0px 4px 0px rgba(125,125,125,1);
+}
+
+.onlinelist_title {
+    margin-top: 12px;
+    margin-left: 20px;
+
+    font-size: 17px;
+    font-family: 'Alegreya SC', serif;
+
+    color: #151515;
+}
+.onlinelist_inner_wrap {
+    overflow: hidden;
+    margin-left: 16px;
+    margin-bottom: 12px;
+    margin-top: 4px;
+}
+.onlinelist_userdiv {
+    float: left;
+    display: inline-block;
+    overflow: hidden;
+    min-width: 50px;
+    height: 20px;
+    margin: 3px;
+    border: 1px solid #ECECEC;
+    border-bottom: 3px solid #60E0DA;
+
+    background-color: #ECECEC;
+
+    -moz-border-radius: 3px 3px 3px 3px;
+    border-radius: 3px 3px 3px 3px;
+}
+.onlinelist_avatardiv {
+    float: left;
+    display: inline-block;
+    overflow: hidden;
+    width: 20px;
+    text-align: center;
+    background-color: #FFFFFF;
+}
+.onlinelist_user {
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    font-family: 'Ek Mukta', sans-serif;
+    line-height: 20px;
+    padding-left: 32px;
+    padding-right: 8px;
+
+    color: #151515;
+
+}
+.onlinelist_user a:link, .onlinelist_user a:visited, .onlinelist_user a:active {
+    color: #151515;
+}
+.onlinelist_user a:hover {
+    text-decoration: underline;
+}
+.onlinelist_avatar {
+    max-width: 20px;
+    max-height: 20px;
+}
+</style>
+
+<!-- Who's Online -->
+<div class="onlinelist_wrap">
+    <div class="onlinelist_title">
+        Who's Online (24 hours)
+    </div>
+    <div class="onlinelist_inner_wrap">
+<?php
+// Online?
+if ($online_data['rownum'] > 0)
+{
+    // Loop Users
+    while ($trow = mysqli_fetch_assoc($online_data['result']))
+    {
+?>
+        <div class="onlinelist_userdiv">
+            <div class="onlinelist_avatardiv">
+                <script>sbc_avatar(<?php echo $trow['id'];?>,'onlinelist_avatar');</script>
+            </div>
+            <div class="onlinelist_user">
+                <script>sbc_username(<?php echo $trow['id'];?>,'');</script>
+            </div>
+        </div>
+<?php
+    }
+    mysqli_data_seek($online_data['result'],0);
+}
+?>
+    </div>
+</div>
+<!-- End Who's Online -->

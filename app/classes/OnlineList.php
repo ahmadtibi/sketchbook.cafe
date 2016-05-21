@@ -1,6 +1,6 @@
 <?php
 // @author          Kameloh
-// @lastUpdated     2016-05-03
+// @lastUpdated     2016-05-21
 namespace SketchbookCafe\OnlineList;
 
 use SketchbookCafe\SBC\SBC as SBC;
@@ -10,6 +10,7 @@ class OnlineList
     private $online_result;
     private $online_rownum;
     private $guests = 0;
+    private $online_list_data = [];
 
     private $obj_array = [];
 
@@ -61,5 +62,17 @@ class OnlineList
     final public function getRownum()
     {
         return $this->online_rownum;
+    }
+
+    // Get Online List Data
+    final public function getOnlineListData()
+    {
+        $array = array
+        (
+            'result'    => &$this->online_result,
+            'rownum'    => &$this->online_rownum,
+            'guests'    => &$this->guests,
+        );
+        return $array;
     }
 }

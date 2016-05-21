@@ -20,6 +20,7 @@ class Home extends Controller
         $Page = $this->model('HomePage',$this->obj_array);
         $twitch_json = $Page->getTwitchJSON();
         $forum_data = $Page->getForumData();
+        $online_data = $Page->getOnlineData();
 
         // View
         $this->view('sketchbookcafe/header');
@@ -28,6 +29,7 @@ class Home extends Controller
             'User'          => $User,
             'twitch_json'   => &$twitch_json,
             'forum_data'    => &$forum_data,
+            'online_data'   => &$online_data,
         ]);
         $this->view('sketchbookcafe/footer');
 	}

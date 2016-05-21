@@ -4,6 +4,8 @@
 
 use SketchbookCafe\SBC\SBC as SBC;
 use SketchbookCafe\Forums\Forums as Forums;
+use SketchbookCafe\OnlineOrganizer\OnlineOrganizer as OnlineOrganizer;
+use SketchbookCafe\OnlineList\OnlineList as OnlineList;
 
 class HomePage
 {
@@ -11,6 +13,7 @@ class HomePage
     private $time = 0;
     private $twitch_json = '';
     private $forum_data = [];
+    private $online_data = [];
 
     // Construct
     public function __construct(&$obj_array)
@@ -33,6 +36,16 @@ class HomePage
 
         // Get Forums
         $this->getForums($obj_array);
+
+        // Online Organizer
+        $OnlineOrganizer = new OnlineOrganizer($db);
+        $OnlineOrganizer->updateUser($this->user_id);
+        $OnlineOrganizer->clean();
+
+        // Online List
+        $OnlineList = new OnlineList($obj_array);
+        $OnlineList->process();
+        $this->online_data = $OnlineList->getOnlineListData();
 
         // Process Data
         $ProcessAllData = new ProcessAllData();
@@ -142,5 +155,11 @@ class HomePage
     final public function getForumData()
     {
         return $this->forum_data;
+    }
+
+    // Get Online Data
+    final public function getOnlineData()
+    {
+        return $this->online_data;
     }
 }

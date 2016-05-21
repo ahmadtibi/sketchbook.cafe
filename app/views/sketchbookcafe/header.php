@@ -66,13 +66,6 @@ if ($Images->rownum > 0)
             {
                 echo 'image_url['.$trow['id'].'] = \''.$image_folder.$trow['id'].'-'.$trow['rd_code'].'.'.$trow['filetype'].'\';';
             }
-/*
-            echo '
-image_id['.$trow['id'].'] = '.$trow['id'].';
-image_url['.$trow['id'].'] = \''.$image_folder.$trow['id'].'-'.$trow['rd_code'].'.'.$trow['filetype'].'\';
-image_thumb['.$trow['id'].'] = \''.$thumb_folder.$trow['id'].'-'.$trow['rd_code'].'_325.'.$trow['filetype'].'\';
-';
-*/
         }
     }
     mysqli_data_seek($Images->result,0);
@@ -160,15 +153,35 @@ else
     <div class="headerLeft">
         <div class="headerTitle">
             <a href="https://www.sketchbook.cafe">Sketchbook Cafe</a>
+            <span class="headerMenuItemSpacer">
+                &middot;
+            </span>
+            <span class="headerMenuItem">
+                <a href="https://www.sketchbook.cafe/challenges/">Challenges</a>
+            </span>
+
+<?php
+// Admins only
+if ($User->isAdmin())
+{
+?>
+            <span class="headerMenuItemSpacer">
+                &middot;
+            </span>
+            <span class="headerMenuItem">
+                <a href="https://www.sketchbook.cafe/admin/">Admin</a>
+            </span>
+<?php
+}
+?>
         </div>
     </div>
 </div>
+<?php
+/*
 <div class="headerMenu">
     <span class="headerMenuItem">
         <a href="https://www.sketchbook.cafe/">Home</a>
-    </span>
-    <span class="headerMenuItem">
-        <a href="https://www.sketchbook.cafe/forum/">Forums</a>
     </span>
     <span class="headerMenuItem">
         <a href="https://www.sketchbook.cafe/challenges/">Challenges</a>
@@ -185,3 +198,6 @@ if ($User->isAdmin())
 }
 ?>
 </div>
+
+*/
+?>

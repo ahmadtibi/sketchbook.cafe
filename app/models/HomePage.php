@@ -62,7 +62,7 @@ class HomePage
         // Initialize
         $id                 = 1; // of course
         $time               = $this->time;
-        $cooldown           = 120; // 300 seconds (5 minutes) timer
+        $cooldown           = 300; // 300 seconds (5 minutes) timer
         $stream_lastupdate  = 0;
 
         // Switch

@@ -3,7 +3,7 @@
 echo $data['Form']->start();
 ?>
 <div class="loginWrap">
-    <div class="loginTitle">
+    <div class="loginTitle sbc_font">
         Login
     </div>
     <div class="loginInnerWrap">

@@ -3,7 +3,7 @@
 echo $data['Form']->start();
 ?>
 <div class="registerPageWrap">
-    <div class="registerTitle">
+    <div class="registerTitle sbc_font_main">
         Register at the Sketchbook Cafe
     </div>
     <div class="registerInnerWrap">

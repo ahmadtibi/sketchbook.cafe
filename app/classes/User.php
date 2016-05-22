@@ -5,7 +5,7 @@
 *
 * @author       Kameloh
 * @copyright    (c) 2016, Kameloh
-* @lastupdated  2016-05-16
+* @lastupdated  2016-05-22
 *
 */
 // Main user class
@@ -23,6 +23,7 @@ class User
     private $ip_address = '';
     private $frontpage = 0;
     private $time = 0;
+    private $sql_columns = '';
 
     // Settings
     public $username = 'Guest';
@@ -337,6 +338,7 @@ class User
 
         // Get User Information
         $sql = 'SELECT id, username, isadmin, timezone_my, timezone_id, avatar_id, avatar_url, 
+            '.$this->sql_columns.'
             mail_total, mailbox_update, mailbox_lastupdate, 
             table_forum_subscriptions
             FROM users
@@ -519,7 +521,6 @@ class User
     // Get Column
     final public function getColumn($input)
     {
-        $method = 'User->getColumn()';
         return $this->data[$input];
     }
 
@@ -861,5 +862,35 @@ class User
         // Set Array
         $this->forum_admin      = 1;
         $this->forum_admin_flag = $row;
+    }
+
+    // Get Username
+    final public function getUsername()
+    {
+        return $this->username;
+    }
+
+    // Find Column
+    final public function findColumn($column)
+    {
+        $method = 'User->findColumn()';
+
+        // Length check
+        if (isset($column{50}) || !isset($column{2}))
+        {
+            SBC::devError('Invalid $column',$method);
+        }
+
+        // Lowercase
+        $column = strtolower($column);
+
+        // Specific Chars
+        if (preg_match('/[^a-z_]/',$column))
+        {
+            SBC::devError('Invalid characters for column',$method);
+        }
+
+        // Add
+        $this->sql_columns .= ' '.$column.', ';
     }
 }

@@ -2,8 +2,13 @@
 // Set Arrays
 $online_data['rownum'] = 0;
 $entries_data['rownum'] = 0;
+$stream_data['streamer_id'] = 0;
+$top_data['rownum'] = 0;
 
 // Initialize
+$top_data       = &$data['top_data'];
+$stream_data    = &$data['stream_data'];
+$User           = &$data['User'];
 $entries_data   = &$data['entries_data'];
 $online_data    = &$data['online_data'];
 $forum_data     = &$data['forum_data'];
@@ -17,6 +22,163 @@ if (!empty($twitch_json))
 }
 $total_streams = count($twitch_array['streams']);
 ?>
+<style type="text/css">
+.streamers_wrap {
+    overflow: hidden;
+
+    -webkit-box-shadow: 0px 2px 5px 0px rgba(148,148,148,1);
+    -moz-box-shadow: 0px 2px 5px 0px rgba(148,148,148,1);
+    box-shadow: 0px 2px 5px 0px rgba(148,148,148,1);
+}
+.streamers_top_title {
+    font-size: 12px;
+    padding-left: 15px;
+    padding-top: 5px;
+    color: #585858;
+    background-color: #FFFFFF;
+}
+.streamers_bottom_wrap {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 15px;
+    padding-right: 15px;
+
+    overflow: hidden;
+    text-align: left;
+    font-size: 0px;
+
+    background-color: #FFFFFF;
+}
+.streamers_item_wrap {
+    margin-left: 5px;
+    margin-right: 5px;
+    margin-bottom: 10px;
+    display: inline-block;
+    overflow: hidden;
+    border: 1px solid #151515;
+
+    -webkit-box-shadow: 0px 1px 5px 0px rgba(168,168,168,1);
+    -moz-box-shadow: 0px 1px 5px 0px rgba(168,168,168,1);
+    box-shadow: 0px 1px 5px 0px rgba(168,168,168,1);
+}
+.streamers_item_wrap img {
+    max-width: 160px;
+}
+.streamers_item_displayname {
+    padding-left: 3px;
+    font-size: 13px;
+    text-align: left;
+    overflow: hidden;
+}
+.streamers_item_viewers {
+    padding-right: 3px;
+    float: right;
+    min-width: 25px;
+    overflow: hidden;
+    text-align: right;
+    font-size: 12px;
+}
+.streamers_item_bottom_wrap {
+    overflow: hidden;
+
+    background-color: #151515;
+    color: #FFFFFF;
+}
+.streamers_add {
+
+    font-size: 11px;
+    padding-left: 6px;
+}
+.streamers_add a:active, .streamers_add a:link, .streamers_add a:visited {
+    color: #585858;
+}
+.streamers_add a:hover {
+    text-decoration: underline;
+}
+.streamers_add_div {
+
+}
+</style>
+<?php
+if ($total_streams > 0)
+{
+?>
+<div class="streamers_wrap">
+    <div class="streamers_top_title">
+        <b>Streaming Live</b>
+<?php
+    // Users Only
+    if ($User->loggedIn())
+    {
+        if ($stream_data['streamer_id'] < 1 && $stream_data['sketch_points'] > 200)
+        {
+?>
+        <span id="streamers_add_button" class="streamers_add">
+            <a href="" onClick="return false;">
+                (add your stream)
+            </a>
+        </span>
+<?php
+            // Start Form
+            $StreamForm = &$stream_data['StreamForm'];
+            echo $StreamForm->start();
+?>
+        <div id="streamers_add_div" class="streamers_add_div" style="display: none;">
+<?php
+            echo $StreamForm->field['username'];
+            echo $StreamForm->field['submit'];
+?>
+        </div>
+<?php
+            // End Form
+            echo $StreamForm->end();
+        }
+        else
+        {
+?>
+        <span class="streamers_add">
+            <a href="https://www.sketchbook.cafe/settings/stream/">
+                (edit)
+            </a>
+        </span>
+<?php
+        }
+    }
+?>
+    </div>
+    <div class="streamers_bottom_wrap">
+<?php
+    // List the streams
+    foreach ($twitch_array['streams'] as $stream)
+    {
+        // Make sure the streamer is on creative
+        if ($stream['game'] == 'Creative')
+        {
+?>
+        <a href="https://www.twitch.tv/<?php echo $stream['channel']['name'];?>/">
+            <div class="streamers_item_wrap">
+                <img src="<?php echo $stream['preview']['medium'];?>">
+                <div class="streamers_item_bottom_wrap">
+                    <div class="streamers_item_viewers">
+                        <?php echo $stream['viewers'];?> V
+                    </div>
+                    <div class="streamers_item_displayname">
+                        <?php echo $stream['channel']['display_name'];?>
+                    </div>
+                </div>
+            </div>
+        </a>
+<?php
+        }
+    }
+?>
+    </div>
+</div>
+<?php
+}
+?>
+
+
 
 
 <style type="text/css">
@@ -28,25 +190,25 @@ $total_streams = count($twitch_array['streams']);
 
     vertical-align: middle;
 
-    -moz-border-radius: 2px 2px 2px 2px;
-    border-radius: 2px 2px 2px 2px;
+    -moz-border-radius: 4px 4px 4px 4px;
+    border-radius: 4px 4px 4px 4px;
 }
 
 .forum_wrap {
     overflow: hidden;
-    margin-left: 10px;
-    margin-right: 10px;
-    padding: 5px;
 }
 .forum_category_wrap {
     overflow: hidden;
-    margin-bottom: 15px;
 
     background-color: #C1C1C1;
 
+<?php
+/*
     -webkit-box-shadow: 0px 2px 2px 0px rgba(135,135,135,1);
     -moz-box-shadow: 0px 2px 2px 0px rgba(135,135,135,1);
     box-shadow: 0px 2px 2px 0px rgba(135,135,135,1);
+*/
+?>
 }
 .forum_category_name {
     margin-top: 6px;
@@ -80,7 +242,7 @@ $total_streams = count($twitch_array['streams']);
     padding-left: 20px;
 
     font-weight: bold;
-    font-size: 16px;
+    font-size: 17px;
     font-family: 'Alegreya SC', serif;
 }
 
@@ -203,6 +365,32 @@ $total_streams = count($twitch_array['streams']);
 }
 </style>
 
+
+<style type="text/css">
+.home_wrap {
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+
+    padding: 5px;
+
+    background-color: #FFFFFF;
+
+    -moz-border-radius: 2px 2px 2px 2px;
+    border-radius: 2px 2px 2px 2px;
+
+    -webkit-box-shadow: 0px 1px 5px 0px rgba(168,168,168,1);
+    -moz-box-shadow: 0px 1px 5px 0px rgba(168,168,168,1);
+    box-shadow: 0px 1px 5px 0px rgba(168,168,168,1);
+}
+</style>
+
+<!-- Start Home -->
+<div class="home_wrap">
+
+
+
 <!-- Start Forum -->
 <div class="forum_wrap">
 <?php
@@ -315,15 +503,14 @@ mysqli_data_seek($forum_data['categories_result'],0);
 
 <style type="text/css">
 .recent_entries_wrap {
-    margin-left: 15px;
-    margin-right: 15px;
-
     background-color: #FFFFFF;
 }
 .recent_entries_title {
     padding-left: 20px;
     padding-top: 5px;
-    color: #151515;
+    font-weight: bold;
+    font-size: 16px;
+    color: #787878;
 }
 .recent_entries_gallery_wrap {
     padding-left: 10px;
@@ -370,20 +557,21 @@ if ($entries_data['rownum'] > 0)
 <style type="text/css">
 .onlinelist_wrap {
     overflow: hidden;
-    margin-left: 15px;
-    margin-right: 15px;
-    margin-bottom: 15px;
 
     background-color: #FFFFFF;
 
+<?php
+/*
     -webkit-box-shadow: 0px 0px 4px 0px rgba(125,125,125,1);
     -moz-box-shadow: 0px 0px 4px 0px rgba(125,125,125,1);
     box-shadow: 0px 0px 4px 0px rgba(125,125,125,1);
+*/
+?>
 }
 
 .onlinelist_title {
     margin-top: 12px;
-    margin-left: 20px;
+    margin-left: 15px;
 
     font-size: 17px;
     font-family: 'Alegreya SC', serif;
@@ -440,12 +628,20 @@ if ($entries_data['rownum'] > 0)
     max-width: 20px;
     max-height: 20px;
 }
+.onlinelist_last {
+    padding-left: 9px;
+    font-size: 16px;
+    color: #787878;
+}
 </style>
 
 <!-- Who's Online -->
 <div class="onlinelist_wrap">
     <div class="onlinelist_title">
-        Who's Online (24 hours)
+        Who's Online 
+        <span class="onlinelist_last">
+            (last 24 hours)
+        </span>
     </div>
     <div class="onlinelist_inner_wrap">
 <?php
@@ -474,112 +670,100 @@ if ($online_data['rownum'] > 0)
 <!-- End Who's Online -->
 
 
-
-
 <style type="text/css">
-.streamers_wrap {
+.top_sp_wrap {
     overflow: hidden;
-    margin-top: 15px;
-    margin-bottom: 15px;
     margin-left: 15px;
     margin-right: 15px;
-
-    -webkit-box-shadow: 0px 2px 5px 0px rgba(148,148,148,1);
-    -moz-box-shadow: 0px 2px 5px 0px rgba(148,148,148,1);
-    box-shadow: 0px 2px 5px 0px rgba(148,148,148,1);
 }
-.streamers_top_title {
-    font-weight: bold;
-    font-size: 18px;
-    padding-left: 15px;
-    padding-top: 5px;
-    color: #151515;
-    background-color: #FFFFFF;
+.top_sp_title {
+    font-size: 15px;
 }
-.streamers_bottom_wrap {
-    padding-top: 10px;
-    padding-bottom: 15px;
-    padding-left: 15px;
-    padding-right: 15px;
-
-    overflow: hidden;
-    text-align: left;
+.top_sp_bottom {
+    padding: 5px;
     font-size: 0px;
-
-    background-color: #FFFFFF;
+    overflow: hidden;
 }
-.streamers_item_wrap {
-    margin-left: 5px;
-    margin-right: 5px;
-    margin-bottom: 10px;
+.top_sp_item {
+    margin-left: 3px;
+    margin-right: 3px;
+    overflow: hidden;
+    display: inline-block;
+
+    -webkit-box-shadow: 0px 0px 5px 0px rgba(230,230,230,1);
+    -moz-box-shadow: 0px 0px 5px 0px rgba(230,230,230,1);
+    box-shadow: 0px 0px 5px 0px rgba(230,230,230,1);
+}
+.top_sp_avatardiv {
     display: inline-block;
     overflow: hidden;
-    border: 1px solid #151515;
 
-    -webkit-box-shadow: 0px 0px 5px 0px rgba(214,214,214,1);
-    -moz-box-shadow: 0px 0px 5px 0px rgba(214,214,214,1);
-    box-shadow: 0px 0px 5px 0px rgba(214,214,214,1);
+    vertical-align: middle;
+
+    white-space: nowrap;
+    text-align: center;
+
+    height: 138px;
+    max-width: 138px;
 }
-.streamers_item_wrap img {
-    max-width: 160px;
+.top_sp_avatardiv img {
+    vertical-align: middle;
+
 }
-.streamers_item_displayname {
-    padding-left: 3px;
-    font-size: 13px;
-    text-align: left;
+.top_sp_points {
     overflow: hidden;
-}
-.streamers_item_viewers {
-    padding-right: 3px;
-    float: right;
-    min-width: 25px;
-    overflow: hidden;
-    text-align: right;
     font-size: 12px;
-}
-.streamers_item_bottom_wrap {
-    overflow: hidden;
+    text-align: center;
 
-    background-color: #151515;
-    color: #FFFFFF;
+    color: #585858;
+}
+.top_sp_points a:link, .top_sp_points a:active, .top_sp_points a:visited {
+    color: red;
+}
+.top_sp_points a:hover {
+    text-decoration: underline;
 }
 </style>
 <?php
-if ($total_streams > 0)
+// Top Sketch Points?
+if ($top_data['rownum'] > 0)
 {
 ?>
-<div class="streamers_wrap">
-    <div class="streamers_top_title">
-        Streaming Live
+<!-- Start Top Sketch Points -->
+<div class="top_sp_wrap">
+    <div class="top_sp_title sbc_font_main">
+        Top Members (all time)
     </div>
-    <div class="streamers_bottom_wrap">
+    <div class="top_sp_bottom">
 <?php
-    // List the streams
-    foreach ($twitch_array['streams'] as $stream)
+    // Users
+    while ($trow = mysqli_fetch_assoc($top_data['result']))
     {
-        // Make sure the streamer is on creative
-        if ($stream['game'] == 'Creative')
-        {
 ?>
-        <a href="https://www.twitch.tv/<?php echo $stream['channel']['name'];?>/">
-            <div class="streamers_item_wrap">
-                <img src="<?php echo $stream['preview']['medium'];?>">
-                <div class="streamers_item_bottom_wrap">
-                    <div class="streamers_item_viewers">
-                        <?php echo $stream['viewers'];?> V
-                    </div>
-                    <div class="streamers_item_displayname">
-                        <?php echo $stream['channel']['display_name'];?>
-                    </div>
-                </div>
+        <div class="top_sp_item">
+            <div class="top_sp_avatardiv">
+                <span class="helper">
+                </span>
+                <script>sbc_avatar(<?php echo $trow['id'];?>,'');</script> 
             </div>
-        </a>
+            <div class="top_sp_points">
+                <script>sbc_username(<?php echo $trow['id'];?>,'');</script> 
+                <?php echo number_format($trow['sketch_points']);?> points
+            </div>
+        </div>
 <?php
-        }
     }
+    mysqli_data_seek($top_data['result'],0);
 ?>
     </div>
 </div>
+<!-- End Top Sketch Points -->
 <?php
 }
 ?>
+
+
+
+
+<!-- End Home -->
+</div>

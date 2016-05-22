@@ -339,6 +339,9 @@ echo $pagenumbers;
     </div>
 </div>
 
+<?php
+/*
+
 <style type="text/css">
 .forum_admins_wrap {
     margin-left: 15px;
@@ -402,4 +405,6 @@ if ($forum_admin_rownum > 0)
 
 <?php
 }
+?>
+*/
 ?>

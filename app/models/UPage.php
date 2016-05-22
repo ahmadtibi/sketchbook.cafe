@@ -1,6 +1,6 @@
 <?php
 // @author          Kameloh
-// @lastUpdated     2016-05-16
+// @lastUpdated     2016-05-22
 
 use SketchbookCafe\SBC\SBC as SBC;
 use SketchbookCafe\SBCGetUsername\SBCGetUsername as SBCGetUsername;
@@ -125,10 +125,10 @@ class UPage
         // Switch
         $db->sql_switch('sketchbookcafe_users');
 
-        // Get entries (type 1)
+        // Get entries (type 2)
         $sql = 'SELECT cid
             FROM '.$table_name.'
-            WHERE type=1
+            WHERE type=2
             ORDER BY cid
             DESC
             LIMIT 20';

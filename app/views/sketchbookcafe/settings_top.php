@@ -22,6 +22,12 @@ $settings_page = $data['settings_page'];
                 </div>
             </a>
 
+            <a href="https://www.sketchbook.cafe/settings/stream/">
+                <div class="settingsInnerItem <?php if ($settings_page == 'stream') { echo 'settingsInnerItemSelected'; } ?>">
+                    Stream Settings
+                </div>
+            </a>
+
             <a href="https://www.sketchbook.cafe/settings/sitesettings/">
                 <div class="settingsInnerItem <?php if ($settings_page == 'sitesettings') { echo 'settingsInnerItemSelected'; } ?>">
                     Site Settings

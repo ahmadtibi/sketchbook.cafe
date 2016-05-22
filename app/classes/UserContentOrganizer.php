@@ -1,6 +1,6 @@
 <?php
 // @author          Kameloh
-// @lastUpdated     2016-05-16
+// @lastUpdated     2016-05-22
 namespace SketchbookCafe\UserContentOrganizer;
 
 use SketchbookCafe\SBC\SBC as SBC;
@@ -111,8 +111,9 @@ class UserContentOrganizer
         $this->verified_user[$user_id] = 1;
     }
 
+    // Note: Type 1-1 is blocked users OOPS
     // Add Entry as User Content
-    // Type: 1-1
+    // Type: 2-1
     final public function addContentEntry($user_id,$entry_id)
     {
         $method = 'UserContentOrganizer->addContentEntry()';
@@ -124,7 +125,7 @@ class UserContentOrganizer
         // Initialize
         $db         = &$this->db;
         $table_name = 'u'.$user_id.'c';
-        $type       = 1; // 1 entry
+        $type       = 2; // 2 entry
         $type2      = 1; // no other version
         $cid        = $entry_id;
 
@@ -157,7 +158,7 @@ class UserContentOrganizer
         }
     }
 
-    // Count Content for Entries (type 1)
+    // Count Content for Entries (type 2)
     final public function countContentEntry($user_id)
     {
         $method = 'UserContentOrganizer->countContentEntry()';
@@ -175,7 +176,7 @@ class UserContentOrganizer
         // Count Content
         $sql = 'SELECT COUNT(*)
             FROM '.$table_name.'
-            WHERE type=1';
+            WHERE type=2';
         $result = $db->sql_query($sql);
         $row    = $db->sql_fetchrow($result);
 

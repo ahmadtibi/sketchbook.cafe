@@ -12,6 +12,15 @@ $(document).ready(function() {
         });
     });
 
+    // Top SP
+    $(".top_sp_avatardiv>img").each(function(i, img) {
+        $(img).css({
+            position: "relative",
+            left: ($(img).parent().width()/2) - ($(img).width()/2)
+        });
+    });
+
+
 
     // Comment Fade
     //$(".tr").css("display","none");
@@ -19,6 +28,13 @@ $(document).ready(function() {
     //  $(this).delay(i*100).slideToggle(600);
     //});
     // $(".commentWrap").fadeIn(800);
+
+    // Add Stream
+    $('#streamers_add_button').click(function() {
+       //  $('#fpNewThreadDiv').toggle('drop', {direction: 'right'}, 150);
+        $("#streamers_add_div").slideToggle(300, function() {
+        });
+    });
 
     // Profiles
     $(".user_page_top_avatar_div>img").each(function(i, img) {

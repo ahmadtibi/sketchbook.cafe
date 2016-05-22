@@ -917,8 +917,7 @@ input[type="checkbox"] { outline: none; }
 .innerRightInfo {
     margin-top: 6px;
     margin-bottom: 6px;
-    font-size: 11px;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 12px;
 
     color: #646464;
 }
@@ -969,8 +968,7 @@ input[type="checkbox"] { outline: none; }
 }
 .settingsTitle {
     padding-left: 12px;
-    font-size: 17px;
-    font-family: Georgia, serif;
+    font-size: 18px;
     line-height: 50px;
     height: 50px;
 
@@ -1028,8 +1026,7 @@ input[type="checkbox"] { outline: none; }
 .settingsInnerTitle {
     padding-top: 12px;
     padding-left: 15px;
-    font-size: 16px;
-    font-family: Georgia, serif;
+    font-size: 17px;
     font-weight: bold;
 
     color: #1C1C1C;
@@ -1081,7 +1078,6 @@ input[type="checkbox"] { outline: none; }
 .loginTitle {
     padding-left: 12px;
     font-size: 17px;
-    font-family: Georgia, serif;
     line-height: 50px;
     height: 50px;
 
@@ -1100,7 +1096,6 @@ input[type="checkbox"] { outline: none; }
     line-height: 45px;
     font-size: 14px;
     font-weight: bold;
-    font-family: Georgia, serif;
     padding-right: 12px;
 }
 .loginInnerRight {
@@ -1110,7 +1105,6 @@ input[type="checkbox"] { outline: none; }
 }
 .loginIpLockedSpan {
     font-size: 13px;
-    font-family: Georgia, serif;
 }
 
 /* Registration Page */
@@ -1129,7 +1123,6 @@ input[type="checkbox"] { outline: none; }
 .registerTitle {
     padding-left: 12px;
     font-size: 17px;
-    font-family: Georgia, serif;
     line-height: 50px;
     height: 50px;
 
@@ -1148,7 +1141,6 @@ input[type="checkbox"] { outline: none; }
     color: #353535;
 }
 .registerInnerLeft {
-    font-family: Georgia, serif;
     font-size: 15px;
     text-align: right;
     padding-right: 12px;

@@ -91,6 +91,226 @@ member_avatar_url['.$trow['id'].'] = \''.$trow['avatar_url'].'\';
 <!-- Page Wrap -->
 <div class="pageWrap">
 
+<style type="text/css">
+.header_wrap {
+    min-height: 50px;
+    overflow: hidden;
+
+    background: rgb(158,158,158); /* Old browsers */
+    background: -moz-linear-gradient(top,  rgba(158,158,158,1) 0%, rgba(172,172,172,1) 10%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(top,  rgba(158,158,158,1) 0%,rgba(172,172,172,1) 10%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to bottom,  rgba(158,158,158,1) 0%,rgba(172,172,172,1) 10%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#9e9e9e', endColorstr='#acacac',GradientType=0 ); /* IE6-9 */
+
+
+
+}
+.header_right {
+    font-size: 0px;
+    text-align: right;
+    overflow: hidden;
+    float: right;
+    min-width: 300px;
+}
+.header_left {
+
+    font-size: 0px;
+    overflow: hidden;
+}
+.header_title {
+    padding-right: 15px;
+    overflow: hidden;
+    display: inline-block;
+    min-width: 200px;
+
+    text-align: center;
+    line-height: 50px;
+    font-size: 24px;
+
+}
+.header_title:hover {
+    background-color: #C3C3C3;
+}
+.header_left_item {
+
+    overflow: hidden;
+    display: inline-block;
+    padding-left: 9px;
+    padding-right: 9px;
+
+    text-align: center;
+    line-height: 50px;
+    font-size: 17px;
+
+}
+.header_left_item:hover {
+    background-color: #C3C3C3;
+}
+
+.header_left a:link, .header_left a:visited, .header_left a:active {
+    color: #151515;
+}
+.header_left a:hover {
+
+}
+.header_right_logout {
+    overflow: hidden;
+    display: inline-block;
+    line-height: 50px;
+    text-align: center;
+    padding-left: 1px;
+    padding-right: 1px;
+
+    font-size: 14px;
+
+    color: #7E7E7E;
+}
+.header_right_logout:hover {
+    background-color: #C3C3C3;
+}
+.header_right_item {
+
+    overflow: hidden;
+    display: inline-block;
+    line-height: 50px;
+    text-align: center;
+    padding-left: 9px;
+    padding-right: 9px;
+
+    font-size: 14px;
+    min-width: 50px;
+}
+.header_right_item:hover {
+    background-color: #C3C3C3;
+}
+
+.header_right a:link, .header_right a:visited, .header_right a:active {
+    color: #444444;
+}
+.header_right a:hover {
+
+}
+.header_right_avatardiv {
+    padding-left: 9px;
+    padding-right: 9px;
+    overflow: hidden;
+    display: inline-block;
+    height: 50px;
+}
+.header_right_avatardiv img {
+    max-height: 35px;
+    max-width: 35px;
+
+    vertical-align: middle;
+}
+.header_right_avatardiv:hover {
+    background-color: #C3C3C3;
+}
+</style>
+
+<div class="header_wrap">
+    <div class="header_right">
+<?php
+// Users
+if ($User->loggedIn())
+{
+    $userid     = $User->getUserId();
+    $username   = $User->getUsername();
+?>
+        <!-- Start Users -->
+
+        <a href="https://www.sketchbook.cafe/logout/">
+            <div class="header_right_logout">
+                x
+            </div>
+        </a>
+
+        <a href="https://www.sketchbook.cafe/u/<?php echo $username;?>/">
+            <div class="header_right_item fb">
+                <?php echo $username;?>
+            </div>
+        </a>
+
+        <a href="https://www.sketchbook.cafe/mailbox/">
+            <div class="header_right_item">
+                <span class="<?php if ($mail_total > 0) { echo 'fb'; } ?>">
+                    Inbox (<?php echo $mail_total;?>)
+                </span>
+            </div>
+        </a>
+
+        <a href="https://www.sketchbook.cafe/settings/">
+            <div class="header_right_item">
+                Settings
+            </div>
+        </a>
+
+        <a href="https://www.sketchbook.cafe/forum/subscriptions/">
+            <div class="header_right_item">
+                Subscriptions
+            </div>
+        </a>
+
+        <div class="header_right_avatardiv">
+            <span class="helper">
+            </span>
+            <script>sbc_avatar(<?php echo $userid;?>,'');</script>
+        </div>
+
+        <!-- End Users -->
+<?php
+} 
+else
+{
+?>
+        <!-- Start Guests -->
+        <a href="https://www.sketchbook.cafe/register/">
+            <div class="header_right_item">
+                Register
+            </div>
+        </a>
+
+        <a href="https://www.sketchbook.cafe/login/">
+            <div class="header_right_item">
+                Login
+            </div>
+        </a>
+        <!-- End Guests -->
+<?php
+}
+?>
+    </div>
+    <div class="header_left">
+        <a href="https://www.sketchbook.cafe">
+            <div class="header_title sbc_font_main">
+                Sketchbook Cafe
+            </div>
+        </a>
+
+        <a href="https://www.sketchbook.cafe/challenges/">
+            <div class="header_left_item sbc_font_main">
+                Challenges
+            </div>
+        </a>
+<?php
+// Admins
+if ($User->isAdmin())
+{
+?>
+        <a href="https://www.sketchbook.cafe/admin/">
+            <div class="header_left_item sbc_font_main">
+                Admin
+            </div>
+        </a>
+<?php
+}
+?>
+    </div>
+</div>
+
+<?php
+/*
+
 <div class="headerWrap header">
     <div class="headerRight">
 <?php

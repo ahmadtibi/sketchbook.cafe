@@ -22,6 +22,8 @@ class Home extends Controller
         $forum_data = $Page->getForumData();
         $online_data = $Page->getOnlineData();
         $entries_data = $Page->getEntriesData();
+        $stream_data = $Page->getStreamData();
+        $top_data = $Page->getTopData();
 
         // View
         $this->view('sketchbookcafe/header');
@@ -32,6 +34,8 @@ class Home extends Controller
             'forum_data'    => &$forum_data,
             'online_data'   => &$online_data,
             'entries_data'  => &$entries_data,
+            'stream_data'   => &$stream_data,
+            'top_data'      => &$top_data,
         ]);
         $this->view('sketchbookcafe/footer');
 	}

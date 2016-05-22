@@ -1,6 +1,6 @@
 <?php
 // @author          Kameloh
-// @lastUpdated     2016-05-02
+// @lastUpdated     2016-05-22
 
 class Settings extends Controller
 {
@@ -9,6 +9,31 @@ class Settings extends Controller
     public function __construct(&$obj_array)
     {
         $this->obj_array = &$obj_array;
+    }
+
+    // Stream Settings
+    public function stream_edit()
+    {
+        $this->model('SettingsStreamSubmit',$this->obj_array);
+    }
+    public function stream()
+    {
+        // Model
+        $Page = $this->model('SettingsStreamPage',$this->obj_array);
+        $stream_data = $Page->getStreamData();
+
+        // Vars
+        $settings_page = 'stream';
+
+        // View
+        $this->view('sketchbookcafe/header');
+        $this->view('sketchbookcafe/settings_top', ['settings_page' => $settings_page,]);
+        $this->view('settings/stream',
+        [
+            'stream_data'   => &$stream_data,
+        ]);
+        $this->view('sketchbookcafe/settings_bottom');
+        $this->view('sketchbookcafe/footer');
     }
 
     // Main page

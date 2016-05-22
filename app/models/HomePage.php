@@ -14,14 +14,18 @@ class HomePage
     private $twitch_json = '';
     private $forum_data = [];
     private $online_data = [];
+    private $entries_data = [];
+
+    private $obj_array = [];
 
     // Construct
     public function __construct(&$obj_array)
     {
         // Initialize
-        $db         = &$obj_array['db'];
-        $User       = &$obj_array['User'];
-        $this->time = SBC::getTime();
+        $db                 = &$obj_array['db'];
+        $User               = &$obj_array['User'];
+        $this->time         = SBC::getTime();
+        $this->obj_array    = &$obj_array;
 
         // Open Connection
         $db->open();
@@ -46,6 +50,9 @@ class HomePage
         $OnlineList = new OnlineList($obj_array);
         $OnlineList->process();
         $this->online_data = $OnlineList->getOnlineListData();
+
+        // Fetch Recent Entries
+        $this->fetchRecentEntries($db);
 
         // Process Data
         $ProcessAllData = new ProcessAllData();
@@ -117,7 +124,7 @@ class HomePage
         require '../app/twitch_api_settings.php';
 
         $channelsApi = 'https://api.twitch.tv/kraken/streams/?channel=';
-        $channelName = 'kameloh,Johnlestudio,Shticky,Alarios711,journeyful,LOIZA0319,AkaNoBall,Furious_Spartan,Glumduk,SamanthaJoanneArt,SinixDesign,Mioree,CGlas,CreeseArt,PunArt,KillerNEN,adobe,Faebelina,LuenKulo,RissaRambles,Arucelli,fred04142,ElectroKittenz';
+        $channelName = 'kameloh,AustenMarie,Johnlestudio,Shticky,Alarios711,journeyful,LOIZA0319,AkaNoBall,Furious_Spartan,Glumduk,SamanthaJoanneArt,SinixDesign,Mioree,CGlas,CreeseArt,PunArt,KillerNEN,adobe,Faebelina,LuenKulo,RissaRambles,Arucelli,fred04142,ElectroKittenz';
         $clientId = $twitch_api_settings['client_id'];
         $ch = curl_init();
 
@@ -161,5 +168,47 @@ class HomePage
     final public function getOnlineData()
     {
         return $this->online_data;
+    }
+
+    // Fetch Recent Entries
+    final public function fetchRecentEntries(&$db)
+    {
+        $method = 'HomePage->fetchRecentEntries()';
+
+        // Initialize
+        $Images = &$this->obj_array['Images'];
+        $Member = &$this->obj_array['Member'];
+
+        // Switch
+        $db->sql_switch('sketchbookcafe');
+
+        // Get Recent Entries
+        $sql = 'SELECT id, image_id, user_id
+            FROM challenge_entries
+            WHERE ispending=0
+            AND isdeleted=0
+            ORDER BY id
+            DESC
+            LIMIT 25';
+        $result = $db->sql_query($sql);
+        $rownum = $db->sql_numrows($result);
+
+        // Add Images
+        $Images->idAddRows($result,'image_id');
+        $Member->idAddRows($result,'user_id');
+
+        $array = array
+        (
+            'result'    => &$result,
+            'rownum'    => &$rownum,
+        );
+
+        $this->entries_data = &$array;
+    }
+
+    // Get Entries Data
+    final public function getEntriesData()
+    {
+        return $this->entries_data;
     }
 }

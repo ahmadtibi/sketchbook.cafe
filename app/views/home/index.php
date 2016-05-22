@@ -1,8 +1,10 @@
 <?php
 // Set Arrays
 $online_data['rownum'] = 0;
+$entries_data['rownum'] = 0;
 
 // Initialize
+$entries_data   = &$data['entries_data'];
 $online_data    = &$data['online_data'];
 $forum_data     = &$data['forum_data'];
 $thread         = &$forum_data['thread'];
@@ -15,113 +17,7 @@ if (!empty($twitch_json))
 }
 $total_streams = count($twitch_array['streams']);
 ?>
-<style type="text/css">
-.streamers_wrap {
-    overflow: hidden;
-    margin-top: 15px;
-    margin-bottom: 15px;
-    margin-left: 15px;
-    margin-right: 15px;
 
-    -webkit-box-shadow: 0px 2px 5px 0px rgba(148,148,148,1);
-    -moz-box-shadow: 0px 2px 5px 0px rgba(148,148,148,1);
-    box-shadow: 0px 2px 5px 0px rgba(148,148,148,1);
-}
-.streamers_top_title {
-    font-weight: bold;
-    font-size: 18px;
-    padding-left: 15px;
-    padding-top: 5px;
-    color: #151515;
-    background-color: #FFFFFF;
-}
-.streamers_bottom_wrap {
-    padding-top: 10px;
-    padding-bottom: 15px;
-    padding-left: 15px;
-    padding-right: 15px;
-
-    overflow: hidden;
-    text-align: left;
-    font-size: 0px;
-
-    background-color: #FFFFFF;
-}
-.streamers_item_wrap {
-    margin-left: 5px;
-    margin-right: 5px;
-    margin-bottom: 10px;
-    display: inline-block;
-    overflow: hidden;
-    border: 1px solid #151515;
-
-    -webkit-box-shadow: 0px 0px 5px 0px rgba(214,214,214,1);
-    -moz-box-shadow: 0px 0px 5px 0px rgba(214,214,214,1);
-    box-shadow: 0px 0px 5px 0px rgba(214,214,214,1);
-}
-.streamers_item_wrap img {
-    max-width: 160px;
-}
-.streamers_item_displayname {
-    padding-left: 3px;
-    font-size: 13px;
-    text-align: left;
-    overflow: hidden;
-}
-.streamers_item_viewers {
-    padding-right: 3px;
-    float: right;
-    min-width: 25px;
-    overflow: hidden;
-    text-align: right;
-    font-size: 12px;
-}
-.streamers_item_bottom_wrap {
-    overflow: hidden;
-
-    background-color: #151515;
-    color: #FFFFFF;
-}
-</style>
-<?php
-if ($total_streams > 0)
-{
-?>
-<div class="streamers_wrap">
-    <div class="streamers_top_title">
-        Streaming Live
-    </div>
-    <div class="streamers_bottom_wrap">
-<?php
-    // List the streams
-    foreach ($twitch_array['streams'] as $stream)
-    {
-        // Make sure the streamer is on creative
-        if ($stream['game'] == 'Creative')
-        {
-?>
-        <a href="https://www.twitch.tv/<?php echo $stream['channel']['name'];?>/">
-            <div class="streamers_item_wrap">
-                <img src="<?php echo $stream['preview']['medium'];?>">
-                <div class="streamers_item_bottom_wrap">
-                    <div class="streamers_item_viewers">
-                        <?php echo $stream['viewers'];?> V
-                    </div>
-                    <div class="streamers_item_displayname">
-                        <?php echo $stream['channel']['display_name'];?>
-                    </div>
-                </div>
-            </div>
-        </a>
-<?php
-        }
-    }
-?>
-    </div>
-</div>
-<?php
-}
-?>
 
 <style type="text/css">
 .forum_avatar_mini {
@@ -415,6 +311,62 @@ mysqli_data_seek($forum_data['categories_result'],0);
 <!-- End Forum -->
 </div>
 
+
+
+<style type="text/css">
+.recent_entries_wrap {
+    margin-left: 15px;
+    margin-right: 15px;
+
+    background-color: #FFFFFF;
+}
+.recent_entries_title {
+    padding-left: 20px;
+    padding-top: 5px;
+    color: #151515;
+}
+.recent_entries_gallery_wrap {
+    padding-left: 10px;
+    padding-right: 10px;
+    text-align: center;
+    overflow: hidden;
+    font-size: 0px;
+    max-height: 360px;
+}
+</style>
+
+<!-- Start Entries -->
+<?php
+if ($entries_data['rownum'] > 0)
+{
+?>
+<div class="recent_entries_wrap">
+    <div class="recent_entries_title">
+        Recent Entries
+    </div>
+    <div class="recent_entries_gallery_wrap">
+<?php
+    while ($trow = mysqli_fetch_assoc($entries_data['result']))
+    {
+?>
+        <div class="challenge_thumbnail_div">
+            <span class="helper"></span>
+            <a href="https://www.sketchbook.cafe/entry/<?php echo $trow['id'];?>/">
+                <script>sbc_challenge_thumbnail(<?php echo $trow['image_id'];?>);</script>
+            </a>
+        </div>
+<?php
+    }
+?>
+    </div>
+</div>
+<?php
+}
+?>
+<!-- End Entries -->
+
+
+
 <style type="text/css">
 .onlinelist_wrap {
     overflow: hidden;
@@ -520,3 +472,114 @@ if ($online_data['rownum'] > 0)
     </div>
 </div>
 <!-- End Who's Online -->
+
+
+
+
+<style type="text/css">
+.streamers_wrap {
+    overflow: hidden;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    margin-left: 15px;
+    margin-right: 15px;
+
+    -webkit-box-shadow: 0px 2px 5px 0px rgba(148,148,148,1);
+    -moz-box-shadow: 0px 2px 5px 0px rgba(148,148,148,1);
+    box-shadow: 0px 2px 5px 0px rgba(148,148,148,1);
+}
+.streamers_top_title {
+    font-weight: bold;
+    font-size: 18px;
+    padding-left: 15px;
+    padding-top: 5px;
+    color: #151515;
+    background-color: #FFFFFF;
+}
+.streamers_bottom_wrap {
+    padding-top: 10px;
+    padding-bottom: 15px;
+    padding-left: 15px;
+    padding-right: 15px;
+
+    overflow: hidden;
+    text-align: left;
+    font-size: 0px;
+
+    background-color: #FFFFFF;
+}
+.streamers_item_wrap {
+    margin-left: 5px;
+    margin-right: 5px;
+    margin-bottom: 10px;
+    display: inline-block;
+    overflow: hidden;
+    border: 1px solid #151515;
+
+    -webkit-box-shadow: 0px 0px 5px 0px rgba(214,214,214,1);
+    -moz-box-shadow: 0px 0px 5px 0px rgba(214,214,214,1);
+    box-shadow: 0px 0px 5px 0px rgba(214,214,214,1);
+}
+.streamers_item_wrap img {
+    max-width: 160px;
+}
+.streamers_item_displayname {
+    padding-left: 3px;
+    font-size: 13px;
+    text-align: left;
+    overflow: hidden;
+}
+.streamers_item_viewers {
+    padding-right: 3px;
+    float: right;
+    min-width: 25px;
+    overflow: hidden;
+    text-align: right;
+    font-size: 12px;
+}
+.streamers_item_bottom_wrap {
+    overflow: hidden;
+
+    background-color: #151515;
+    color: #FFFFFF;
+}
+</style>
+<?php
+if ($total_streams > 0)
+{
+?>
+<div class="streamers_wrap">
+    <div class="streamers_top_title">
+        Streaming Live
+    </div>
+    <div class="streamers_bottom_wrap">
+<?php
+    // List the streams
+    foreach ($twitch_array['streams'] as $stream)
+    {
+        // Make sure the streamer is on creative
+        if ($stream['game'] == 'Creative')
+        {
+?>
+        <a href="https://www.twitch.tv/<?php echo $stream['channel']['name'];?>/">
+            <div class="streamers_item_wrap">
+                <img src="<?php echo $stream['preview']['medium'];?>">
+                <div class="streamers_item_bottom_wrap">
+                    <div class="streamers_item_viewers">
+                        <?php echo $stream['viewers'];?> V
+                    </div>
+                    <div class="streamers_item_displayname">
+                        <?php echo $stream['channel']['display_name'];?>
+                    </div>
+                </div>
+            </div>
+        </a>
+<?php
+        }
+    }
+?>
+    </div>
+</div>
+<?php
+}
+?>

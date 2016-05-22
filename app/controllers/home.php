@@ -1,6 +1,6 @@
 <?php
 // @author          Kameloh
-// @lastUpdated     2016-05-20
+// @lastUpdated     2016-05-21
 class Home extends Controller
 {
     protected $obj_array = '';
@@ -21,6 +21,7 @@ class Home extends Controller
         $twitch_json = $Page->getTwitchJSON();
         $forum_data = $Page->getForumData();
         $online_data = $Page->getOnlineData();
+        $entries_data = $Page->getEntriesData();
 
         // View
         $this->view('sketchbookcafe/header');
@@ -30,6 +31,7 @@ class Home extends Controller
             'twitch_json'   => &$twitch_json,
             'forum_data'    => &$forum_data,
             'online_data'   => &$online_data,
+            'entries_data'  => &$entries_data,
         ]);
         $this->view('sketchbookcafe/footer');
 	}
